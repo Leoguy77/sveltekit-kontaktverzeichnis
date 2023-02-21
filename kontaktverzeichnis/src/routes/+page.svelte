@@ -113,6 +113,9 @@
 
 
 <style>
+  p{
+    font-size: 14px;
+  }
   :global(td){
     padding: 0.5rem 0 0.5rem 0;
   }

@@ -123,7 +123,7 @@ export const actions = {
     })
 
     if(result.length > 0){
-      console.log(result)
+      // console.log(result)
       return{data: structuredClone(result)}
     }
     return{nodata: true}
