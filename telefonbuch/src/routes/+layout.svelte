@@ -3,7 +3,7 @@
 </script>
 
 <header>
-  <a href="/"><h2>Telefonbuch</h2></a>
+  <a href="/"><h2>Kontaktverzeichnis</h2></a>
   <div class="hd-btn">
     <ThemeSwitch dark="g100" light="white"/>
     <a href="/login">

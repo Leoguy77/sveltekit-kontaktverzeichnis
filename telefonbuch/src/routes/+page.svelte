@@ -37,7 +37,7 @@
   <form action="?/search" method="POST" use:enhance>
     <div class="search">
       {#if selectedIndex == 0}
-        <Search name="searchTxt" placeholder="Telefonbuch durchsuchen..."/>
+        <Search name="searchTxt" placeholder="Kontaktverzeichnis durchsuchen..."/>
         {:else}
         <Search name="searchTxt" placeholder="Abteilungen durchsuchen..."/>
       {/if}

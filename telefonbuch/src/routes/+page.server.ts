@@ -65,12 +65,14 @@ export const actions = {
         }
 
         let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, person.index)
-
+        console.log(person)
+        return null
         let data={
           similarity: similarity,
           type: "person",
           name: {name:`${name}${person.vorname} ${person.nachname}`,id: person.id},
           abteilungen: abteilungen,
+          standort: person.expand.standort.bezeichnung,
           telefonEintraege: telefonEintraege
         }
         result.push(data)
@@ -102,6 +104,7 @@ export const actions = {
           similarity: similarity,
           type: "ressource",
           name: {name:ressource.bezeichner,id: ressource.id},
+          // standort: ressource.expand.standort.bezeichnung,
           abteilungen: abteilungen,
           telefonEintraege: telefonEintraege
         }
