@@ -1,0 +1,11 @@
+{
+  "name": "sveltekit-telefonbuch",
+  "version": "0.1.0",
+  "description": "Ein Telefonbuch entwickelt mit SvelteKit und PocketBase",
+  "main": "install.js",
+  "scripts": {
+    "install": "node install.js"
+  },
+  "author": "marvint24",
+  "license": "MIT"
+}
