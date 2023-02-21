@@ -27,10 +27,10 @@ export const actions = {
     let [persons, ressources] = await Promise.all([
       pb.collection('person').getList(1, 40, {
       filter: filter,
-      expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"}),
+      expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"}),
       pb.collection('ressource').getList(1, 40, {
         filter: filter,
-        expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
+        expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
     ])
 
     function makeIterable(value: any): any{
@@ -64,15 +64,21 @@ export const actions = {
           }
         }
 
+        let standorte=[]
+        if(person.expand.standort){
+          for (let standort of makeIterable(person.expand.standort)) {
+            standorte.push({id:standort.id,bezeichnung:standort.bezeichnung})
+          }
+        }
+
         let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, person.index)
-        console.log(person)
-        return null
         let data={
           similarity: similarity,
           type: "person",
-          name: {name:`${name}${person.vorname} ${person.nachname}`,id: person.id},
+          id: person.id,
+          name: {name:`${name}${person.vorname} ${person.nachname}`,id: person.id,type:"person"},
           abteilungen: abteilungen,
-          standort: person.expand.standort.bezeichnung,
+          standort: standorte,
           telefonEintraege: telefonEintraege
         }
         result.push(data)
@@ -98,13 +104,20 @@ export const actions = {
           }
         }
 
-        let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, ressource.index)
+        let standorte=[]
+        if(ressource.expand.standort){
+          for (let standort of makeIterable(ressource.expand.standort)) {
+            standorte.push({id:standort.id,bezeichnung:standort.bezeichnung})
+          }
+        }
 
+        let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, ressource.index)
         let data={
           similarity: similarity,
           type: "ressource",
-          name: {name:ressource.bezeichner,id: ressource.id},
-          // standort: ressource.expand.standort.bezeichnung,
+          id: ressource.id,
+          name: {name:ressource.bezeichner,id: ressource.id,type:"ressource"},
+          standort: standorte,
           abteilungen: abteilungen,
           telefonEintraege: telefonEintraege
         }
