@@ -10,6 +10,8 @@
     Loading,
   } from "carbon-components-svelte"
 
+  import Contact from "../components/Contact.svelte";
+
   let selectedIndex: number
 
   export let form: any
@@ -31,10 +33,8 @@
   }
 
   function sortName(a:any,b:any){
-    console.log(a)
-    console.log(b)
-    if(a.name.name < b.name.name) { return -1 }
-    if(a.name.name > b.name.name) { return 1 }
+    if(a.name < b.name) { return -1 }
+    if(a.name > b.name) { return 1 }
     return 0
   }
 
@@ -73,7 +73,6 @@
             <DataTable
               sortable
               headers={[
-                // { key: "type", empty: true, sort: false,width: "" },
                 { key: "name", value: "Name", sort: (a, b) => sortName(a,b) },
                 { key: "standort", value: "Standort", sort: false },
                 { key: "abteilungen", value: "Abteilung", sort: false },
@@ -99,7 +98,7 @@
                     <p><Link href="/abteilung/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
                   {/each}
                 {:else if cell.key === "kontakt"}
-                  
+                  <Contact contact={cell.value} />
                 {/if}
               </svelte:fragment>
             </DataTable>

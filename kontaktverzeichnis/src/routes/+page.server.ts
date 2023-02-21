@@ -27,10 +27,10 @@ export const actions = {
     let [persons, ressources] = await Promise.all([
       pb.collection('person').getList(1, 40, {
       filter: filter,
-      expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"}),
+      expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort"}),
       pb.collection('ressource').getList(1, 40, {
         filter: filter,
-        expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
+        expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort"})
     ])
 
     function makeIterable(value: any): any{
@@ -40,6 +40,55 @@ export const actions = {
       return [value]
     }
 
+    function createCommonData(obj: any) {
+      let abteilungen=[]
+      if(obj.expand.abteilungen){
+        for (let abteilung of makeIterable(obj.expand.abteilungen)) {
+          abteilungen.push({id:abteilung.id,bezeichnung:abteilung.bezeichnung})
+        }
+      }
+      abteilungen.sort((a:any,b:any)=>{
+        if(a.bezeichnung < b.bezeichnung) { return -1; }
+        if(a.bezeichnung > b.bezeichnung) { return 1; }
+        return 0;
+      })
+
+      let telefonEintraege=[]
+      if(obj.expand.telefonEintraege){
+        for (let telefonEintrag of makeIterable(obj.expand.telefonEintraege)) {
+          telefonEintraege.push({id:telefonEintrag.id,
+            nummer:telefonEintrag.nummer,
+            eintragTyp:telefonEintrag.expand.eintragTyp.bezeichner,
+            standort:telefonEintrag.expand.standort.bezeichnung
+          })
+        }
+      }
+
+      let standorte=[]
+      if(obj.expand.standort){
+        for (let standort of makeIterable(obj.expand.standort)) {
+          standorte.push({id:standort.id,bezeichnung:standort.bezeichnung})
+        }
+      }
+      standorte.sort((a:any,b:any)=>{
+        if(a.bezeichnung < b.bezeichnung) { return -1; }
+        if(a.bezeichnung > b.bezeichnung) { return 1; }
+        return 0;
+      })
+
+      let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, obj.index)
+
+      let data={
+        similarity: similarity,
+        id: obj.id,
+        abteilungen: abteilungen,
+        standort: standorte,
+        kontakt:{telefonEintraege: telefonEintraege,email: obj.email}
+      }
+
+      return data
+    }
+
     let result=[]
 
     if(persons.items){
@@ -47,83 +96,31 @@ export const actions = {
         let name=""
         if(person.titel){name+=person.titel+" "}
 
-        let abteilungen=[]
-        if(person.expand.abteilungen){
-          for (let abteilung of makeIterable(person.expand.abteilungen)) {
-            abteilungen.push({id:abteilung.id,bezeichnung:abteilung.bezeichnung})
-          }
-        }
-
-        let telefonEintraege=[]
-        if(person.expand.telefonEintraege){
-          for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
-            telefonEintraege.push({id:telefonEintrag.id,
-              nummer:telefonEintrag.nummer,
-              eintragTyp:telefonEintrag.expand.eintragTyp.bezeichner
-            })
-          }
-        }
-
-        let standorte=[]
-        if(person.expand.standort){
-          for (let standort of makeIterable(person.expand.standort)) {
-            standorte.push({id:standort.id,bezeichnung:standort.bezeichnung})
-          }
-        }
-
-        let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, person.index)
-        let data={
-          similarity: similarity,
+        let data:any={
           type: "person",
-          id: person.id,
           name: {name:`${name}${person.vorname} ${person.nachname}`,id: person.id,type:"person"},
-          abteilungen: abteilungen,
-          standort: standorte,
-          telefonEintraege: telefonEintraege
         }
-        result.push(data)
+
+        result.push(Object.assign(data,createCommonData(person)))
       }
     }
 
     if(ressources.items){
       for (let ressource of makeIterable(ressources.items)){
-        let abteilungen=[]
-        if(ressource.expand.abteilungen){
-          for (let abteilung of makeIterable(ressource.expand.abteilungen)) {
-            abteilungen.push({id:abteilung.id,bezeichnung:abteilung.bezeichnung})
-          }
-        }
-
-        let telefonEintraege=[]
-        if(ressource.expand.telefonEintraege){
-          for (let telefonEintrag of makeIterable(ressource.expand.telefonEintraege)) {
-            telefonEintraege.push({id:telefonEintrag.id,
-              nummer:telefonEintrag.nummer,
-              eintragTyp:telefonEintrag.expand.eintragTyp.bezeichner
-            })
-          }
-        }
-
-        let standorte=[]
-        if(ressource.expand.standort){
-          for (let standort of makeIterable(ressource.expand.standort)) {
-            standorte.push({id:standort.id,bezeichnung:standort.bezeichnung})
-          }
-        }
-
-        let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, ressource.index)
-        let data={
-          similarity: similarity,
+        let data:any={
           type: "ressource",
-          id: ressource.id,
           name: {name:ressource.bezeichner,id: ressource.id,type:"ressource"},
-          standort: standorte,
-          abteilungen: abteilungen,
-          telefonEintraege: telefonEintraege
         }
-        result.push(data)
+
+        result.push(Object.assign(data,createCommonData(ressource)))
       }
     }
+
+    result.sort((a:any,b:any)=>{
+      if(a.similarity > b.similarity) { return -1; }
+      if(a.similarity < b.similarity) { return 1; }
+      return 0;
+    })
 
     if(result.length > 0){
       console.log(result)
