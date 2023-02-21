@@ -27,7 +27,13 @@ async function setPersonIndex(person: any){
   index+=ifNotEmpty(person["vorname"])
   index+=ifNotEmpty(person["nachname"])
   index+=ifNotEmpty(person["email"])
-  index+=ifNotEmpty(person["standort"])
+
+  if(person.expand.standort){
+    for (let standort of makeIterable(person.expand.standort)) {
+      index+=ifNotEmpty(standort["bezeichnung"])
+    }
+  }
+
   if(person.expand.telefonEintraege){
     for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
       index+=ifNotEmpty(telefonEintrag.expand.eintragTyp["bezeichner"])
@@ -50,6 +56,14 @@ async function setPersonIndex(person: any){
 async function setRessourceIndex(ressource:any){
   let index=""
   index+=ifNotEmpty(ressource["bezeichner"])
+  index+=ifNotEmpty(ressource["email"])
+
+  if(ressource.expand.standort){
+    for (let standort of makeIterable(ressource.expand.standort)) {
+      index+=ifNotEmpty(standort["bezeichnung"])
+    }
+  }
+
   if(ressource.expand.telefonEintraege){
     for (let telefonEintrag of makeIterable(ressource.expand.telefonEintraege)) {
       index+=ifNotEmpty(telefonEintrag.expand.eintragTyp["bezeichner"])
@@ -68,12 +82,12 @@ async function setRessourceIndex(ressource:any){
   await pb.collection('ressource').update(ressource.id, data)
 }
 
-const persons = await pb.collection('person').getFullList({expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
+const persons = await pb.collection('person').getFullList({expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
 for (let person of makeIterable(persons)) {
   setPersonIndex(person)
 }
 
-const ressources = await pb.collection('ressource').getFullList({expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
+const ressources = await pb.collection('ressource').getFullList({expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
 for (let ressource of makeIterable(ressources)) {
   setRessourceIndex(ressource)
 }
