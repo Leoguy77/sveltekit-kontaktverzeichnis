@@ -1,5 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms"
+  import AddIcon from "../components/AddIcon.svelte";
   import {
     ContentSwitcher,
     Switch,
@@ -8,6 +9,8 @@
     Link,
     DataTable,
     Loading,
+    OverflowMenu,
+    OverflowMenuItem
   } from "carbon-components-svelte"
 
   import Contact from "../components/Contact.svelte";
@@ -15,13 +18,8 @@
   let selectedIndex: number
 
   export let form: any
+  export let data: any
   let loading = false
-
-  $: if (form) {
-    // console.log(form.data)
-    // form.hi="joo"
-    // console.log(form)
-  }
 
   $: if (form?.data || form?.nodata) {
     loading = false
@@ -37,11 +35,6 @@
     if(a.name > b.name) { return 1 }
     return 0
   }
-
-  // $:{
-  //   console.log(data)
-  //   console.log(form)
-  // }
 </script>
 
 <div class="center-hd">
@@ -64,6 +57,14 @@
         <input type="hidden" name="searchModus" bind:value={selectedIndex} />
         <Button type="submit" on:click={search}>Suchen</Button>
       </div>
+      {#if data.user}
+      <div class="add">
+        <OverflowMenu icon="{AddIcon}">
+          <OverflowMenuItem text="Person"/>
+          <OverflowMenuItem text="Ressource"/>
+        </OverflowMenu>
+      </div>
+      {/if}
       <section class="dataTable">
         {#if loading}
           <Loading withOverlay={false} />
@@ -113,6 +114,22 @@
 
 
 <style>
+  @media all and (min-width: 955px){
+    .add{
+      position: absolute;
+      top: 213px;
+      left: calc(100% - 12rem);
+      margin-right: 3rem;
+      z-index: 10;
+    }
+  }
+
+  @media all and (max-width: 955px){
+    .add{
+      display: none;
+    }
+  }
+ 
   p{
     font-size: 14px;
   }
@@ -149,7 +166,6 @@
     flex-direction: column;
     margin-top: 3rem;
     align-items: center;
-    gap: 1rem;
   }
   :global(.bx--content-switcher-btn) {
     display: flex;

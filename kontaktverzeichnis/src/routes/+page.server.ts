@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 import stringSimilarity from 'string-similarity'
 
 export const actions = {
-	search: async ({ request, locals }:any) => {
+	search: async ({ request }:any) => {
     const body = Object.fromEntries(await request.formData())
 
     if (!body.searchTxt){
@@ -14,15 +14,12 @@ export const actions = {
     let filter=body.searchTxt.split(" ").map((word:string)=>`index ?~ "${word}"`).join(" || ")
 
     let pb
-    if (locals.pb.authStore.isValid){
-      pb=locals.pb
-    }else{
-      let env:any
-      env=dotenv.config({path: '../.env'})
+    let env:any
+    env=dotenv.config({path: '../.env'})
 
-      pb=new PocketBase('http://127.0.0.1:8090')
-      await pb.collection('users').authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
-    }
+    pb=new PocketBase('http://127.0.0.1:8090')
+    await pb.collection('users').authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
+    
     
     let [persons, ressources] = await Promise.all([
       pb.collection('person').getList(1, 40, {
