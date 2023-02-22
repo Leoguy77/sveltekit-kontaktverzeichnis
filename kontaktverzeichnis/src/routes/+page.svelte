@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms"
-  import AddIcon from '$lib/components/AddIcon.svelte'
+  import AddIcon from '$lib/icons/AddIcon.svelte'
   import {
     ContentSwitcher,
     Switch,
@@ -13,7 +13,7 @@
     OverflowMenuItem
   } from "carbon-components-svelte"
 
-  import Contact from "$lib/components/Contact.svelte";
+  import Contact from "$lib/components/start/Contact.svelte";
 
   let selectedIndex: number
 
@@ -58,12 +58,18 @@
         <Button type="submit" on:click={search}>Suchen</Button>
       </div>
       {#if data.user}
-      <div class="add">
-        <OverflowMenu icon="{AddIcon}">
-          <OverflowMenuItem href="/person/new" text="Person"/>
-          <OverflowMenuItem href="/person/new" text="Ressource"/>
-        </OverflowMenu>
-      </div>
+        {#if selectedIndex === 0}
+          <div class="add">
+            <OverflowMenu icon="{AddIcon}">
+              <OverflowMenuItem href="/person/new" text="Person"/>
+              <OverflowMenuItem href="/ressource/new" text="Ressource"/>
+            </OverflowMenu>
+          </div>
+        {:else if selectedIndex === 1}
+          <div class="add2">
+            <a href="/abteilung/new"><AddIcon/></a>  
+          </div>
+        {/if}
       {/if}
       <section class="dataTable">
         {#if loading}
@@ -122,10 +128,20 @@
       margin-right: 3rem;
       z-index: 10;
     }
+    .add2{
+      position: absolute;
+      top: 223px;
+      left: calc(100% - 12rem + 10px);
+      margin-right: 3rem;
+      z-index: 10;
+    }
   }
 
   @media all and (max-width: 955px){
     .add{
+      display: none;
+    }
+    .add2{
       display: none;
     }
   }

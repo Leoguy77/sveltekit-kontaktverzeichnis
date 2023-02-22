@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms"
-  import AddIcon from '$lib/components/AddIcon.svelte'
+  import AddIcon from '$lib/icons/AddIcon.svelte'
   import {
     ContentSwitcher,
     Switch,
@@ -12,27 +12,15 @@
     OverflowMenu,
     OverflowMenuItem
   } from "carbon-components-svelte"
+  import Person from "$lib/components/Person.svelte";
 
-  let selectedIndex: number
+
 
   export let form: any
   export let data: any
-  let loading = false
 
-  $: if (form?.data || form?.nodata) {
-    loading = false
-  }
 
-  function search() {
-    loading = true
-    form = null
-  }
 
-  function sortName(a:any,b:any){
-    if(a.name < b.name) { return -1 }
-    if(a.name > b.name) { return 1 }
-    return 0
-  }
 </script>
 
 <div class="center-hd">
