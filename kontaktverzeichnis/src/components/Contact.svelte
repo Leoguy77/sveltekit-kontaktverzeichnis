@@ -58,7 +58,7 @@
   {/if}
   {#if contact.email}
     <div class="mail">
-      <svg xmlns:xlink="http://www.w3.org/1999/xlink" fill="none" width="13" xmlns="http://www.w3.org/2000/svg" style="-webkit-print-color-adjust:exact" id="screenshot-d441c74e-78b6-80d7-8002-1040a7defb21" version="1.1" viewBox="1026 436.75 14 10.5" height="10.5"> <g id="shape-d441c74e-78b6-80d7-8002-1040a7defb21"> <g class="fills" id="fills-d441c74e-78b6-80d7-8002-1040a7defb21"> <path rx="0" ry="0" style="fill:#f4f4f4;fill-opacity:1" d="M1026.044,438.111C1026.225,437.315,1026.933,436.750,1027.750,436.750L1038.250,436.750C1039.067,436.750,1039.775,437.315,1039.956,438.111L1033.000,442.362L1026.044,438.111ZZM1026.000,439.110L1026.000,445.326L1031.078,442.213L1026.000,439.110ZZM1031.916,442.726L1026.167,446.250C1026.457,446.861,1027.073,447.251,1027.750,447.250L1038.250,447.250C1038.926,447.250,1039.542,446.860,1039.832,446.249L1034.083,442.725L1033.000,443.388L1031.916,442.726ZZM1034.922,442.214L1040.000,445.326L1040.000,439.110L1034.922,442.214ZZ"> </path> </g> </g> </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" fill="currentColor" class="bi bi-envelope-fill" viewBox="0 0 16 16"> <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/> </svg>
       <Link href="mailto:{contact.email}">{contact.email}</Link>
     </div>
   {/if}
