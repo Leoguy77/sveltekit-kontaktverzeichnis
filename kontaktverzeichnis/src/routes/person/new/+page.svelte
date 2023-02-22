@@ -12,20 +12,21 @@
     OverflowMenu,
     OverflowMenuItem
   } from "carbon-components-svelte"
-  import Person from "$lib/components/Person.svelte";
 
 
+
+  import Person from "$lib/components/person/Person.svelte";
 
   export let form: any
   export let data: any
 
+  let personData = {}
 
 
 </script>
 
-<div class="center-hd">
+<Person bind:personData={personData} />
 
-</div>
 
 
 <!-- <style>
