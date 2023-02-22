@@ -18,7 +18,7 @@
 <slot />
 
 <style>
-  a{
+  .hd-btn>a,header>a{
     color: var(--cds-text-01);
     text-decoration: none;
   }
