@@ -1,4 +1,3 @@
-import { error, redirect } from '@sveltejs/kit'
 import PocketBase from 'pocketbase';
 import dotenv from 'dotenv'
 import stringSimilarity from 'string-similarity'

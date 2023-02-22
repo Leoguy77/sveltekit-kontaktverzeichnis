@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms"
-  import AddIcon from "../components/AddIcon.svelte";
+  import AddIcon from '$lib/components/AddIcon.svelte'
   import {
     ContentSwitcher,
     Switch,
@@ -13,7 +13,7 @@
     OverflowMenuItem
   } from "carbon-components-svelte"
 
-  import Contact from "../components/Contact.svelte";
+  import Contact from "$lib/components/Contact.svelte";
 
   let selectedIndex: number
 
@@ -60,8 +60,8 @@
       {#if data.user}
       <div class="add">
         <OverflowMenu icon="{AddIcon}">
-          <OverflowMenuItem text="Person"/>
-          <OverflowMenuItem text="Ressource"/>
+          <OverflowMenuItem href="/person/new" text="Person"/>
+          <OverflowMenuItem href="/person/new" text="Ressource"/>
         </OverflowMenu>
       </div>
       {/if}
@@ -88,7 +88,7 @@
                       {:else}
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"><path fill="currentColor" d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z"/><path fill="currentColor" d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z"/></svg>
                     {/if}
-                    <Link style="margin-left:1rem" href="/{cell.value.type}/{cell.value.id}">{cell.value.name}</Link>
+                    <Link style="margin-left:1rem" href="/{cell.value.type}/id/{cell.value.id}">{cell.value.name}</Link>
                   </div>
                 {:else if cell.key === "standort"}
                   {#each cell.value as standort (standort.id)}
@@ -96,7 +96,7 @@
                   {/each}
                 {:else if cell.key === "abteilungen"}
                   {#each cell.value as abteilung (abteilung.id)}
-                    <p><Link href="/abteilung/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
+                    <p><Link href="/abteilung/id/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
                   {/each}
                 {:else if cell.key === "kontakt"}
                   <Contact contact={cell.value} />

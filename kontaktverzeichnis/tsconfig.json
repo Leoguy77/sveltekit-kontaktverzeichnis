@@ -19,5 +19,6 @@
   },
   "lib": [
     "es5", "es6", "dom", "dom.iterable"
-  ]
+  ],
+  "extends": "./.svelte-kit/tsconfig.json",
 }

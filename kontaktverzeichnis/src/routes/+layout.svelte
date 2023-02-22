@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ThemeSwitch from "../components/ThemeSwitch.svelte"
+  import ThemeSwitch from "$lib/components/ThemeSwitch.svelte"
 </script>
 
 <header>
