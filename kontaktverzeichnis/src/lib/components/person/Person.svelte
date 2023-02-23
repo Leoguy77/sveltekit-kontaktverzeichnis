@@ -20,6 +20,8 @@
     }
     name+=data.person.vorname+" "+data.person.nachname
   }
+
+  console.log(data)
   
 </script>
 
