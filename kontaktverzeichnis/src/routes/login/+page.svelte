@@ -8,6 +8,10 @@
   import { enhance } from "$app/forms"
   export let data: any
   export let form: any
+  import { page } from '$app/stores'
+
+  let previousPage=$page.url.searchParams.get("lastPage")
+
 </script>
 
 <div class="middle">
@@ -23,6 +27,8 @@
         name="password"
         labelText="Password"
         placeholder="mySecretPassword" />
+      
+      <input type="hidden" name="previousPage" value={previousPage} />
 
       <Button type="submit">Login</Button>
       {#if form?.error}

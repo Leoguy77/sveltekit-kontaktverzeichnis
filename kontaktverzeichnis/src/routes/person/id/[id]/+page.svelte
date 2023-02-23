@@ -22,7 +22,11 @@
 
 </script>
 <section>
-  <Person edit={true} bind:data={data} />
+  {#if data.user}
+    <Person edit={true} bind:data={data} />
+    {:else}
+    <Person edit={false} bind:data={data} />
+  {/if}
 </section>
 
 

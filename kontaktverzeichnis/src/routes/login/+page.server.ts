@@ -16,7 +16,7 @@ export const actions = {
 			}
 		}
 		if (forward){
-			throw redirect(303, '/')
+			throw redirect(303, body.previousPage)
 		}
 	},
 	logout: async ({ locals }:any) => {

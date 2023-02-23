@@ -21,7 +21,7 @@
     name+=data.person.vorname+" "+data.person.nachname
   }
 
-  console.log(data)
+  // console.log(data)
   
 </script>
 
@@ -41,10 +41,12 @@
     <div class="line">
       <Combofield labelText="E-Mail" value={data.person.email} />
     </div>
-    <!-- {#if data.person.expand}
-    <div class="line">
-
-    </div> -->
+    {#if data.person.expand.secureData}
+      <div class="line">
+        <Combofield labelText="Personalnummer" value={data.person.expand.secureData.personalNummer} />
+        <Combofield labelText="Kostenstelle" value={data.person.expand.secureData.kostenstelle} />
+      </div>
+    {/if}
   </Tile>
   <Tile light></Tile>
   <Tile light>Content</Tile>
