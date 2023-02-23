@@ -18,7 +18,7 @@
 
   let name:string
   $:{
-    if(data.person.titel){
+    if(data.person.titel!=undefined){
     name=data.person.titel+" "
     }
     name+=data.person.vorname+" "+data.person.nachname
