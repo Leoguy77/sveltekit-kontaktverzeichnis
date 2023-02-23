@@ -4,6 +4,7 @@
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import { enhance } from "$app/forms"
+  import Number from "$lib/components/start/Number.svelte"
   export let data: any
   export let form: any
   export let edit: boolean
@@ -15,7 +16,6 @@
     Combofield=TextField
   }
 
-  
   let name:string
   $:{
     if(data.person.titel){
@@ -28,6 +28,21 @@
   function resetForm(){
     form=null
   }
+
+  let telefonEintraege:any = []
+  for (let eintrag of data.person.expand.telefonEintraege) {
+    let standort=eintrag.expand.standort.bezeichnung
+    if (telefonEintraege[standort]){
+      console.log(eintrag);
+      eintrag.typ=eintrag.expand.eintragTyp.bezeichner
+      telefonEintraege[standort].push(eintrag)
+    }else{
+      eintrag.typ=eintrag.expand.eintragTyp.bezeichner
+      telefonEintraege[standort]=[eintrag]
+    }
+  }
+
+  console.log(telefonEintraege)
 </script>
 
 
@@ -83,7 +98,14 @@
   </Tile>
   <Tile light>
     <h4 class="category">Telefon</h4>
-    
+    {#each Object.keys(telefonEintraege) as standort}
+      <div class="company">
+        <p>{standort}:</p>
+        {#each telefonEintraege[standort] as number}
+          <Number open={1} showType={true} telefonEintrag={number}/>
+        {/each}
+      </div>
+    {/each}
   </Tile>
   <Tile light>
     <h4 class="category">Abteilung</h4>
@@ -95,6 +117,9 @@
 
 
 <style>
+.company{
+  margin-bottom: 1rem;
+}
 .toast{
   position: absolute;
   top: 1rem;

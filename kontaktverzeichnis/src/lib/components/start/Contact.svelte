@@ -33,7 +33,7 @@
       <p>{standort.standort}:</p>
       <div class="line">
         {#each standort.items as eintrag}
-          <Number telefonEintrag={eintrag} />
+          <Number open={0} showType={false} telefonEintrag={eintrag} />
         {/each}
         {#if standort.count > numberLimit}
           <div class="center">
@@ -46,7 +46,7 @@
     {#each telefonDataArr as standort}
       <div class="line">
         {#each standort.items as eintrag}
-          <Number telefonEintrag={eintrag} />
+          <Number open={0} showType={false} telefonEintrag={eintrag} />
         {/each}
         {#if standort.count > numberLimit}
           <div class="center">
