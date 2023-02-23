@@ -20,19 +20,16 @@
   export let form: any
   export let data: any
 
-  let personData = {}
-
-
 </script>
 <section>
-  <Person edit={true} bind:data={data} bind:personData={personData} />
+  <Person edit={true} bind:data={data} />
 </section>
 
 
 
 <style>
   section{
-    margin-top: 2rem;
+    margin: 2rem 2rem 0 2rem;
   }
   .center{
     display: flex;

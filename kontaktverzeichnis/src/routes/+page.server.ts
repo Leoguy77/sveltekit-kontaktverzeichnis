@@ -1,6 +1,5 @@
-import PocketBase from 'pocketbase';
-import dotenv from 'dotenv'
 import stringSimilarity from 'string-similarity'
+import {getPublicPB} from '$lib/scripts/getDotEnv.js'
 
 export const actions = {
 	search: async ({ request }:any) => {
@@ -12,14 +11,10 @@ export const actions = {
 
     let filter=body.searchTxt.split(" ").map((word:string)=>`index ?~ "${word}"`).join(" || ")
 
-    let pb
-    let env:any
-    env=dotenv.config({path: '../.env'})
+    let pb:any
+    pb=await getPublicPB()
+    
 
-    pb=new PocketBase('http://127.0.0.1:8090')
-    await pb.collection('users').authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
-    
-    
     let [persons, ressources] = await Promise.all([
       pb.collection('person').getList(1, 40, {
       filter: filter,
