@@ -149,8 +149,8 @@
   p{
     font-size: 14px;
   }
-  :global(td){
-    padding: 0.5rem 0 0.5rem 0;
+  :global(.bx--data-table>tbody>tr>td){
+    padding: 0.5rem 16px 0.5rem 16px;
   }
   .center{
     display: flex;

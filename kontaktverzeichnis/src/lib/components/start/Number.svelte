@@ -1,8 +1,6 @@
 <script lang="ts">
   import {Link} from "carbon-components-svelte";
   export let telefonEintrag: any
-  export let showType: boolean
-  export let open:number
 </script>
 
 <div class="center">
@@ -15,28 +13,14 @@
   {:else if telefonEintrag.typ === "DECT"}
     <svg xmlns="http://www.w3.org/2000/svg" width="13" viewBox="0 0 13 14"><path fill="currentColor" d="M10 2v-.5a.5.5 0 0 0-1 0V2H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1ZM6 13H5v-1h1Zm0-2H5v-1h1Zm0-2H5V8h1Zm2 4H7v-1h1Zm0-2H7v-1h1Zm0-2H7V8h1Zm2 4H9v-1h1Zm0-2H9v-1h1Zm0-2H9V8h1Zm0-2.5a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5v-3a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5Z"/></svg>
   {/if}
-  {#if showType}
-    <p class="type">{telefonEintrag.typ}</p>
-  {/if}
-  {#if open===0}
-    <div class="p">
-      <Link href="tel:{telefonEintrag.nummer}">{telefonEintrag.nummer}</Link>
-    </div>
-  {:else if open===1}
   <div class="p">
-    <p>{telefonEintrag.nummer}</p>
+    <Link href="tel:{telefonEintrag.nummer}">{telefonEintrag.nummer}</Link>
   </div>
-  {/if}
-  
-    
   
 </div>
 
 
 <style>
-.type{
-  margin-left: 0.5rem;
-}
 .p{
   margin-left: 0.5rem;
 }
