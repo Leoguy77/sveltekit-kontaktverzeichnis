@@ -1,11 +1,14 @@
 <script lang="ts">
   // export let personData: any
   import {Tile,TextInput,ToastNotification} from "carbon-components-svelte"
+  import { goto } from '$app/navigation'
+  import { page } from '$app/stores'
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
+  import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
   import { enhance } from "$app/forms"
   import NumberTable from "./NumberTable.svelte"
-  import Number from "$lib/components/start/Number.svelte"
+
   export let data: any
   export let form: any
   export let edit: boolean
@@ -25,18 +28,19 @@
     name+=data.person.vorname+" "+data.person.nachname
   }
 
-  // console.log(data)
   function resetForm(){
     form=null
   }
 
   let telefonEintraege:any = []
-  for (let eintrag of data.person.expand.telefonEintraege) {
-    let standort=eintrag.expand.standort.bezeichnung
-    if (telefonEintraege[standort]){
-      telefonEintraege[standort].push(eintrag)
-    }else{
-      telefonEintraege[standort]=[eintrag]
+  if(data.person.expand.telefonEintraege){
+    for (let eintrag of data?.person?.expand?.telefonEintraege) {
+      let standort=eintrag.expand.standort.bezeichnung
+      if (telefonEintraege[standort]){
+        telefonEintraege[standort].push(eintrag)
+      }else{
+        telefonEintraege[standort]=[eintrag]
+      }
     }
   }
 
@@ -97,7 +101,21 @@
     <h4 class="category">Telefon</h4>
     {#each Object.keys(telefonEintraege) as standort}
       <div class="company">
-        <NumberTable data={telefonEintraege[standort]} standort={standort}/>
+        <p>{standort}:</p>
+        <table>
+          {#each telefonEintraege[standort] as number}
+            <NumberTable number={number}>
+              {#if edit}
+              <form class="delNumber" action="?/delNumber" method="POST" >
+                <label on:click={resetForm} on:keydown>
+                  <input type="submit" class="hidden" name="data" value="{number.id}"/>
+                  <DeleteIcon size={14} />
+                </label>
+              </form>
+              {/if}
+            </NumberTable>
+          {/each}
+        </table>
       </div>
     {/each}
   </Tile>
@@ -111,6 +129,9 @@
 
 
 <style>
+.delNumber{
+  margin-left: 1rem;
+}
 .company{
   margin-bottom: 1rem;
 }

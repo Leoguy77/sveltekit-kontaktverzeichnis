@@ -2,17 +2,34 @@ import { error, redirect } from '@sveltejs/kit'
 import {getDotEnv} from '$lib/scripts/pb.js'
 import PocketBase from 'pocketbase'
 
-
 export const actions = {
 	savePerson: async ({ request,locals }:any) => {
     try{
       const body = Object.fromEntries(await request.formData())
       let data=JSON.parse(body.data)
+      let submitData={
+        titel: data.titel,
+        vorname: data.vorname,
+        nachname: data.nachname,
+        email: data.email
+      }
       let pb=locals.pb
-      await pb.collection('person').update(data.id, data)
+      await pb.collection('person').update(data.id, submitData)
       await pb.collection('secureData').update(data.expand.secureData.id, data.expand.secureData)
       return {success:true}
     }catch {
+      return {error: "Internal Server Error"}
+    }
+  },
+
+  delNumber: async ({ request,locals }:any) => {
+    try{
+      const body = Object.fromEntries(await request.formData())
+      let id=body.data
+      let pb=locals.pb
+      // await pb.collection('telefonEintrag').delete(id)
+      return {success:true}
+    }catch{   
       return {error: "Internal Server Error"}
     }
   }
