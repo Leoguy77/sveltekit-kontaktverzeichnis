@@ -17,9 +17,13 @@
 
   import Person from "$lib/components/person/Person.svelte";
 
-  console.log("loaded")
   export let form: any
   export let data: any
+
+  // $:{
+  //   console.log(data.person.expand.telefonEintraege)
+  // }
+
 
   // $:if (form?.success){
   //   reload()
@@ -32,7 +36,7 @@
 
 </script>
 <section>
-  {#if data.user}
+  {#if data?.user}
     <svelte:component this={Person} bind:form={form} edit={true} bind:data={data}/>
   {:else}
     <svelte:component this={Person} bind:form={form} edit={false} bind:data={data}/>

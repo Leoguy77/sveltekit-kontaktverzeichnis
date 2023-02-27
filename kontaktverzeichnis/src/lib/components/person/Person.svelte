@@ -7,7 +7,7 @@
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
   import { enhance } from "$app/forms"
-  import NumberTable from "../../../routes/person/id/[id]/NumberTable.svelte"
+  import NumberTable from "./NumberTable.svelte"
 
   export let data: any
   export let form: any
@@ -28,20 +28,36 @@
     name+=data.person.vorname+" "+data.person.nachname
   }
 
-  function resetForm(){
-    form=null
+  let telefonEintraege:any = []
+
+  function getTelefonEintraege(){
+    let telefonEintraege:any = []
+    if(data.person.expand.telefonEintraege){
+      for (let eintrag of data?.person?.expand?.telefonEintraege) {
+        let standort=eintrag.expand.standort.bezeichnung
+        if (telefonEintraege[standort]){
+          telefonEintraege[standort].push(eintrag)
+        }else{
+          telefonEintraege[standort]=[eintrag]
+        }
+      }
+      return telefonEintraege
+    }
+  }   
+
+  $:if (data.person.expand.telefonEintraege){
+    telefonEintraege=getTelefonEintraege()
   }
 
-  let telefonEintraege:any = []
-  if(data.person.expand.telefonEintraege){
-    for (let eintrag of data?.person?.expand?.telefonEintraege) {
-      let standort=eintrag.expand.standort.bezeichnung
-      if (telefonEintraege[standort]){
-        telefonEintraege[standort].push(eintrag)
-      }else{
-        telefonEintraege[standort]=[eintrag]
-      }
-    }
+  function resetValues(){
+    // console.log(telefonEintraege)
+    // data=null
+    // telefonEintraege=[]
+  }
+
+  function resetForm(){
+    form=null
+    resetValues()
   }
 
 </script>
@@ -98,26 +114,26 @@
     {/if}
   </Tile>
   <Tile light>
-    <h4 class="category">Telefon</h4>
-    {#each Object.keys(telefonEintraege) as standort}
-      <div class="company">
-        <p>{standort}:</p>
-        <table>
-          {#each telefonEintraege[standort] as number}
-            <NumberTable number={number}>
-              {#if edit}
-              <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
-                <label on:click={resetForm} on:keydown>
-                  <input type="submit" class="hidden" name="data" value="{number.id}"/>
-                  <DeleteIcon size={14} />
-                </label>
-              </form>
-              {/if}
-            </NumberTable>
-          {/each}
-        </table>
-      </div>
-    {/each}
+      <h4 class="category">Telefon</h4>
+      {#each Object.keys(telefonEintraege) as standort}
+        <div class="company">
+          <p>{standort}:</p>
+          <table>
+            {#each telefonEintraege[standort] as number}
+              <NumberTable number={number}>
+                {#if edit}
+                <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
+                  <label on:click={resetForm} on:keydown>
+                    <input type="submit" class="hidden" name="data" value="{number.id}"/>
+                    <DeleteIcon size={14} />
+                  </label>
+                </form>
+                {/if}
+              </NumberTable>
+            {/each}
+          </table>
+        </div>
+      {/each}
   </Tile>
   <Tile light>
     <h4 class="category">Abteilung</h4>

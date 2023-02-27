@@ -27,7 +27,7 @@ export const actions = {
       const body = Object.fromEntries(await request.formData())
       let id=body.data
       let pb=locals.pb
-      // await pb.collection('telefonEintrag').delete(id)
+      await pb.collection('telefonEintrag').delete(id)
       return {success:true}
     }catch{   
       return {error: "Internal Server Error"}
@@ -38,6 +38,7 @@ export const actions = {
 
 export const load = async ({locals,params}:any) => {
   let pb:any
+  console.log("dfggfdfgddfg")
 
   if(!locals.pb.authStore.isValid){
     let env:any
