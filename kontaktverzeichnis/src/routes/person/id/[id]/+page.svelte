@@ -33,9 +33,9 @@
 </script>
 <section>
   {#if data.user}
-    <Person bind:form={form} edit={true} bind:data={data} />
-    {:else}
-    <Person bind:form={form} edit={false} bind:data={data} />
+    <svelte:component this={Person} bind:form={form} edit={true} bind:data={data}/>
+  {:else}
+    <svelte:component this={Person} bind:form={form} edit={false} bind:data={data}/>
   {/if}
 </section>
 

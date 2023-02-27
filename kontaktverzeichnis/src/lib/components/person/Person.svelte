@@ -7,7 +7,7 @@
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
   import { enhance } from "$app/forms"
-  import NumberTable from "./NumberTable.svelte"
+  import NumberTable from "../../../routes/person/id/[id]/NumberTable.svelte"
 
   export let data: any
   export let form: any
@@ -106,7 +106,7 @@
           {#each telefonEintraege[standort] as number}
             <NumberTable number={number}>
               {#if edit}
-              <form class="delNumber" action="?/delNumber" method="POST" >
+              <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
                 <label on:click={resetForm} on:keydown>
                   <input type="submit" class="hidden" name="data" value="{number.id}"/>
                   <DeleteIcon size={14} />
