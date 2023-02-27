@@ -1,8 +1,5 @@
 <script lang="ts">
-  // export let personData: any
   import {Tile,TextInput,ToastNotification} from "carbon-components-svelte"
-  import { goto } from '$app/navigation'
-  import { page } from '$app/stores'
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
@@ -49,15 +46,8 @@
     telefonEintraege=getTelefonEintraege()
   }
 
-  function resetValues(){
-    // console.log(telefonEintraege)
-    // data=null
-    // telefonEintraege=[]
-  }
-
   function resetForm(){
     form=null
-    resetValues()
   }
 
 </script>

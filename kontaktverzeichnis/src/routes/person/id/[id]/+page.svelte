@@ -1,38 +1,9 @@
 <script lang="ts">
-  import { enhance } from "$app/forms"
-  import AddIcon from '$lib/icons/AddIcon.svelte'
-  import {
-    ContentSwitcher,
-    Switch,
-    Search,
-    Button,
-    Link,
-    DataTable,
-    Loading,
-    OverflowMenu,
-    OverflowMenuItem
-  } from "carbon-components-svelte"
-  import { invalidateAll } from '$app/navigation';
-
-
   import Person from "$lib/components/person/Person.svelte";
 
   export let form: any
   export let data: any
 
-  // $:{
-  //   console.log(data.person.expand.telefonEintraege)
-  // }
-
-
-  // $:if (form?.success){
-  //   reload()
-  //   console.log("success")
-  // }
-
-  // async function reload(){
-  //   await invalidateAll()
-  // }
 
 </script>
 <section>

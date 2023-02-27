@@ -38,7 +38,6 @@ export const actions = {
 
 export const load = async ({locals,params}:any) => {
   let pb:any
-  console.log("dfggfdfgddfg")
 
   if(!locals.pb.authStore.isValid){
     let env:any
