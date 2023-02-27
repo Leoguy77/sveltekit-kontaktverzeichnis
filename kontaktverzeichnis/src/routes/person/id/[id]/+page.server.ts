@@ -14,8 +14,9 @@ export const actions = {
         email: data.email
       }
       let pb=locals.pb
-      await pb.collection('person').update(data.id, submitData)
-      await pb.collection('secureData').update(data.expand.secureData.id, data.expand.secureData)
+      let person=pb.collection('person').update(data.id, submitData)
+      let secureData=pb.collection('secureData').update(data.expand.secureData.id, data.expand.secureData)
+      await Promise.all([person,secureData])
       return {success:true}
     }catch {
       return {error: "Internal Server Error"}
@@ -28,6 +29,32 @@ export const actions = {
       let id=body.data
       let pb=locals.pb
       await pb.collection('telefonEintrag').delete(id)
+      return {success:true}
+    }catch{   
+      return {error: "Internal Server Error"}
+    }
+  },
+
+  addNumber: async ({ request,locals,params }:any) => {
+    try{
+      const body = Object.fromEntries(await request.formData())
+      let pb=locals.pb
+
+      const data = {
+        "eintragTyp": body.eintragTyp,
+        "nummer": body.number,
+        "standort": body.standort
+      }
+      let telEintrag=pb.collection('telefonEintrag').create(data)
+      let person=pb.collection('person').getOne(params.id)
+    
+      let res=await Promise.all([person,telEintrag])
+
+      let telefonEintraege=res[0].telefonEintraege
+      telefonEintraege.push(res[1].id)
+      
+      await pb.collection('person').update(params.id,{telefonEintraege:telefonEintraege} )
+      
       return {success:true}
     }catch{   
       return {error: "Internal Server Error"}

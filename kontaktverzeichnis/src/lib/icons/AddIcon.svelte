@@ -4,4 +4,7 @@
   .yellow{
     color: var(--cds-support-03);
   }
+  .yellow:hover{
+    cursor: pointer;
+  }
 </style>

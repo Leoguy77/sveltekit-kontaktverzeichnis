@@ -3,8 +3,15 @@
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
+  import AddIcon from '$lib/icons/AddIcon.svelte'
   import { enhance } from "$app/forms"
   import NumberTable from "./NumberTable.svelte"
+  import AddNumber from "./AddNumber.svelte"
+
+  let popups:any={
+    "AddNumber":AddNumber,
+  }
+  let popup:string=""
 
   export let data: any
   export let form: any
@@ -70,20 +77,24 @@
   />
 </div>
 {/if}
+
+{#if popup}
+  <svelte:component this={popups[popup]} bind:popup={popup} bind:form={form}/>
+{/if}
 <div class="line">
   <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"> <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /> <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" /> </svg>
   <h2>{name}</h2>
 </div>
 <div class="grid">
-  {#if edit}
-    <form class="g1-accept" action="?/savePerson" method="POST" use:enhance>
-      <label on:click={resetForm} on:keydown>
-        <input type="submit" class="hidden" name="data" value="{JSON.stringify(data.person)}"/>
-        <AcceptIcon />
-      </label>
-    </form>
-  {/if}
   <Tile light>
+    {#if edit}
+      <form class="top-right-button" action="?/savePerson" method="POST" use:enhance>
+        <label on:click={resetForm} on:keydown>
+          <input type="submit" class="hidden" name="data" value="{JSON.stringify(data.person)}"/>
+          <AcceptIcon />
+        </label>
+      </form>
+    {/if}
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
       <Combofield labelText="Titel"  bind:value={data.person.titel} />
@@ -104,31 +115,47 @@
     {/if}
   </Tile>
   <Tile light>
-      <h4 class="category">Telefon</h4>
-      {#each Object.keys(telefonEintraege) as standort}
-        <div class="company">
-          <p>{standort}:</p>
-          <table>
-            {#each telefonEintraege[standort] as number}
-              <NumberTable number={number}>
-                {#if edit}
-                <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
-                  <label on:click={resetForm} on:keydown>
-                    <input type="submit" class="hidden" name="data" value="{number.id}"/>
-                    <DeleteIcon size={14} />
-                  </label>
-                </form>
-                {/if}
-              </NumberTable>
-            {/each}
-          </table>
-        </div>
-      {/each}
+    {#if edit}
+      <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
+          <AddIcon />
+      </div>
+    {/if}
+    <h4 class="category">Telefon</h4>
+    {#each Object.keys(telefonEintraege) as standort}
+      <div class="company">
+        <p>{standort}:</p>
+        <table>
+          {#each telefonEintraege[standort] as number}
+            <NumberTable number={number}>
+              {#if edit}
+              <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
+                <label on:click={resetForm} on:keydown>
+                  <input type="submit" class="hidden" name="data" value="{number.id}"/>
+                  <DeleteIcon size={14} />
+                </label>
+              </form>
+              {/if}
+            </NumberTable>
+          {/each}
+        </table>
+      </div>
+    {/each}
   </Tile>
   <Tile light>
+    {#if edit}
+      <div class="top-right-button">
+          <AddIcon />
+      </div>
+    {/if}
     <h4 class="category">Abteilung</h4>
+
   </Tile>
   <Tile light>
+    {#if edit}
+      <div class="top-right-button">
+          <AddIcon />
+      </div>
+    {/if}
     <h4 class="category">Standort</h4>
   </Tile>
 </div>
@@ -150,10 +177,11 @@
 .hidden{
   display: none;
 }
-.g1-accept{
-  position: absolute;
-  top: 11.2rem;
-  left: calc(50% - 3rem);
+.top-right-button{
+  position: relative;
+  right: calc(-100% + 2rem);
+  height: 0px;
+  width: 0px;
 }
 .mail{
   position: relative;
@@ -168,10 +196,21 @@
 .category{
   margin-bottom: 1rem;
 }
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 1rem;
+@media all and (min-width: 955px){
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 1rem;
+  }
 }
+
+@media all and (max-width: 955px){
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 1rem;
+  }
+}
+
 </style>
 
