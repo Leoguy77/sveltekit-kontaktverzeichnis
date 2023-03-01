@@ -5,8 +5,7 @@
     /* Modules */
     "module": "nodenext",       //  CommonJS oder nodenext                      
     "moduleResolution": "nodenext",        //nodenext oder node               
-    "sourceMap": true,                                
-    "outDir": "./out",                                   
+    "sourceMap": true,                                                                
 
     "esModuleInterop": true,                             
     "forceConsistentCasingInFileNames": true,            

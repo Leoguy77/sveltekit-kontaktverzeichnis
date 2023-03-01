@@ -5,7 +5,8 @@
     "pocketbase": "^0.11.0"
   },
   "scripts": {
-    "t": "tsc"
+    "t": "tsc",
+    "start":"npm run t && node generateIndex.js"
   },
   "type": "module"
 }

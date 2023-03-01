@@ -5,3 +5,5 @@ pocketBase/pb_migrations
 indexGenerator/out
 .env
 localinfo.md
+indexGenerator/generateIndex.js.map
+indexGenerator/generateIndex.js
