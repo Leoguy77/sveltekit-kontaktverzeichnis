@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+
+    "target": "es2022",   //älteste unterstützte Version "es5","es6","es2018","es2020","es2022"                   
+    /* Modules */
+    "module": "nodenext",       //  CommonJS oder nodenext                      
+    "moduleResolution": "nodenext",        //nodenext oder node               
+    "sourceMap": true,                                                                  
+
+    "esModuleInterop": true,                             
+    "forceConsistentCasingInFileNames": true,            
+
+    /* Type Checking */
+    "strict": true,                                      
+  },
+  "ts-node": {
+      "esm": true
+  },
+  "lib": [
+    "es5", "es6", "dom", "dom.iterable"
+  ]
+}
