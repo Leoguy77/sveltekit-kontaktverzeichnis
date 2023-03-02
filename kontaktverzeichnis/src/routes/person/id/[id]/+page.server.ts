@@ -59,6 +59,15 @@ export const actions = {
     }catch{   
       return {error: "Internal Server Error"}
     }
+  },
+
+  addDepartment: async ({ request,locals,params }:any) => {
+    try{
+      
+      return {success:true}
+    }catch{   
+      return {error: "Internal Server Error"}
+    }
   }
 
 }

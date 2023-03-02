@@ -7,9 +7,11 @@
   import { enhance } from "$app/forms"
   import NumberTable from "./NumberTable.svelte"
   import AddNumber from "./AddNumber.svelte"
+  import AddDepartment from "./AddDepartment.svelte"
 
   let popups:any={
     "AddNumber":AddNumber,
+    "AddDepartment":AddDepartment,
   }
   let popup:string=""
 
@@ -144,20 +146,17 @@
   </Tile>
   <Tile light>
     {#if edit}
-      <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
+      <div on:keydown on:click={()=>{popup="AddDepartment"}} class="top-right-button">
         <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
       </div>
-      <div class="top-right-button">
-          <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
-      </div>
     {/if}
-        <h4 class="category">Abteilung</h4>
+    <h4 class="category">Abteilung</h4>
         
-      </Tile>
-      <Tile light>
-        {#if edit}
-        <div class="top-right-button">
-          <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen"></Button>
+  </Tile>
+  <Tile light>
+    {#if edit}
+      <div class="top-right-button">
+        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Standort</h4>
