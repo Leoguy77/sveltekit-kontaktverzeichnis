@@ -61,13 +61,13 @@
         {#if selectedIndex === 0}
           <div class="add">
             <OverflowMenu icon="{AddIcon}">
-              <OverflowMenuItem href="/person/new" text="Person"/>
-              <OverflowMenuItem href="/ressource/new" text="Ressource"/>
+              <OverflowMenuItem href="/person/new" text="Person erstellen"/>
+              <OverflowMenuItem href="/ressource/new" text="Ressource erstellen"/>
             </OverflowMenu>
           </div>
         {:else if selectedIndex === 1}
           <div class="add2">
-            <a href="/abteilung/new"><AddIcon/></a>  
+            <Button icon={AddIcon} href="/abteilung/new" size="small" kind="ghost" iconDescription="Abteilung erstellen"></Button>
           </div>
         {/if}
       {/if}
@@ -130,8 +130,8 @@
     }
     .add2{
       position: absolute;
-      top: 223px;
-      left: calc(100% - 12rem + 10px);
+      top: 217px;
+      left: calc(100% - 12rem + 2px);
       margin-right: 3rem;
       z-index: 10;
     }

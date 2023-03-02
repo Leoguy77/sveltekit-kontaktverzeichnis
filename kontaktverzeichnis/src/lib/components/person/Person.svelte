@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Tile,TextInput,ToastNotification} from "carbon-components-svelte"
+  import {Tile,TextInput,ToastNotification,Button} from "carbon-components-svelte"
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
@@ -91,7 +91,7 @@
       <form class="top-right-button" action="?/savePerson" method="POST" use:enhance>
         <label on:click={resetForm} on:keydown>
           <input type="submit" class="hidden" name="data" value="{JSON.stringify(data.person)}"/>
-          <AcceptIcon />
+          <Button icon={AcceptIcon} size="small" kind="ghost" iconDescription="Änderungen speichern"></Button>
         </label>
       </form>
     {/if}
@@ -117,7 +117,7 @@
   <Tile light>
     {#if edit}
       <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
-          <AddIcon />
+        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Telefon</h4>
@@ -144,16 +144,16 @@
   <Tile light>
     {#if edit}
       <div class="top-right-button">
-          <AddIcon />
-      </div>
-    {/if}
-    <h4 class="category">Abteilung</h4>
-
-  </Tile>
-  <Tile light>
-    {#if edit}
-      <div class="top-right-button">
-          <AddIcon />
+          <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
+        </div>
+        {/if}
+        <h4 class="category">Abteilung</h4>
+        
+      </Tile>
+      <Tile light>
+        {#if edit}
+        <div class="top-right-button">
+          <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Standort</h4>

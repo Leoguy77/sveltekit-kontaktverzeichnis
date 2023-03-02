@@ -18,6 +18,6 @@
 
 <style>
   section{
-    margin: 2rem 2rem 0 2rem;
+    margin: 2rem 3.5rem 0 3.5rem;
   }
 </style>
