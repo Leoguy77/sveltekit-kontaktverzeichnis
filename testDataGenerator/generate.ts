@@ -27,11 +27,11 @@ const pb = new PocketBase('http://127.0.0.1:8090');
 await pb.admins.authWithPassword('admin@telefon.buch', 'myFirstLogin')
 
 let departmentIds:any = []
-for (let department of departments) {
-    let id=await pb.collection('abteilung').create({
-        "bezeichnung": department
+for (let departmentName of departments) {
+    let department:any=await pb.collection('abteilung').create({
+        "bezeichnung": departmentName
     })
-    departmentIds.push(id)
+    departmentIds.push(department.id)
 }
 
 
@@ -42,18 +42,14 @@ const locations = [
 ["Köln","06412-349834598"],
 ]
 
-let locationIds:{
-    id:string,
-    bezeichnung:string,
-    vorwahl:string
-}[]=[]
+let locationIds:any[]=[]
 
 for (let location of locations) {
-  let id:string = await pb.collection('standort').create({
+  let record:any = await pb.collection('standort').create({
     "bezeichnung": location[0],
     "vorwahl": location[1]
   })
-  let data={id:id, bezeichnung:location[0], vorwahl:location[1]}
+  let data={id:record.id, bezeichnung:location[0], vorwahl:location[1]}
   locationIds.push(data)
 }
 
@@ -67,17 +63,18 @@ async function createRandomPhoneNummer(){
   
   const phoneNumber = faker.phone.number(standort.vorwahl + '#'.repeat(Math.floor((Math.random() * 8) + 3)))
 
-  const id:string = await pb.collection('telefonEintrag').create({
+  const telefonEintrag:any = await pb.collection('telefonEintrag').create({
     eintragTyp: getRandomItem(phonetyps),
-    eintrag: phoneNumber,
+    nummer: phoneNumber,
     standort: standort.id
   })
 
-  return id;
+  return telefonEintrag.id;
 }
 
-async function getDepartment(){
-  return getRandomItem(departmentIds)
+async function getDepartment():Promise<string>{
+  let department:string=getRandomItem(departmentIds)
+  return department
 }
 
 
@@ -89,17 +86,20 @@ async function createRandomUser(){
   const email = `${firstName}.${lastName}@meinefirma.de`;
   const phoneNumber = await runRandomTimes(1,6,createRandomPhoneNummer);
   const title = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(['Dr.', 'Prof.', 'Dr. med.', 'Prof. Dr.']), {probability: 0.1})
-  const abteilung = await runRandomTimes(1,4,getRandomItem(departmentIds))
+  const abteilung = await runRandomTimes(1,4,getDepartment)
+  const randomLocation = await getRandomItem(locationIds)
+  const location = randomLocation.id.id
   
-  pb.collection('person').create({
+  const user = await pb.collection('person').create({
     vorname: firstName,
     nachname: lastName,
     titel: title,
     email: email,
     telefonEintraege: phoneNumber,
-    abteilung: abteilung
+    abteilungen: abteilung,
+    standort: location
   })
-
+  return user
   
   
 }
@@ -113,7 +113,10 @@ async function runRandomTimes(min:number,max:number,func:() => Promise<string>){
   }
   return result
 }
+for (let index = 0; index < 10; index++) {
+  await createRandomUser();
+  
+}
+//const user = 
 
-const user = createRandomUser();
-
-console.log(user)
+//console.log(await user)
