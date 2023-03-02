@@ -37,6 +37,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Kontaktverzeichnis</title>
+</svelte:head>
+
 <div class="center-hd">
   <div class="contentSwitcher">
     <ContentSwitcher bind:selectedIndex>

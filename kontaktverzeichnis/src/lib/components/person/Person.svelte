@@ -59,6 +59,10 @@
 
 </script>
 
+<svelte:head>
+  <title>{name}</title>
+</svelte:head>
+
 
 {#if form?.error}
 <div class="toast">
@@ -89,10 +93,7 @@
   <Tile light>
     {#if edit}
       <form class="top-right-button" action="?/savePerson" method="POST" use:enhance>
-        <label on:click={resetForm} on:keydown>
-          <input type="submit" class="hidden" name="data" value="{JSON.stringify(data.person)}"/>
-          <Button icon={AcceptIcon} size="small" kind="ghost" iconDescription="Änderungen speichern"></Button>
-        </label>
+        <Button on:click={resetForm} type="submit" value="{JSON.stringify(data.person)}" name="data" icon={AcceptIcon} size="small" kind="ghost" iconDescription="Änderungen speichern"></Button>
       </form>
     {/if}
     <h4 class="category">Persönliche Daten</h4>
@@ -117,7 +118,7 @@
   <Tile light>
     {#if edit}
       <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
+        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Nummer hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Telefon</h4>
@@ -143,10 +144,13 @@
   </Tile>
   <Tile light>
     {#if edit}
+      <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
+        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
+      </div>
       <div class="top-right-button">
           <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen"></Button>
-        </div>
-        {/if}
+      </div>
+    {/if}
         <h4 class="category">Abteilung</h4>
         
       </Tile>
