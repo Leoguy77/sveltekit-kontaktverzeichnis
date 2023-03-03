@@ -7,3 +7,5 @@ indexGenerator/out
 localinfo.md
 indexGenerator/generateIndex.js.map
 indexGenerator/generateIndex.js
+testDataGenerator/generate.js
+testDataGenerator/generate.js.map
