@@ -88,7 +88,7 @@ async function createRandomUser(){
   const title = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(['Dr.', 'Prof.', 'Dr. med.', 'Prof. Dr.']), {probability: 0.1})
   const abteilung = await runRandomTimes(1,4,getDepartment)
   const randomLocation = await getRandomItem(locationIds)
-  const location = randomLocation.id.id
+  const location = randomLocation.id
   
   const user = await pb.collection('person').create({
     vorname: firstName,
@@ -114,7 +114,8 @@ async function runRandomTimes(min:number,max:number,func:() => Promise<string>){
   return result
 }
 for (let index = 0; index < 10; index++) {
-  await createRandomUser();
+  let user = await createRandomUser();
+  //console.log(user)
   
 }
 //const user = 
