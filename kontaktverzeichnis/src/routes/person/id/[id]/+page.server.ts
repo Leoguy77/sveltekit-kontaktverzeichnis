@@ -67,10 +67,8 @@ export const actions = {
       let pb=locals.pb
       let person=await pb.collection('person').getOne(params.id)
       let abteilungen=person.abteilungen
-      console.log(abteilungen)
-      abteilungen=abteilungen.filter((el:string) => {el === body.data})
-      console.log(body.data)
-      console.log(abteilungen)
+      abteilungen=abteilungen.filter((item:any) => item !== body.data)
+
       await pb.collection('person').update(params.id,{abteilungen:abteilungen})
 
       return {success:true}
@@ -93,7 +91,23 @@ export const actions = {
     }catch{   
       return {error: "Internal Server Error"}
     }
-  }
+  },
+
+  delCompany: async ({ request,locals,params }:any) => {
+    try{
+      const body = Object.fromEntries(await request.formData())
+      let pb=locals.pb
+      let person=await pb.collection('person').getOne(params.id)
+      let standorte=person.standort
+      standorte=standorte.filter((item:any) => item !== body.data)
+
+      await pb.collection('person').update(params.id,{standort:standorte})
+
+      return {success:true}
+    }catch{   
+      return {error: "Internal Server Error"}
+    }
+  },
 
 }
 
