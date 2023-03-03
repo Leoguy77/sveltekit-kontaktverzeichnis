@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Tile,TextInput,ToastNotification,Button} from "carbon-components-svelte"
+  import {Tile,TextInput,ToastNotification,Button,Tag} from "carbon-components-svelte"
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
@@ -8,10 +8,12 @@
   import NumberTable from "./NumberTable.svelte"
   import AddNumber from "./AddNumber.svelte"
   import AddDepartment from "./AddDepartment.svelte"
+  import AddCompany from "./AddCompany.svelte"
 
   let popups:any={
     "AddNumber":AddNumber,
     "AddDepartment":AddDepartment,
+    "AddCompany":AddCompany,
   }
   let popup:string=""
 
@@ -40,7 +42,7 @@
     let telefonEintraege:any = []
     if(data.person.expand.telefonEintraege){
       for (let eintrag of data?.person?.expand?.telefonEintraege) {
-        let standort=eintrag.expand.standort.bezeichnung
+        let standort=eintrag?.expand?.standort?.bezeichnung
         if (telefonEintraege[standort]){
           telefonEintraege[standort].push(eintrag)
         }else{
@@ -57,6 +59,16 @@
 
   function resetForm(){
     form=null
+  }
+
+  let departments:any=[]
+  $:if (data.person.expand.abteilungen) {
+    departments=data.person.expand.abteilungen
+  }
+
+  let companies:any=[]
+  $:if (data.person.expand.standort) {
+    companies=data.person.expand.standort
   }
 
 </script>
@@ -131,7 +143,7 @@
           {#each telefonEintraege[standort] as number}
             <NumberTable number={number}>
               {#if edit}
-              <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
+              <form class="del" action="?/delNumber" method="POST" use:enhance>
                 <label on:click={resetForm} on:keydown>
                   <input type="submit" class="hidden" name="data" value="{number.id}"/>
                   <DeleteIcon size={14} />
@@ -151,21 +163,50 @@
       </div>
     {/if}
     <h4 class="category">Abteilung</h4>
-        
+    {#each departments as abteilung (abteilung.id)}
+      <div class="departments">
+        <Tag>{abteilung.bezeichnung}</Tag>
+        {#if edit}
+          <form action="?/delDepartment" method="POST" use:enhance>
+            <label on:click={resetForm} on:keydown>
+              <input type="submit" class="hidden" name="data" value="{abteilung.id}"/>
+              <DeleteIcon size={14} />
+            </label>
+          </form>
+        {/if}
+      </div>
+    {/each}
   </Tile>
   <Tile light>
     {#if edit}
-      <div class="top-right-button">
+      <div on:keydown on:click={()=>{popup="AddCompany"}} class="top-right-button">
         <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Standort</h4>
+    {#each companies as standort (standort.id)}
+      <div class="departments">
+        <Tag>{standort.bezeichnung}</Tag>
+        {#if edit}
+          <form action="?/delCompany" method="POST" use:enhance>
+            <label on:click={resetForm} on:keydown>
+              <input type="submit" class="hidden" name="data" value="{standort.id}"/>
+              <DeleteIcon size={14} />
+            </label>
+          </form>
+        {/if}
+      </div>
+    {/each}
   </Tile>
 </div>
 
 
 <style>
-.delNumber{
+.departments{
+  display: flex;
+  align-items: center;
+}
+.del{
   margin-left: 1rem;
 }
 .company{
