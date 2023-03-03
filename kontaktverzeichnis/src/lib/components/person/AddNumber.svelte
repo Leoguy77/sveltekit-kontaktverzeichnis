@@ -14,12 +14,12 @@ function setVorwahl(vorwahl:string){
 }
 $:{setVorwahl(vorwahlen[standortId])}
 
-let EintragTypen:any=[]
+let eintragTypen:any=[]
 async function getEintragTyp() {
   const response = await fetch('/api/eintragTyp')
   let res = await response.json()
   for (let eintrag of res) {
-    EintragTypen.push({ id: eintrag.id, text: eintrag.bezeichner })
+    eintragTypen.push({ id: eintrag.id, text: eintrag.bezeichner })
   }
 }
 getEintragTyp()
@@ -54,7 +54,7 @@ function closePopup(){
     <ComboBox
     titleText="Eintrags-Typ"
     placeholder="Eintrags-Typ auswählen"
-    items={EintragTypen}
+    items={eintragTypen}
     shouldFilterItem={filterEintrag}
     bind:selectedId={eintragTypId}
   />
