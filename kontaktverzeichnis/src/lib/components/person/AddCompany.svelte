@@ -32,7 +32,7 @@
   
   
   <Popup bind:popup={popup} bind:form={form}>
-    <form action="?/addDepartment" method="POST" class="center" use:enhance>
+    <form action="?/addCompany" method="POST" class="center" use:enhance>
     <ComboBox
       titleText="Standort"
       placeholder="Standort auswählen"

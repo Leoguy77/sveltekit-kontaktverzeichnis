@@ -8,10 +8,12 @@
   import NumberTable from "./NumberTable.svelte"
   import AddNumber from "./AddNumber.svelte"
   import AddDepartment from "./AddDepartment.svelte"
+  import AddCompany from "./AddCompany.svelte"
 
   let popups:any={
     "AddNumber":AddNumber,
     "AddDepartment":AddDepartment,
+    "AddCompany":AddCompany,
   }
   let popup:string=""
 

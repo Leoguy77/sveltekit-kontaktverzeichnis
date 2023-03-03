@@ -109,6 +109,22 @@ export const actions = {
     }
   },
 
+  addCompany: async ({ request,locals,params }:any) => {
+    try{
+      const body = Object.fromEntries(await request.formData())
+      let pb=locals.pb
+      let person=await pb.collection('person').getOne(params.id)
+      let standorte=person.standort
+      standorte.push(body.standort)
+
+      await pb.collection('person').update(params.id,{standort:standorte})
+
+      return {success:true}
+    }catch{   
+      return {error: "Internal Server Error"}
+    }
+  }
+
 }
 
 export const load = async ({locals,params}:any) => {
