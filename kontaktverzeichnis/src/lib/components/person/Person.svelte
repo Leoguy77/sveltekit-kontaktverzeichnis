@@ -64,6 +64,11 @@
     departments=data.person.expand.abteilungen
   }
 
+  let companies:any=[]
+  $:if (data.person.expand.standort) {
+    companies=data.person.expand.standort
+  }
+
 </script>
 
 <svelte:head>
@@ -157,7 +162,7 @@
     {/if}
     <h4 class="category">Abteilung</h4>
     {#each departments as abteilung (abteilung.id)}
-      <p class="departments">
+      <div class="departments">
         <Tag>{abteilung.bezeichnung}</Tag>
         {#if edit}
           <form action="?/delDepartment" method="POST" use:enhance>
@@ -167,16 +172,29 @@
             </label>
           </form>
         {/if}
-      </p>
+      </div>
     {/each}
   </Tile>
   <Tile light>
     {#if edit}
-      <div class="top-right-button">
+      <div on:keydown on:click={()=>{popup="AddCompany"}} class="top-right-button">
         <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen"></Button>
       </div>
     {/if}
     <h4 class="category">Standort</h4>
+    {#each companies as standort (standort.id)}
+      <div class="departments">
+        <Tag>{standort.bezeichnung}</Tag>
+        {#if edit}
+          <form action="?/delCompany" method="POST" use:enhance>
+            <label on:click={resetForm} on:keydown>
+              <input type="submit" class="hidden" name="data" value="{standort.id}"/>
+              <DeleteIcon size={14} />
+            </label>
+          </form>
+        {/if}
+      </div>
+    {/each}
   </Tile>
 </div>
 
