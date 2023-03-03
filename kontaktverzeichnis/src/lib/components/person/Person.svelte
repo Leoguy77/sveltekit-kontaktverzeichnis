@@ -1,5 +1,5 @@
 <script lang="ts">
-  import {Tile,TextInput,ToastNotification,Button} from "carbon-components-svelte"
+  import {Tile,TextInput,ToastNotification,Button,Tag} from "carbon-components-svelte"
   import TextField from "$lib/components/TextField.svelte"
   import AcceptIcon from '$lib/icons/AcceptIcon.svelte'
   import DeleteIcon from '$lib/icons/DeleteIcon.svelte'
@@ -40,7 +40,7 @@
     let telefonEintraege:any = []
     if(data.person.expand.telefonEintraege){
       for (let eintrag of data?.person?.expand?.telefonEintraege) {
-        let standort=eintrag.expand.standort.bezeichnung
+        let standort=eintrag?.expand?.standort?.bezeichnung
         if (telefonEintraege[standort]){
           telefonEintraege[standort].push(eintrag)
         }else{
@@ -57,6 +57,11 @@
 
   function resetForm(){
     form=null
+  }
+
+  let departments:any=[]
+  $:if (data.person.expand.abteilungen) {
+    departments=data.person.expand.abteilungen
   }
 
 </script>
@@ -131,7 +136,7 @@
           {#each telefonEintraege[standort] as number}
             <NumberTable number={number}>
               {#if edit}
-              <form class="delNumber" action="?/delNumber" method="POST" use:enhance>
+              <form class="del" action="?/delNumber" method="POST" use:enhance>
                 <label on:click={resetForm} on:keydown>
                   <input type="submit" class="hidden" name="data" value="{number.id}"/>
                   <DeleteIcon size={14} />
@@ -151,7 +156,19 @@
       </div>
     {/if}
     <h4 class="category">Abteilung</h4>
-        
+    {#each departments as abteilung (abteilung.id)}
+      <p class="departments">
+        <Tag>{abteilung.bezeichnung}</Tag>
+        {#if edit}
+          <form action="?/delDepartment" method="POST" use:enhance>
+            <label on:click={resetForm} on:keydown>
+              <input type="submit" class="hidden" name="data" value="{abteilung.id}"/>
+              <DeleteIcon size={14} />
+            </label>
+          </form>
+        {/if}
+      </p>
+    {/each}
   </Tile>
   <Tile light>
     {#if edit}
@@ -165,7 +182,11 @@
 
 
 <style>
-.delNumber{
+.departments{
+  display: flex;
+  align-items: center;
+}
+.del{
   margin-left: 1rem;
 }
 .company{

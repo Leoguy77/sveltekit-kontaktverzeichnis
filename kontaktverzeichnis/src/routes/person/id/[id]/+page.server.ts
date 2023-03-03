@@ -61,9 +61,34 @@ export const actions = {
     }
   },
 
+  delDepartment: async ({ request,locals,params }:any) => {
+    try{
+      const body = Object.fromEntries(await request.formData())
+      let pb=locals.pb
+      let person=await pb.collection('person').getOne(params.id)
+      let abteilungen=person.abteilungen
+      console.log(abteilungen)
+      abteilungen=abteilungen.filter((el:string) => {el === body.data})
+      console.log(body.data)
+      console.log(abteilungen)
+      await pb.collection('person').update(params.id,{abteilungen:abteilungen})
+
+      return {success:true}
+    }catch{   
+      return {error: "Internal Server Error"}
+    }
+  },
+
   addDepartment: async ({ request,locals,params }:any) => {
     try{
-      
+      const body = Object.fromEntries(await request.formData())
+      let pb=locals.pb
+      let person=await pb.collection('person').getOne(params.id)
+      let abteilungen=person.abteilungen
+      abteilungen.push(body.abteilung)
+
+      await pb.collection('person').update(params.id,{abteilungen:abteilungen})
+
       return {success:true}
     }catch{   
       return {error: "Internal Server Error"}
@@ -88,7 +113,7 @@ export const load = async ({locals,params}:any) => {
   person=await pb.collection('person').getOne(params.id, {
     expand:"standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort,secureData"})
   person=structuredClone(person)
-    
+  
   return {person}
 }
 
