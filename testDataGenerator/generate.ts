@@ -139,6 +139,7 @@ async function createRandomResource() {
     telefonEintraege: telefonEintraege,
     email: email,
   });
+  return resource;
 }
 
 async function createEmptyResource() {
