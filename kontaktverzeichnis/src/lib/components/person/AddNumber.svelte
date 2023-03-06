@@ -14,12 +14,12 @@ function setVorwahl(vorwahl:string){
 }
 $:{setVorwahl(vorwahlen[standortId])}
 
-let EintragTypen:any=[]
+let eintragTypen:any=[]
 async function getEintragTyp() {
   const response = await fetch('/api/eintragTyp')
   let res = await response.json()
   for (let eintrag of res) {
-    EintragTypen.push({ id: eintrag.id, text: eintrag.bezeichner })
+    eintragTypen.push({ id: eintrag.id, text: eintrag.bezeichner })
   }
 }
 getEintragTyp()
@@ -42,6 +42,7 @@ function filterEintrag(item:any, value:any){
 }
 
 function closePopup(){
+  form=null
   setTimeout(() => {
     popup=""
   }, 50);
@@ -54,9 +55,10 @@ function closePopup(){
     <ComboBox
     titleText="Eintrags-Typ"
     placeholder="Eintrags-Typ auswählen"
-    items={EintragTypen}
+    items={eintragTypen}
     shouldFilterItem={filterEintrag}
     bind:selectedId={eintragTypId}
+    required
   />
   <ComboBox 
     titleText="Standort"
@@ -64,11 +66,12 @@ function closePopup(){
     items={standorte}
     shouldFilterItem={filterEintrag}
     bind:selectedId={standortId}
+    required
   />
 
   <input type="hidden" name="eintragTyp" bind:value={eintragTypId} />
   <input type="hidden" name="standort" bind:value={standortId} />
-  <TextInput name="number" labelText="Nummer" placeholder="Nummer eintragen" bind:value={number} />
+  <TextInput name="number" labelText="Nummer" placeholder="Nummer eintragen" bind:value={number} required/>
   <div class="Button">
     <Button type="submit" on:click={closePopup} >Ok</Button>
   </div>

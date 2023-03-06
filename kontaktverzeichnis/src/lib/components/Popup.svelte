@@ -12,7 +12,7 @@ function closePopup(){
 <section on:click|self={closePopup} on:keydown class="popup">
   <div class="field">
     <Tile light>
-      <slot/>
+      <slot form={form}/>
     </Tile>
   </div>
 </section>
