@@ -85,7 +85,7 @@ async function getDepartment(): Promise<string> {
   return department;
 }
 
-async function createRandomUser() {
+async function createRandomPerson() {
   const firstName = faker.name.firstName();
   const lastName = faker.name.lastName();
   const email = `${firstName}.${lastName}@meinefirma.de`;
@@ -153,7 +153,7 @@ async function createEmptyUser() {
 }
 
 for (let index = 0; index < generateCount; index++) {
-  let user = await createRandomUser();
+  let user = await createRandomPerson();
   //console.log(user)
 }
 for (let index = 0; index < generateCount; index++) {
