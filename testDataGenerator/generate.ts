@@ -123,10 +123,42 @@ async function runRandomTimes(
   }
   return result;
 }
+
+async function createRandomResource() {
+  const bezeichner = faker.random.word();
+  const abteilungen = await runRandomTimes(1, 4, getDepartment);
+  const standort = await getRandomItem(locationIds).id;
+  const telefonEintraege = await runRandomTimes(1, 6, createRandomPhoneNummer);
+
+  const email = `${bezeichner}@meinefirma.de`;
+
+  const resource = await pb.collection("ressource").create({
+    bezeichner: bezeichner,
+    abteilungen: abteilungen,
+    standort: standort,
+    telefonEintraege: telefonEintraege,
+    email: email,
+  });
+}
+
+async function createEmptyResource() {
+  const resource = await pb.collection("ressource").create({});
+}
+
+async function createEmptyUser() {
+  const user = await pb.collection("person").create({
+    vorname: "Max",
+    nachname: "Mustermann",
+  });
+}
+
 for (let index = 0; index < generateCount; index++) {
   let user = await createRandomUser();
   //console.log(user)
 }
-//const user =
-
-//console.log(await user)
+for (let index = 0; index < generateCount; index++) {
+  let resource = await createRandomResource();
+  //console.log(resource)
+}
+createEmptyResource();
+createEmptyUser();
