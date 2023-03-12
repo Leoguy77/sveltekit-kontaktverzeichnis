@@ -59,6 +59,11 @@ for (let location of locations) {
   locationIds.push(data);
 }
 
+function randomIntFromInterval(min: number, max: number) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 // return random item of array
 function getRandomItem<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -68,7 +73,7 @@ async function createRandomPhoneNummer() {
   const standort = getRandomItem(locationIds);
 
   const phoneNumber = faker.phone.number(
-    standort.vorwahl + "#".repeat(Math.floor(Math.random() * 8 + 3))
+    standort.vorwahl + "#".repeat(randomIntFromInterval(1, 5))
   );
 
   const telefonEintrag: any = await pb.collection("telefonEintrag").create({
