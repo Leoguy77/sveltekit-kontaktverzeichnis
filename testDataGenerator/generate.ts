@@ -190,6 +190,36 @@ async function setPersonIndex(person: any) {
   let data = { index: index };
   await pb.collection("person").update(person.id, data);
 }
+async function setRessourceIndex(ressource: any) {
+  let index = "";
+  index += ifNotEmpty(ressource["bezeichner"]);
+  index += ifNotEmpty(ressource["email"]);
+
+  if (ressource.expand.standort) {
+    for (let standort of makeIterable(ressource.standort)) {
+      index += ifNotEmpty(standort["bezeichnung"]);
+    }
+  }
+
+  if (ressource.expand.telefonEintraege) {
+    for (let telefonEintrag of makeIterable(
+      ressource.expand.telefonEintraege
+    )) {
+      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"]);
+      index += ifNotEmpty(telefonEintrag["nummer"]);
+    }
+  }
+
+  if (ressource.expand.abteilungen) {
+    for (let abteilung of makeIterable(ressource.abteilungen)) {
+      index += ifNotEmpty(abteilung["bezeichnung"]);
+      index += ifNotEmpty(abteilung["kurzBezeichnung"]);
+    }
+  }
+
+  let data = { index: index };
+  await pb.collection("ressource").update(ressource.id, data);
+}
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
