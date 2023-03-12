@@ -228,6 +228,16 @@ async function createPersonIndex(userid: string) {
 
   setPersonIndex(person);
 }
+
+async function createResourceIndex(resourceid: string) {
+  const resource = await pb.collection("ressource").getOne(resourceid, {
+    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
+  });
+  console.log(resource);
+
+  setRessourceIndex(resource);
+}
+
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
@@ -242,10 +252,13 @@ async function createEmptyUser() {
 for (let index = 0; index < generateCount; index++) {
   let user = await createRandomPerson();
   //console.log(user)
+  createPersonIndex(user.id);
 }
 for (let index = 0; index < generateCount; index++) {
   let resource = await createRandomResource();
-  //console.log(resource)
+  console.log(resource);
+  createResourceIndex(resource.id);
 }
-createEmptyResource();
-createEmptyUser();
+//createEmptyResource();
+//createEmptyUser();
+//createPersonIndex("pwyy0zju75trv3e");
