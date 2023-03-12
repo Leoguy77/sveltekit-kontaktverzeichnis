@@ -73,7 +73,7 @@ async function createRandomPhoneNummer() {
   const standort = getRandomItem(locationIds);
 
   const phoneNumber = faker.phone.number(
-    standort.vorwahl + "#".repeat(randomIntFromInterval(1, 5))
+    standort.vorwahl + "-" + "#".repeat(randomIntFromInterval(1, 5))
   );
 
   const telefonEintrag: any = await pb.collection("telefonEintrag").create({
