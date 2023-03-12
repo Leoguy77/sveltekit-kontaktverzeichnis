@@ -160,6 +160,36 @@ function makeIterable(value: any): any {
   }
   return [value];
 }
+async function setPersonIndex(person: any) {
+  let index = "";
+  index += ifNotEmpty(person["titel"]);
+  index += ifNotEmpty(person["vorname"]);
+  index += ifNotEmpty(person["nachname"]);
+  index += ifNotEmpty(person["email"]);
+
+  if (person.expand.standort) {
+    for (let standort of makeIterable(person.expand.standort)) {
+      index += ifNotEmpty(standort["bezeichnung"]);
+    }
+  }
+
+  if (person.expand.telefonEintraege) {
+    for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
+      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"]);
+      index += ifNotEmpty(telefonEintrag["nummer"]);
+    }
+  }
+
+  if (person.expand.abteilungen) {
+    for (let abteilung of makeIterable(person.abteilungen)) {
+      index += ifNotEmpty(abteilung["bezeichnung"]);
+      index += ifNotEmpty(abteilung["kurzBezeichnung"]);
+    }
+  }
+
+  let data = { index: index };
+  await pb.collection("person").update(person.id, data);
+}
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
