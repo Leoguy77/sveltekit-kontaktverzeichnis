@@ -45,7 +45,7 @@ const locations = [
   ["Berlin", "0302-1132"],
   ["Hamburg", "040-45561"],
   ["München", "0501-7856"],
-  ["Köln", "06412-349834598"],
+  ["Köln", "06412-3498"],
 ];
 
 let locationIds: any[] = [];
