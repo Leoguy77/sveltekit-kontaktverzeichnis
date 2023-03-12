@@ -220,6 +220,14 @@ async function setRessourceIndex(ressource: any) {
   let data = { index: index };
   await pb.collection("ressource").update(ressource.id, data);
 }
+async function createPersonIndex(userid: string) {
+  const person = await pb.collection("person").getOne(userid, {
+    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
+  });
+  console.log(person);
+
+  setPersonIndex(person);
+}
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
