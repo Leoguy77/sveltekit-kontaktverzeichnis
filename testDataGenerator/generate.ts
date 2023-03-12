@@ -147,6 +147,19 @@ async function createRandomResource() {
   return resource;
 }
 
+function ifNotEmpty(value: string): string {
+  if (value) {
+    return value + " ";
+  }
+  return "";
+}
+
+function makeIterable(value: any): any {
+  if (typeof value[Symbol.iterator] === "function") {
+    return value;
+  }
+  return [value];
+}
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
