@@ -1,7 +1,7 @@
 import { redirect } from "@sveltejs/kit"
 
 export async function GET({ locals }: any) {
-  let person: any
+  let ressource: any
   let forward: boolean
   try {
     if (!locals?.pb?.authStore?.isValid) {
@@ -12,10 +12,7 @@ export async function GET({ locals }: any) {
         },
       })
     }
-    let secureData = await locals.pb.collection("secureData").create()
-    person = await locals.pb
-      .collection("person")
-      .create({ secureData: secureData.id })
+    ressource = await locals.pb.collection("ressource").create()
     forward = true
   } catch {
     return new Response('{"message":"Internal Error"}', {
@@ -26,6 +23,6 @@ export async function GET({ locals }: any) {
     })
   }
   if (forward) {
-    throw redirect(303, `/person/id/${person.id}`)
+    throw redirect(303, `/person/id/${ressource.id}`)
   }
 }
