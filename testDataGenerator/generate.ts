@@ -45,7 +45,7 @@ const locations = [
   ["Berlin", "0302-1132"],
   ["Hamburg", "040-45561"],
   ["München", "0501-7856"],
-  ["Köln", "06412-349834598"],
+  ["Köln", "06412-3498"],
 ];
 
 let locationIds: any[] = [];
@@ -59,6 +59,11 @@ for (let location of locations) {
   locationIds.push(data);
 }
 
+function randomIntFromInterval(min: number, max: number) {
+  // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 // return random item of array
 function getRandomItem<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)];
@@ -68,7 +73,7 @@ async function createRandomPhoneNummer() {
   const standort = getRandomItem(locationIds);
 
   const phoneNumber = faker.phone.number(
-    standort.vorwahl + "#".repeat(Math.floor(Math.random() * 8 + 3))
+    standort.vorwahl + "-" + "#".repeat(randomIntFromInterval(1, 5))
   );
 
   const telefonEintrag: any = await pb.collection("telefonEintrag").create({
@@ -142,6 +147,97 @@ async function createRandomResource() {
   return resource;
 }
 
+function ifNotEmpty(value: string): string {
+  if (value) {
+    return value + " ";
+  }
+  return "";
+}
+
+function makeIterable(value: any): any {
+  if (typeof value[Symbol.iterator] === "function") {
+    return value;
+  }
+  return [value];
+}
+async function setPersonIndex(person: any) {
+  let index = "";
+  index += ifNotEmpty(person["titel"]);
+  index += ifNotEmpty(person["vorname"]);
+  index += ifNotEmpty(person["nachname"]);
+  index += ifNotEmpty(person["email"]);
+
+  if (person.expand.standort) {
+    for (let standort of makeIterable(person.expand.standort)) {
+      index += ifNotEmpty(standort["bezeichnung"]);
+    }
+  }
+
+  if (person.expand.telefonEintraege) {
+    for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
+      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"]);
+      index += ifNotEmpty(telefonEintrag["nummer"]);
+    }
+  }
+
+  if (person.expand.abteilungen) {
+    for (let abteilung of makeIterable(person.abteilungen)) {
+      index += ifNotEmpty(abteilung["bezeichnung"]);
+      index += ifNotEmpty(abteilung["kurzBezeichnung"]);
+    }
+  }
+
+  let data = { index: index };
+  await pb.collection("person").update(person.id, data);
+}
+async function setRessourceIndex(ressource: any) {
+  let index = "";
+  index += ifNotEmpty(ressource["bezeichner"]);
+  index += ifNotEmpty(ressource["email"]);
+
+  if (ressource.expand.standort) {
+    for (let standort of makeIterable(ressource.standort)) {
+      index += ifNotEmpty(standort["bezeichnung"]);
+    }
+  }
+
+  if (ressource.expand.telefonEintraege) {
+    for (let telefonEintrag of makeIterable(
+      ressource.expand.telefonEintraege
+    )) {
+      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"]);
+      index += ifNotEmpty(telefonEintrag["nummer"]);
+    }
+  }
+
+  if (ressource.expand.abteilungen) {
+    for (let abteilung of makeIterable(ressource.abteilungen)) {
+      index += ifNotEmpty(abteilung["bezeichnung"]);
+      index += ifNotEmpty(abteilung["kurzBezeichnung"]);
+    }
+  }
+
+  let data = { index: index };
+  await pb.collection("ressource").update(ressource.id, data);
+}
+async function createPersonIndex(userid: string) {
+  const person = await pb.collection("person").getOne(userid, {
+    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
+  });
+  console.log(person);
+
+  setPersonIndex(person);
+}
+
+async function createResourceIndex(resourceid: string) {
+  const resource = await pb.collection("ressource").getOne(resourceid, {
+    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
+  });
+  console.log(resource);
+
+  setRessourceIndex(resource);
+}
+
 async function createEmptyResource() {
   const resource = await pb.collection("ressource").create({});
 }
@@ -156,10 +252,13 @@ async function createEmptyUser() {
 for (let index = 0; index < generateCount; index++) {
   let user = await createRandomPerson();
   //console.log(user)
+  createPersonIndex(user.id);
 }
 for (let index = 0; index < generateCount; index++) {
   let resource = await createRandomResource();
-  //console.log(resource)
+  console.log(resource);
+  createResourceIndex(resource.id);
 }
-createEmptyResource();
-createEmptyUser();
+//createEmptyResource();
+//createEmptyUser();
+//createPersonIndex("pwyy0zju75trv3e");
