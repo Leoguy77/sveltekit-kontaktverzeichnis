@@ -23,6 +23,6 @@ export async function GET({ locals }: any) {
     })
   }
   if (forward) {
-    throw redirect(303, `/person/id/${ressource.id}`)
+    throw redirect(303, `/ressource/id/${ressource.id}`)
   }
 }
