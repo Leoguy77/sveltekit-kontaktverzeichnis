@@ -1,16 +1,16 @@
 <script lang="ts">
-  import Person from "$lib/components/view/Ressource.svelte";
+  import Ressource from "$lib/components/view/Ressource.svelte";
 
   export let form: any
   export let data: any
 
-
+  
 </script>
 <section>
   {#if data?.user}
-    <svelte:component this={Person} bind:form={form} edit={true} bind:data={data}/>
+    <svelte:component this={Ressource} bind:form={form} edit={true} bind:data={data}/>
   {:else}
-    <svelte:component this={Person} bind:form={form} edit={false} bind:data={data}/>
+    <svelte:component this={Ressource} bind:form={form} edit={false} bind:data={data}/>
   {/if}
 </section>
 
