@@ -1,4 +1,4 @@
-import { error, redirect } from "@sveltejs/kit"
+import { redirect } from "@sveltejs/kit"
 
 export async function GET({ locals }: any) {
   let person: any
