@@ -8,15 +8,11 @@ export const actions = {
       const body = Object.fromEntries(await request.formData())
       let data = JSON.parse(body.data)
       let submitData = {
-        titel: data.titel,
-        vorname: data.vorname,
-        nachname: data.nachname,
+        bezeichner: data.bezeichner,
         email: data.email,
       }
       let pb = locals.pb
-      let ressource = pb.collection("ressource").update(data.id, submitData)
-      let secureData = pb.collection("secureData").update(data.expand.secureData.id, data.expand.secureData)
-      await Promise.all([ressource, secureData])
+      let ressource = await pb.collection("ressource").update(data.id, submitData)
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
