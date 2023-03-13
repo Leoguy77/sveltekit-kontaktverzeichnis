@@ -106,7 +106,7 @@
 <div class="grid">
   <Tile light>
     {#if edit}
-      <form class="top-right-button" action="?/savePerson" method="POST" use:enhance>
+      <form class="top-right-button" action="?/save" method="POST" use:enhance>
         <Button on:click={resetForm} type="submit" value="{JSON.stringify(data.person)}" name="data" icon={AcceptIcon} size="small" kind="ghost" iconDescription="Änderungen speichern"></Button>
       </form>
     {/if}
