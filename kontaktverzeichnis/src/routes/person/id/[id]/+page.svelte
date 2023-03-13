@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Person from "$lib/components/person/Person.svelte";
+  import Person from "$lib/components/view/Person.svelte";
 
   export let form: any
   export let data: any
