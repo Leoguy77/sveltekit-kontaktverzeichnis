@@ -29,19 +29,13 @@
   }
 
   let name:string
-  $:{
-    if(data.person.titel!=undefined){
-    name=data.person.titel+" "
-    }
-    name+=data.person.vorname+" "+data.person.nachname
-  }
 
   let telefonEintraege:any = []
 
   function getTelefonEintraege(){
     let telefonEintraege:any = []
-    if(data.person.expand.telefonEintraege){
-      for (let eintrag of data?.person?.expand?.telefonEintraege) {
+    if(data.ressource.expand.telefonEintraege){
+      for (let eintrag of data?.ressource?.expand?.telefonEintraege) {
         let standort=eintrag?.expand?.standort?.bezeichnung
         if (telefonEintraege[standort]){
           telefonEintraege[standort].push(eintrag)
@@ -53,7 +47,7 @@
     }
   }   
 
-  $:if (data.person.expand.telefonEintraege){
+  $:if (data.ressource.expand.telefonEintraege){
     telefonEintraege=getTelefonEintraege()
   }
 
@@ -62,13 +56,13 @@
   }
 
   let departments:any=[]
-  $:if (data.person.expand.abteilungen) {
-    departments=data.person.expand.abteilungen
+  $:if (data.ressource.expand.abteilungen) {
+    departments=data.ressource.expand.abteilungen
   }
 
   let companies:any=[]
-  $:if (data.person.expand.standort) {
-    companies=data.person.expand.standort
+  $:if (data.ressource.expand.standort) {
+    companies=data.ressource.expand.standort
   }
 
 </script>
@@ -104,9 +98,9 @@
   <h2>{name}</h2>
 </div>
 <div class="grid">
-  <Tile light>
+  <!-- <Tile light>
     {#if edit}
-      <form class="top-right-button" action="?/savePerson" method="POST" use:enhance>
+      <form class="top-right-button" action="?/save" method="POST" use:enhance>
         <Button on:click={resetForm} type="submit" value="{JSON.stringify(data.person)}" name="data" icon={AcceptIcon} size="small" kind="ghost" iconDescription="Änderungen speichern"></Button>
       </form>
     {/if}
@@ -128,7 +122,7 @@
         <Combofield labelText="Kostenstelle" bind:value={data.person.expand.secureData.kostenstelle} />
       </div>
     {/if}
-  </Tile>
+  </Tile> -->
   <Tile light>
     {#if edit}
       <div on:keydown on:click={()=>{popup="AddNumber"}} class="top-right-button">
