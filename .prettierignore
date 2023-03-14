@@ -1,0 +1,5 @@
+kontaktverzeichnis/.svelte-kit
+kontaktverzeichnis/static
+*.md
+*package-lock.json
+pocketbase
