@@ -6,7 +6,7 @@
   },
   "scripts": {
     "t": "tsc",
-    "start":"npm run t && node generateIndex.js"
+    "start": "npm run t && node generateIndex.js"
   },
   "type": "module"
 }

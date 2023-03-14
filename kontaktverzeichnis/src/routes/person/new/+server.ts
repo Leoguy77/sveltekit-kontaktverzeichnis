@@ -13,9 +13,7 @@ export async function GET({ locals }: any) {
       })
     }
     let secureData = await locals.pb.collection("secureData").create()
-    person = await locals.pb
-      .collection("person")
-      .create({ secureData: secureData.id })
+    person = await locals.pb.collection("person").create({ secureData: secureData.id })
     forward = true
   } catch {
     return new Response('{"message":"Internal Error"}', {

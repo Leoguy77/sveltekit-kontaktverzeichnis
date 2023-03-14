@@ -21,7 +21,7 @@
     align-items: center;
     outline: none;
   }
-  .center:active{
+  .center:active {
     outline: none;
   }
 </style>

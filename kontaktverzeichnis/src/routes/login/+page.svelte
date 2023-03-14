@@ -1,33 +1,20 @@
 <script lang="ts">
-  import {
-    TextInput,
-    Button,
-    PasswordInput,
-    InlineNotification,
-  } from "carbon-components-svelte"
+  import { TextInput, Button, PasswordInput, InlineNotification } from "carbon-components-svelte"
   import { enhance } from "$app/forms"
   export let data: any
   export let form: any
-  import { page } from '$app/stores'
+  import { page } from "$app/stores"
 
-  let previousPage=$page.url.searchParams.get("lastPage")
-
+  let previousPage = $page.url.searchParams.get("lastPage")
 </script>
 
 <div class="middle">
   {#if !data.user}
     <form action="?/login" method="POST" class="center" use:enhance>
-      <TextInput
-        name="email"
-        type="text"
-        labelText="Username"
-        placeholder="user@example.com" />
+      <TextInput name="email" type="text" labelText="Username" placeholder="user@example.com" />
 
-      <PasswordInput
-        name="password"
-        labelText="Password"
-        placeholder="mySecretPassword" />
-      
+      <PasswordInput name="password" labelText="Password" placeholder="mySecretPassword" />
+
       <input type="hidden" name="previousPage" value={previousPage} />
 
       <Button type="submit">Login</Button>
