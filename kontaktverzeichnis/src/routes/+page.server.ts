@@ -1,4 +1,5 @@
 import stringSimilarity from "string-similarity"
+import jaroWinkler from "jaro-winkler"
 import { getDotEnv } from "$lib/scripts/pb.js"
 import PocketBase from "pocketbase"
 
@@ -21,11 +22,11 @@ export const actions = {
     await pb.collection("users").authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
 
     let [persons, ressources] = await Promise.all([
-      pb.collection("person").getList(1, 40, {
+      pb.collection("person").getFullList(1,{
         filter: filter,
         expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
       }),
-      pb.collection("ressource").getList(1, 40, {
+      pb.collection("ressource").getFullList(1, {
         filter: filter,
         expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
       }),
@@ -83,7 +84,7 @@ export const actions = {
         return 0
       })
 
-      let similarity = stringSimilarity.compareTwoStrings(body.searchTxt, obj.index)
+      let similarity = jaroWinkler(body.searchTxt,obj.index,{ caseSensitive: false }) // stringSimilarity.compareTwoStrings(body.searchTxt, obj.index)
 
       let data = {
         similarity: similarity,
