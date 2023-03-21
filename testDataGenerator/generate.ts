@@ -25,6 +25,7 @@ const departments = [
 const phonetyps = ["52dd7fli25k7ktd", "04rh0lpszfx3s49", "b45xv7hkvreka2s", "skh52iac3dw71xx"]
 
 const pb = new PocketBase("http://127.0.0.1:8090")
+pb.autoCancellation(false)
 
 await pb.admins.authWithPassword("admin@telefon.buch", "myFirstLogin")
 
@@ -210,7 +211,7 @@ async function createPersonIndex(userid: string) {
   const person = await pb.collection("person").getOne(userid, {
     expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
   })
-  console.log(person)
+  // console.log(person)
 
   setPersonIndex(person)
 }
@@ -219,7 +220,7 @@ async function createResourceIndex(resourceid: string) {
   const resource = await pb.collection("ressource").getOne(resourceid, {
     expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
   })
-  console.log(resource)
+  // console.log(resource)
 
   setRessourceIndex(resource)
 }
@@ -242,7 +243,7 @@ for (let index = 0; index < generateCount; index++) {
 }
 for (let index = 0; index < generateCount; index++) {
   let resource = await createRandomResource()
-  console.log(resource)
+  // console.log(resource)
   createResourceIndex(resource.id)
 }
 //createEmptyResource();
