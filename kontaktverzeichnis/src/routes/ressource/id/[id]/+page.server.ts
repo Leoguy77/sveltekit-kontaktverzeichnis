@@ -1,5 +1,5 @@
 import { error, redirect } from "@sveltejs/kit"
-import { getDotEnv } from "$lib/scripts/pb.js"
+import { getDotEnv } from "$lib/scripts/env.js"
 import PocketBase from "pocketbase"
 
 export const actions = {
