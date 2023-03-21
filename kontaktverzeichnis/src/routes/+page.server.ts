@@ -1,10 +1,10 @@
 import stringSimilarity from "string-similarity"
-import jaroWinkler from "jaro-winkler"
-import { getDotEnv } from "$lib/scripts/pb.js"
-import PocketBase from "pocketbase"
+import pb from "$lib/scripts/db.js"
 
 export const actions = {
   search: async ({ request }: any) => {
+    let starttime = Date.now()
+    // console.log("---------\nsearch started")
     const body = Object.fromEntries(await request.formData())
 
     if (!body.searchTxt) {
@@ -16,21 +16,18 @@ export const actions = {
       .map((word: string) => `index ?~ "${word}"`)
       .join(" || ")
 
-    let env: any
-    env = getDotEnv()
-    const pb = new PocketBase("http://127.0.0.1:8090")
-    await pb.collection("users").authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
-
     let [persons, ressources] = await Promise.all([
-      pb.collection("person").getFullList(1,{
+      pb.collection("person").getList(1, 9999, {
         filter: filter,
         expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
       }),
-      pb.collection("ressource").getFullList(1, {
+      pb.collection("ressource").getList(1, 9999, {
         filter: filter,
         expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
       }),
     ])
+
+    console.log("DB took " + (Date.now() - starttime) + "ms")
 
     function makeIterable(value: any): any {
       if (typeof value[Symbol.iterator] === "function") {
@@ -43,7 +40,10 @@ export const actions = {
       let abteilungen = []
       if (obj.expand.abteilungen) {
         for (let abteilung of makeIterable(obj.expand.abteilungen)) {
-          abteilungen.push({ id: abteilung.id, bezeichnung: abteilung.bezeichnung })
+          abteilungen.push({
+            id: abteilung.id,
+            bezeichnung: abteilung.bezeichnung,
+          })
         }
       }
       abteilungen.sort((a: any, b: any) => {
@@ -71,7 +71,10 @@ export const actions = {
       let standorte = []
       if (obj.expand.standort) {
         for (let standort of makeIterable(obj.expand.standort)) {
-          standorte.push({ id: standort.id, bezeichnung: standort.bezeichnung })
+          standorte.push({
+            id: standort.id,
+            bezeichnung: standort.bezeichnung,
+          })
         }
       }
       standorte.sort((a: any, b: any) => {
@@ -84,7 +87,7 @@ export const actions = {
         return 0
       })
 
-      let similarity = jaroWinkler(body.searchTxt,obj.index,{ caseSensitive: false }) // stringSimilarity.compareTwoStrings(body.searchTxt, obj.index)
+      let similarity = stringSimilarity.compareTwoStrings(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
 
       let data = {
         similarity: similarity,
@@ -108,7 +111,11 @@ export const actions = {
 
         let data: any = {
           type: "person",
-          name: { name: `${name}${person.vorname} ${person.nachname}`, id: person.id, type: "person" },
+          name: {
+            name: `${name}${person.vorname} ${person.nachname}`,
+            id: person.id,
+            type: "person",
+          },
         }
 
         result.push(Object.assign(data, createCommonData(person)))
@@ -119,7 +126,11 @@ export const actions = {
       for (let ressource of makeIterable(ressources.items)) {
         let data: any = {
           type: "ressource",
-          name: { name: ressource.bezeichner, id: ressource.id, type: "ressource" },
+          name: {
+            name: ressource.bezeichner,
+            id: ressource.id,
+            type: "ressource",
+          },
         }
 
         result.push(Object.assign(data, createCommonData(ressource)))
@@ -136,8 +147,12 @@ export const actions = {
       return 0
     })
 
+    console.log(`Search took ${Date.now() - starttime}ms`)
+
     if (result.length > 0) {
-      // console.log(result)
+      if (result.length > 100) {
+        result = result.slice(0, 100)
+      }
       return { data: structuredClone(result) }
     }
     return { nodata: true }

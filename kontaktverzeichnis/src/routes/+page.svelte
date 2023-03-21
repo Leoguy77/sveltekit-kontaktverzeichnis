@@ -15,6 +15,8 @@
 
   import Contact from "$lib/components/start/Contact.svelte"
 
+  let searchTxt: string
+
   let selectedIndex: number
 
   export let form: any
@@ -28,6 +30,11 @@
   function search() {
     loading = true
     form = null
+    // searchTxt = searchTxt
+  }
+
+  $: {
+    console.log(form?.data)
   }
 
   function sortName(a: any, b: any) {
@@ -56,9 +63,9 @@
     <div class="center-hd">
       <div class="search">
         {#if selectedIndex == 0}
-          <Search name="searchTxt" placeholder="Kontaktverzeichnis durchsuchen..." />
+          <Search name="searchTxt" placeholder="Kontaktverzeichnis durchsuchen..." bind:value={searchTxt} />
         {:else}
-          <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." />
+          <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." bind:value={searchTxt} />
         {/if}
         <input type="hidden" name="searchModus" bind:value={selectedIndex} />
         <Button type="submit" on:click={search}>Suchen</Button>
