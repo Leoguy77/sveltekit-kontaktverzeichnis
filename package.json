@@ -7,5 +7,9 @@
     "install": "node install.js"
   },
   "author": "marvint24",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^2.8.5",
+    "prettier-plugin-svelte": "^2.9.0"
+  }
 }

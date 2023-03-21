@@ -1,4 +1,4 @@
-*/node_modules/
+**/node_modules/
 pocketbase/pb_schema.json
 pocketBase/pb_data
 pocketBase/pb_migrations
