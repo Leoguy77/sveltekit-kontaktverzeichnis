@@ -1,0 +1,21 @@
+{
+    "configurations": [
+    {
+        "name": "Launch via NPM",
+        "request": "launch",
+        "runtimeArgs": [
+            "run",
+            "dev"
+        ],
+        "runtimeExecutable": "npm",
+        "skipFiles": [
+            "<node_internals>/**",
+            "/kontaktverzeichnis/node_modules/**"
+        ],
+        "type": "node",
+        //"trace": true,
+        "cwd": "${workspaceFolder}/kontaktverzeichnis",
+        "console": "integratedTerminal"
+    }
+    ]
+}
