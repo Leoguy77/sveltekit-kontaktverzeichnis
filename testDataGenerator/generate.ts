@@ -52,6 +52,14 @@ const locations = [
   ["Köln", "06412-3498"],
 ]
 
+const costunits = [
+  "11111",
+  "22222",
+  "33333",
+  "44444",
+  "55555",
+]
+
 let locationIds: any[] = []
 
 for (let location of locations) {
@@ -87,6 +95,14 @@ async function createRandomPhoneNummer() {
   return telefonEintrag.id
 }
 
+async function createRandomSecureData() {
+  const secureData: any = await pb.collection("secureData").create({
+    personalNummer: faker.random.numeric(5),
+    kostenstelle: getRandomItem(costunits)
+  })
+  return secureData.id
+}
+
 async function getDepartment(): Promise<string> {
   let department: string = getRandomItem(departmentIds)
   return department
@@ -112,6 +128,7 @@ async function createRandomPerson() {
     telefonEintraege: phoneNumber,
     abteilungen: abteilung,
     standort: location,
+    secureData: await createRandomSecureData(),
   })
   return user
 }
