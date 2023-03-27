@@ -1,10 +1,18 @@
 import { faker } from "@faker-js/faker"
 import PocketBase from "pocketbase"
 import dotenv from "dotenv"
+import commandLineArgs from "command-line-args"
 let env: any
 env = dotenv.config({ path: "../.env" })
-let args = process.argv.slice(2)
-let generateCount = args[0] || 10
+
+const optionDefinitions = [
+  { name: 'verbose', alias: 'v', type: Boolean },
+  { name: 'count', alias: 'c', type: Number, defaultOption: true, defaultValue: 10},
+]
+
+
+const options = commandLineArgs(optionDefinitions)
+
 
 const departments = [
   "Personalabteilung",
@@ -236,14 +244,18 @@ async function createEmptyUser() {
   })
 }
 
-for (let index = 0; index < generateCount; index++) {
+for (let index = 0; index < options.count; index++) {
   let user = await createRandomPerson()
-  //console.log(user)
+  if (options.verbose) {
+    console.log(user)
+  }
   createPersonIndex(user.id)
 }
-for (let index = 0; index < generateCount; index++) {
+for (let index = 0; index < options.count; index++) {
   let resource = await createRandomResource()
-  // console.log(resource)
+  if (options.verbose) {
+    console.log(resource)
+  }
   createResourceIndex(resource.id)
 }
 //createEmptyResource();
