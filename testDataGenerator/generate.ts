@@ -172,7 +172,6 @@ async function setPersonIndex(person: any) {
 
   if (person.expand.telefonEintraege) {
     for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"])
       index += ifNotEmpty(telefonEintrag["nummer"])
     }
   }
@@ -200,7 +199,6 @@ async function setRessourceIndex(ressource: any) {
 
   if (ressource.expand.telefonEintraege) {
     for (let telefonEintrag of makeIterable(ressource.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag.eintragTyp["bezeichner"])
       index += ifNotEmpty(telefonEintrag["nummer"])
     }
   }
