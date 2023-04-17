@@ -95,6 +95,9 @@
         {/if}
         {#if form?.data}
           <div class="resultTable">
+            {#if form.data.length > pageSize}
+              <Pagination bind:pageSize bind:page totalItems={form.data.length} pageSizeInputDisabled />
+            {/if}
             <DataTable
               sortable
               headers={[
@@ -144,7 +147,6 @@
                 {/if}
               </svelte:fragment>
             </DataTable>
-            <Pagination bind:pageSize bind:page totalItems={form.data.length} pageSizeInputDisabled />
           </div>
         {:else if form?.nodata}
           <h4>Keine Ergebisse gefunden</h4>
