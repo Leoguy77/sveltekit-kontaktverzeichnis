@@ -51,6 +51,10 @@
   // pages
   let pageSize = 20
   let page = 1
+
+  function jumpToStart() {
+    scrollTo(0, 0)
+  }
 </script>
 
 <svelte:head>
@@ -94,10 +98,7 @@
           <Loading withOverlay={false} />
         {/if}
         {#if form?.data}
-          <div class="resultTable">
-            {#if form.data.length > pageSize}
-              <Pagination bind:pageSize bind:page totalItems={form.data.length} pageSizeInputDisabled />
-            {/if}
+          <div class="resultTable" id="resultTable">
             <DataTable
               sortable
               headers={[
@@ -147,6 +148,14 @@
                 {/if}
               </svelte:fragment>
             </DataTable>
+            {#if form.data.length > pageSize}
+              <Pagination
+                bind:pageSize
+                bind:page
+                totalItems={form.data.length}
+                pageSizeInputDisabled
+                on:click:button--next={jumpToStart} />
+            {/if}
           </div>
         {:else if form?.nodata}
           <h4>Keine Ergebisse gefunden</h4>
