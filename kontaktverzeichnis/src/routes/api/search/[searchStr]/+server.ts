@@ -1,19 +1,21 @@
-import stringSimilarity from "string-similarity"
 // @ts-ignore
 import trigramSimilarity from "trigram-similarity"
 import dbCache from "$lib/scripts/dbCache.js"
 
-export const actions = {
-  search: async ({ request }: any) => {
+export async function GET({ params }: any) {
+  try {
     let starttime = Date.now()
 
-    const body = Object.fromEntries(await request.formData())
-
-    if (!body.searchTxt) {
-      return { nodata: true }
+    if (params.searchStr.length < 3) {
+      return new Response('{"message":"The searchStr must be longer than 2 symbols"}', {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
     }
 
-    let filter = body.searchTxt.split(" ")
+    let filter = params.searchStr.split(" ")
     let [persons, ressources] = dbCache.getCache()
 
     console.log("DB took " + (Date.now() - starttime) + "ms")
@@ -84,8 +86,8 @@ export const actions = {
         }
         return 0
       })
-      let similarity = trigramSimilarity(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
-      //let similarity = stringSimilarity.compareTwoStrings(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
+      let similarity = trigramSimilarity(params.searchStr.toLowerCase(), obj.index.toLowerCase())
+      //let similarity = stringSimilarity.compareTwoStrings(params.searchStr.toLowerCase(), obj.index.toLowerCase())
 
       let data = {
         similarity: similarity,
@@ -98,6 +100,7 @@ export const actions = {
       return data
     }
 
+    // main part of the function
     let result = []
 
     if (persons) {
@@ -149,12 +152,22 @@ export const actions = {
 
     console.log(`Search took ${Date.now() - starttime}ms`)
 
-    if (result.length > 0) {
-      if (result.length > 100) {
-        result = result.slice(0, 100)
-      }
-      return { data: structuredClone(result) }
+    if (result.length > 100) {
+      result = result.slice(0, 100)
     }
-    return { nodata: true }
-  },
+
+    let res = JSON.stringify(result)
+    return new Response(res, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  } catch {
+    return new Response('{"message":"Internal Error"}', {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
 }
