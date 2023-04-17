@@ -172,7 +172,7 @@
               on:click:button--next={jumpToStart} />
           {/if}
         </div>
-      {:else}
+      {:else if searchResult?.length === 0}
         <h4>Keine Ergebisse gefunden</h4>
       {/if}
     </section>
