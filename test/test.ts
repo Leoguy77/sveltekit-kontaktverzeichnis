@@ -1,19 +1,25 @@
 import PocketBase from "pocketbase"
-import dotenv from "dotenv"
-let env: any
-env = dotenv.config({ path: "../.env" })
 
 const pb = new PocketBase("http://127.0.0.1:8090")
+await pb.collection("users").authWithPassword("api", "yourPassword")
+console.log("DB loaded")
 
-await pb.collection("users").authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
+async function getFull(tableName: string) {
+  let arr = []
+  let resLenght = 500
+  let page = 1
 
-// let persons:any
-// persons = await pb.collection('person').getList(1, 50, {
-//     filter: `index ?~ "mal"`,
-//     expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"}
-// )
+  while (resLenght === 500) {
+    let res = await pb.collection(tableName).getList(page, 500, {
+      expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
+    })
+    resLenght = res.items.length
+    page++
+    arr.push(...res.items)
+  }
 
-// const persons = await pb.collection('person').getFullList({expand:"abteilungen,telefonEintraege,telefonEintraege.eintragTyp"})
-let persons: any
-persons = await pb.collection("person").getList(1, 50, { expand: "abteilungen,telefonEintraege,telefonEintraege.eintragTyp" })
-console.log(persons.items[0].expand)
+  return arr
+}
+
+let res = await getFull("person")
+console.log(res.length)

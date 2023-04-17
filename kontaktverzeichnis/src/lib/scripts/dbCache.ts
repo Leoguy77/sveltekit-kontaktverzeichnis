@@ -1,4 +1,23 @@
+import { Record } from "pocketbase"
 import pb from "./db.js"
+
+async function getFull(tableName: string) {
+  let arr: Record[] = []
+  let resLenght = 500
+  let page = 1
+
+  while (resLenght === 500) {
+    let res = await pb.collection(tableName).getList(page, 500, {
+      expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
+    })
+    resLenght = res.items.length
+    page++
+
+    arr.push(...res.items)
+  }
+
+  return arr
+}
 
 class dbCacheClass {
   cacheData: any
@@ -16,14 +35,7 @@ class dbCacheClass {
   async refreshCache() {
     let starttime = Date.now()
 
-    let [persons, ressources] = await Promise.all([
-      pb.collection("person").getList(1, 99999, {
-        expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
-      }),
-      pb.collection("ressource").getList(1, 99999, {
-        expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
-      }),
-    ])
+    let [persons, ressources] = await Promise.all([getFull("person"), getFull("ressource")])
 
     this.cacheData = [persons, ressources]
 

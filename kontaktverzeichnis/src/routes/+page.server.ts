@@ -1,31 +1,20 @@
 import stringSimilarity from "string-similarity"
-import pb from "$lib/scripts/db.js"
+// @ts-ignore
+import trigramSimilarity from "trigram-similarity"
+import dbCache from "$lib/scripts/dbCache.js"
 
 export const actions = {
   search: async ({ request }: any) => {
     let starttime = Date.now()
-    // console.log("---------\nsearch started")
+
     const body = Object.fromEntries(await request.formData())
 
     if (!body.searchTxt) {
       return { nodata: true }
     }
 
-    let filter = body.searchTxt
-      .split(" ")
-      .map((word: string) => `index ?~ "${word}"`)
-      .join(" || ")
-
-    let [persons, ressources] = await Promise.all([
-      pb.collection("person").getList(1, 9999, {
-        filter: filter,
-        expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
-      }),
-      pb.collection("ressource").getList(1, 9999, {
-        filter: filter,
-        expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
-      }),
-    ])
+    let filter = body.searchTxt.split(" ")
+    let [persons, ressources] = dbCache.getCache()
 
     console.log("DB took " + (Date.now() - starttime) + "ms")
 
@@ -34,6 +23,15 @@ export const actions = {
         return value
       }
       return [value]
+    }
+
+    function checkFilter(obj: any) {
+      for (let filterItem of filter) {
+        if (obj.index.toLowerCase().includes(filterItem.toLowerCase())) {
+          return true
+        }
+      }
+      return false
     }
 
     function createCommonData(obj: any) {
@@ -86,8 +84,8 @@ export const actions = {
         }
         return 0
       })
-
-      let similarity = stringSimilarity.compareTwoStrings(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
+      let similarity = trigramSimilarity(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
+      //let similarity = stringSimilarity.compareTwoStrings(body.searchTxt.toLowerCase(), obj.index.toLowerCase())
 
       let data = {
         similarity: similarity,
@@ -102,8 +100,8 @@ export const actions = {
 
     let result = []
 
-    if (persons.items) {
-      for (let person of makeIterable(persons.items)) {
+    if (persons) {
+      for (let person of makeIterable(persons)) {
         let name = ""
         if (person.titel) {
           name += person.titel + " "
@@ -117,13 +115,14 @@ export const actions = {
             type: "person",
           },
         }
-
-        result.push(Object.assign(data, createCommonData(person)))
+        if (checkFilter(person)) {
+          result.push(Object.assign(data, createCommonData(person)))
+        }
       }
     }
 
-    if (ressources.items) {
-      for (let ressource of makeIterable(ressources.items)) {
+    if (ressources) {
+      for (let ressource of makeIterable(ressources)) {
         let data: any = {
           type: "ressource",
           name: {
@@ -132,8 +131,9 @@ export const actions = {
             type: "ressource",
           },
         }
-
-        result.push(Object.assign(data, createCommonData(ressource)))
+        if (checkFilter(ressource)) {
+          result.push(Object.assign(data, createCommonData(ressource)))
+        }
       }
     }
 
