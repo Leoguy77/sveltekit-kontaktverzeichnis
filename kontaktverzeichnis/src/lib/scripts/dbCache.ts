@@ -1,8 +1,7 @@
-import { Record } from "pocketbase"
 import pb from "./db.js"
 
 async function getFull(tableName: string) {
-  let arr: Record[] = []
+  let arr = []
   let resLenght = 500
   let page = 1
 
@@ -44,6 +43,6 @@ class dbCacheClass {
 }
 
 var dbCache = new dbCacheClass()
-await dbCache.refreshCache()
+dbCache.refreshCache()
 
 export default dbCache
