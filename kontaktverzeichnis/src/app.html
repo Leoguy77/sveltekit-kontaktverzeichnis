@@ -11,6 +11,17 @@
         document.documentElement.setAttribute("theme", theme)
       }
     </script>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+
+      @media (prefers-reduced-motion) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">
