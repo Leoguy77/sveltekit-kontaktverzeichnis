@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from "$app/forms"
   import AddIcon from "$lib/icons/AddIcon.svelte"
   import {
     ContentSwitcher,
@@ -18,24 +17,27 @@
 
   let searchTxt: string
 
-  let selectedIndex: number
+  let selectedSearch: number
 
-  export let form: any
   export let data: any
+
   let loading = false
 
-  $: if (form?.data || form?.nodata) {
-    loading = false
+  let searchResult: any
+
+  function clearSearchResult() {
+    searchResult = null
   }
 
-  function search() {
+  async function search() {
+    clearSearchResult()
     loading = true
-    form = null
-    // searchTxt = searchTxt
-  }
+    const response = await fetch(`/api/search/${selectedSearch}/${searchTxt.replace(/[/?=]|\s\s/g, "")}`)
+    searchResult = await response.json()
+    console.log(searchResult?.length)
+    console.log(searchResult)
 
-  $: {
-    console.log("form", form?.data)
+    loading = false
   }
 
   function sortName(a: any, b: any) {
@@ -55,6 +57,17 @@
   function jumpToStart() {
     scrollTo(0, 0)
   }
+
+  // Search on input
+  let typingTimer: NodeJS.Timeout
+  function searchOnInput() {
+    clearTimeout(typingTimer)
+    typingTimer = setTimeout(() => {
+      if (searchTxt.trim().length > 2) {
+        search()
+      }
+    }, 500)
+  }
 </script>
 
 <svelte:head>
@@ -63,106 +76,107 @@
 
 <div class="center-hd">
   <div class="contentSwitcher">
-    <ContentSwitcher bind:selectedIndex>
+    <ContentSwitcher bind:selectedIndex={selectedSearch}>
       <Switch text="Allgemeine Suche" />
       <Switch text="Abteilungen" />
     </ContentSwitcher>
   </div>
-  <form action="?/search" method="POST" use:enhance>
-    <div class="center-hd">
-      <div class="search">
-        {#if selectedIndex == 0}
-          <Search name="searchTxt" placeholder="Kontaktverzeichnis durchsuchen..." bind:value={searchTxt} />
-        {:else}
-          <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." bind:value={searchTxt} />
-        {/if}
-        <input type="hidden" name="searchModus" bind:value={selectedIndex} />
-        <Button type="submit" on:click={search}>Suchen</Button>
-      </div>
-      {#if data.user}
-        {#if selectedIndex === 0}
-          <div class="add">
-            <OverflowMenu icon={AddIcon}>
-              <OverflowMenuItem href="/person/new" text="Person erstellen" />
-              <OverflowMenuItem href="/ressource/new" text="Ressource erstellen" />
-            </OverflowMenu>
-          </div>
-        {:else if selectedIndex === 1}
-          <div class="add2">
-            <Button icon={AddIcon} href="/abteilung/new" size="small" kind="ghost" iconDescription="Abteilung erstellen" />
-          </div>
-        {/if}
+  <div class="center-hd w100">
+    <div class="search">
+      {#if selectedSearch == 0}
+        <Search
+          name="searchTxt"
+          placeholder="Kontaktverzeichnis durchsuchen..."
+          bind:value={searchTxt}
+          on:input={searchOnInput}
+          on:clear={clearSearchResult} />
+      {:else}
+        <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." bind:value={searchTxt} on:clear={clearSearchResult} />
       {/if}
-      <section class="dataTable">
-        {#if loading}
-          <Loading withOverlay={false} />
-        {/if}
-        {#if form?.data}
-          <div class="resultTable" id="resultTable">
-            <DataTable
-              sortable
-              headers={[
-                { key: "name", value: "Name", sort: (a, b) => sortName(a, b) },
-                { key: "standort", value: "Standort", sort: false },
-                { key: "abteilungen", value: "Abteilung", sort: false },
-                { key: "kontakt", value: "Kontakt", sort: false },
-              ]}
-              rows={form.data}
-              {pageSize}
-              {page}>
-              <svelte:fragment slot="cell" let:row let:cell>
-                {#if cell.key === "name"}
-                  <div class="center">
-                    {#if cell.value.type === "person"}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        fill="currentColor"
-                        class="bi bi-person-circle"
-                        viewBox="0 0 16 16">
-                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-                        <path
-                          fill-rule="evenodd"
-                          d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
-                      </svg>
-                    {:else}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"
-                        ><path
-                          fill="currentColor"
-                          d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
-                          fill="currentColor"
-                          d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
-                    {/if}
-                    <Link style="margin-left:1rem" href="/{cell.value.type}/id/{cell.value.id}">{cell.value.name}</Link>
-                  </div>
-                {:else if cell.key === "standort"}
-                  {#each cell.value as standort (standort.id)}
-                    <p>{standort.bezeichnung}</p>
-                  {/each}
-                {:else if cell.key === "abteilungen"}
-                  {#each cell.value as abteilung (abteilung.id)}
-                    <p><Link href="/abteilung/id/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
-                  {/each}
-                {:else if cell.key === "kontakt"}
-                  <Contact contact={cell.value} />
-                {/if}
-              </svelte:fragment>
-            </DataTable>
-            {#if form.data.length > pageSize}
-              <Pagination
-                bind:pageSize
-                bind:page
-                totalItems={form.data.length}
-                pageSizeInputDisabled
-                on:click:button--next={jumpToStart} />
-            {/if}
-          </div>
-        {:else if form?.nodata}
-          <h4>Keine Ergebisse gefunden</h4>
-        {/if}
-      </section>
     </div>
-  </form>
+    {#if data.user}
+      {#if selectedSearch === 0}
+        <div class="add">
+          <OverflowMenu icon={AddIcon}>
+            <OverflowMenuItem href="/person/new" text="Person erstellen" />
+            <OverflowMenuItem href="/ressource/new" text="Ressource erstellen" />
+          </OverflowMenu>
+        </div>
+      {:else if selectedSearch === 1}
+        <div class="add2">
+          <Button icon={AddIcon} href="/abteilung/new" size="small" kind="ghost" iconDescription="Abteilung erstellen" />
+        </div>
+      {/if}
+    {/if}
+    <section class="dataTable">
+      {#if loading}
+        <Loading withOverlay={false} />
+      {/if}
+      {#if searchResult?.length > 0}
+        <div class="resultTable" id="resultTable">
+          <DataTable
+            sortable
+            headers={[
+              { key: "name", value: "Name", sort: (a, b) => sortName(a, b) },
+              { key: "standort", value: "Standort", sort: false },
+              { key: "abteilungen", value: "Abteilung", sort: false },
+              { key: "kontakt", value: "Kontakt", sort: false },
+            ]}
+            rows={searchResult}
+            {pageSize}
+            {page}>
+            <svelte:fragment slot="cell" let:row let:cell>
+              {#if cell.key === "name"}
+                <div class="center">
+                  {#if cell.value.type === "person"}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      fill="currentColor"
+                      class="bi bi-person-circle"
+                      viewBox="0 0 16 16">
+                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+                      <path
+                        fill-rule="evenodd"
+                        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+                    </svg>
+                  {:else}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"
+                      ><path
+                        fill="currentColor"
+                        d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
+                        fill="currentColor"
+                        d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
+                  {/if}
+                  <Link style="margin-left:1rem" href="/{cell.value.type}/id/{cell.value.id}">{cell.value.name}</Link>
+                </div>
+              {:else if cell.key === "standort"}
+                {#each cell.value as standort (standort.id)}
+                  <p>{standort.bezeichnung}</p>
+                {/each}
+              {:else if cell.key === "abteilungen"}
+                {#each cell.value as abteilung (abteilung.id)}
+                  <p><Link href="/abteilung/id/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
+                {/each}
+              {:else if cell.key === "kontakt"}
+                <Contact contact={cell.value} />
+              {/if}
+            </svelte:fragment>
+          </DataTable>
+          {#if searchResult?.length > pageSize}
+            <Pagination
+              bind:pageSize
+              bind:page
+              totalItems={searchResult?.length}
+              pageSizeInputDisabled
+              on:click:button--next={jumpToStart} />
+          {/if}
+        </div>
+      {:else}
+        <h4>Keine Ergebisse gefunden</h4>
+      {/if}
+    </section>
+  </div>
 </div>
 
 <style>
@@ -205,7 +219,7 @@
   .resultTable {
     width: calc(100% - 6rem);
   }
-  .center-hd > form {
+  .w100 {
     width: 100%;
   }
   .dataTable {
