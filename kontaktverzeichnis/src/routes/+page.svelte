@@ -11,6 +11,7 @@
     Loading,
     OverflowMenu,
     OverflowMenuItem,
+    Pagination,
   } from "carbon-components-svelte"
 
   import Contact from "$lib/components/start/Contact.svelte"
@@ -34,7 +35,7 @@
   }
 
   $: {
-    console.log(form?.data)
+    console.log("form", form?.data)
   }
 
   function sortName(a: any, b: any) {
@@ -46,6 +47,10 @@
     }
     return 0
   }
+
+  // pages
+  let pageSize = 20
+  let page = 1
 </script>
 
 <svelte:head>
@@ -98,7 +103,9 @@
                 { key: "abteilungen", value: "Abteilung", sort: false },
                 { key: "kontakt", value: "Kontakt", sort: false },
               ]}
-              rows={form.data}>
+              rows={form.data}
+              {pageSize}
+              {page}>
               <svelte:fragment slot="cell" let:row let:cell>
                 {#if cell.key === "name"}
                   <div class="center">
@@ -137,6 +144,7 @@
                 {/if}
               </svelte:fragment>
             </DataTable>
+            <Pagination bind:pageSize bind:page totalItems={form.data.length} pageSizeInputDisabled />
           </div>
         {:else if form?.nodata}
           <h4>Keine Ergebisse gefunden</h4>
