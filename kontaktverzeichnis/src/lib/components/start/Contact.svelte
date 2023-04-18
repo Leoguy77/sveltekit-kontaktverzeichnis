@@ -33,7 +33,7 @@
           <Number telefonEintrag={eintrag} />
         {/each}
         {#if standort.count > numberLimit}
-          <div class="center">
+          <div class="center-v">
             <p>+{standort.count - numberLimit}</p>
           </div>
         {/if}
@@ -46,7 +46,7 @@
           <Number telefonEintrag={eintrag} />
         {/each}
         {#if standort.count > numberLimit}
-          <div class="center">
+          <div class="center-v">
             <p>+{standort.count - numberLimit}</p>
           </div>
         {/if}
@@ -79,9 +79,5 @@
     flex-direction: row;
     flex-wrap: wrap;
     gap: 1rem;
-  }
-  .center {
-    display: flex;
-    align-items: center;
   }
 </style>
