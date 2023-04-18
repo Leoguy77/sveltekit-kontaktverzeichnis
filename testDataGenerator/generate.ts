@@ -2,17 +2,17 @@ import { faker } from "@faker-js/faker"
 import PocketBase from "pocketbase"
 import dotenv from "dotenv"
 import commandLineArgs from "command-line-args"
+import { setPersonIndex } from "../indexGenerator/generateIndex.js"
+import { setRessourceIndex } from "../indexGenerator/generateIndex.js"
 let env: any
 env = dotenv.config({ path: "../.env" })
 
 const optionDefinitions = [
-  { name: 'verbose', alias: 'v', type: Boolean },
-  { name: 'count', alias: 'c', type: Number, defaultOption: true, defaultValue: 10},
+  { name: "verbose", alias: "v", type: Boolean },
+  { name: "count", alias: "c", type: Number, defaultOption: true, defaultValue: 10 },
 ]
 
-
 const options = commandLineArgs(optionDefinitions)
-
 
 const departments = [
   "Personalabteilung",
@@ -52,13 +52,7 @@ const locations = [
   ["Köln", "06412-3498"],
 ]
 
-const costunits = [
-  "11111",
-  "22222",
-  "33333",
-  "44444",
-  "55555",
-]
+const costunits = ["11111", "22222", "33333", "44444", "55555"]
 
 let locationIds: any[] = []
 
@@ -98,7 +92,7 @@ async function createRandomPhoneNummer() {
 async function createRandomSecureData() {
   const secureData: any = await pb.collection("secureData").create({
     personalNummer: faker.random.numeric(5),
-    kostenstelle: getRandomItem(costunits)
+    kostenstelle: getRandomItem(costunits),
   })
   return secureData.id
 }
@@ -174,62 +168,8 @@ function makeIterable(value: any): any {
   }
   return [value]
 }
-async function setPersonIndex(person: any) {
-  let index = ""
-  index += ifNotEmpty(person["titel"])
-  index += ifNotEmpty(person["vorname"])
-  index += ifNotEmpty(person["nachname"])
-  index += ifNotEmpty(person["email"])
 
-  if (person.expand.standort) {
-    for (let standort of makeIterable(person.expand.standort)) {
-      index += ifNotEmpty(standort["bezeichnung"])
-    }
-  }
 
-  if (person.expand.telefonEintraege) {
-    for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag["nummer"])
-    }
-  }
-
-  if (person.expand.abteilungen) {
-    for (let abteilung of makeIterable(person.abteilungen)) {
-      index += ifNotEmpty(abteilung["bezeichnung"])
-      index += ifNotEmpty(abteilung["kurzBezeichnung"])
-    }
-  }
-
-  let data = { index: index }
-  await pb.collection("person").update(person.id, data)
-}
-async function setRessourceIndex(ressource: any) {
-  let index = ""
-  index += ifNotEmpty(ressource["bezeichner"])
-  index += ifNotEmpty(ressource["email"])
-
-  if (ressource.expand.standort) {
-    for (let standort of makeIterable(ressource.standort)) {
-      index += ifNotEmpty(standort["bezeichnung"])
-    }
-  }
-
-  if (ressource.expand.telefonEintraege) {
-    for (let telefonEintrag of makeIterable(ressource.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag["nummer"])
-    }
-  }
-
-  if (ressource.expand.abteilungen) {
-    for (let abteilung of makeIterable(ressource.abteilungen)) {
-      index += ifNotEmpty(abteilung["bezeichnung"])
-      index += ifNotEmpty(abteilung["kurzBezeichnung"])
-    }
-  }
-
-  let data = { index: index }
-  await pb.collection("ressource").update(ressource.id, data)
-}
 async function createPersonIndex(userid: string) {
   const person = await pb.collection("person").getOne(userid, {
     expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp",
