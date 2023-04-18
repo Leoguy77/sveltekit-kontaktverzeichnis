@@ -1,3 +1,4 @@
+import type { Record } from "pocketbase"
 import pb from "./db.ts"
 
 async function getFull(tableName: string) {
@@ -19,7 +20,7 @@ async function getFull(tableName: string) {
 }
 
 class dbCacheClass {
-  cacheData: any
+  cacheData: [Record[], Record[]] = [[], []]
 
   constructor() {
     setInterval(async () => {
