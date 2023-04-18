@@ -47,6 +47,13 @@
     loading = true
     const response = await fetch("/api/abteilung/")
     departments = await response.json()
+    departments = departments.map((department: any) => {
+      return {
+        id: department.id,
+        name: department.bezeichnung,
+        mitarbeiter: department.count,
+      }
+    })
     loading = false
   }
 </script>
