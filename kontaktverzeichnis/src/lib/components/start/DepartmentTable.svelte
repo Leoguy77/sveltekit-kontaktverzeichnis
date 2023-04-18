@@ -6,7 +6,17 @@
   let pageSize = 10
   let page = 1
 
-  export let searchResult: any
+  export let departments: any
+  export let searchTxt: string
+
+  let searchResult: any
+
+  $: {
+    searchResult = departments.filter((el: any) => {
+      if (el.name.toLocaleLowerCase().includes(searchTxt.toLocaleLowerCase())) return true
+      else return false
+    })
+  }
 </script>
 
 <section class="dataTable">

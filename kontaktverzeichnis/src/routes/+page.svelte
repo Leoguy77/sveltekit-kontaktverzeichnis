@@ -14,12 +14,13 @@
   let searchResult: any
   let departments: any
 
-  function clearSearchResult() {
+  function removeTable() {
     searchResult = null
+    departments = null
   }
 
   async function search() {
-    clearSearchResult()
+    removeTable()
     loading = true
     const response = await fetch(`/api/search/${selectedSearch}/${searchTxt.replace(/[/?=]|\s\s/g, "")}`)
     searchResult = await response.json()
@@ -39,7 +40,11 @@
 
   function clearSearch() {
     searchTxt = ""
-    clearSearchResult()
+    removeTable()
+  }
+
+  function clearDepartmentSearch() {
+    searchTxt = ""
   }
 
   async function loadDepartments() {
@@ -77,9 +82,9 @@
           placeholder="Kontaktverzeichnis durchsuchen..."
           bind:value={searchTxt}
           on:input={searchOnInput}
-          on:clear={clearSearchResult} />
+          on:clear={removeTable} />
       {:else}
-        <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." bind:value={searchTxt} on:clear={clearSearchResult} />
+        <Search name="searchTxt" placeholder="Abteilungen durchsuchen..." bind:value={searchTxt} on:clear={clearDepartmentSearch} />
       {/if}
     </div>
     {#if data.user}
@@ -104,7 +109,7 @@
     {#if searchResult}
       <SearchTable bind:searchResult />
     {:else if departments}
-      <DepartmentTable bind:searchResult={departments} />
+      <DepartmentTable bind:departments bind:searchTxt />
     {/if}
   </div>
 </div>
