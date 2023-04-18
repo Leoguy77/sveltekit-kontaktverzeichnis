@@ -148,8 +148,8 @@ export async function GET({ params }: any) {
 
       console.log(`Search took ${Date.now() - starttime}ms`)
 
-      if (result.length > 100) {
-        result = result.slice(0, 100)
+      if (result.length > 50) {
+        result = result.slice(0, 50)
       }
 
       let res = JSON.stringify(result)
