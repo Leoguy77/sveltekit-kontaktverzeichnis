@@ -44,6 +44,5 @@ class dbCacheClass {
 }
 
 var dbCache = new dbCacheClass()
-dbCache.refreshCache()
 
 export default dbCache

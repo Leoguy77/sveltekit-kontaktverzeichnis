@@ -1,4 +1,7 @@
 import PocketBase from "pocketbase"
+import dbCache from "$lib/scripts/dbCache.ts"
+
+await dbCache.refreshCache()
 
 export const handle = async ({ event, resolve }: any) => {
   event.locals.pb = new PocketBase("http://127.0.0.1:8090")
