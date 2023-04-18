@@ -6,7 +6,8 @@
     "moduleResolution": "nodenext", //nodenext oder node
     "sourceMap": true,
     "outDir": "./out",
-
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
