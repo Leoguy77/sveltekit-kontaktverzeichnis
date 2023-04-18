@@ -92,3 +92,6 @@ const ressources = await pb
 for (let ressource of makeIterable(ressources)) {
   setRessourceIndex(ressource)
 }
+
+export { setPersonIndex }
+export { setRessourceIndex }
