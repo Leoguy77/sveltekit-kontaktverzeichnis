@@ -5,16 +5,10 @@ import dbCache from "$lib/scripts/dbCache.js"
 export async function GET({ params }: any) {
   try {
     let searchStr = params.searchStr
-    console.log("Search for '" + searchStr + "'")
-    console.log("Search for " + searchStr.length)
 
     function normalSearch() {
-      let starttime = Date.now()
-
       let filter = searchStr.split(" ")
       let [persons, ressources] = dbCache.getCache()
-
-      console.log("DB took " + (Date.now() - starttime) + "ms")
 
       function makeIterable(value: any): any {
         if (typeof value[Symbol.iterator] === "function") {
@@ -145,8 +139,6 @@ export async function GET({ params }: any) {
         }
         return 0
       })
-
-      console.log(`Search took ${Date.now() - starttime}ms`)
 
       if (result.length > 50) {
         result = result.slice(0, 50)
