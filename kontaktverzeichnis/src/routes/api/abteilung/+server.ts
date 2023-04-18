@@ -1,15 +1,27 @@
-export async function GET({ locals }: any) {
+import db from "$lib/scripts/db.ts"
+import dbCache from "$lib/scripts/dbCache.ts"
+
+export async function GET() {
   try {
-    if (!locals?.pb?.authStore?.isValid) {
-      return new Response('{"message":"Not authenticated"}', {
-        status: 401,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+    let abteilungen = await db.collection("abteilung").getFullList()
+    for (let abteilung of abteilungen) {
+      abteilung.count = 0
     }
-    let eintragTypen = await locals.pb.collection("abteilung").getFullList()
-    let res = JSON.stringify(eintragTypen)
+
+    let [persons, ressources] = dbCache.getCache()
+    let entries = [...persons, ...ressources]
+
+    for (let entry of entries) {
+      let abteilungenIDs = entry.abteilungen
+      for (let abteilung of abteilungenIDs) {
+        let index = abteilungen.findIndex((a) => a.id === abteilung)
+        if (index !== -1) {
+          abteilungen[index].count++
+        }
+      }
+    }
+
+    let res = JSON.stringify(abteilungen)
 
     return new Response(res, {
       headers: {
