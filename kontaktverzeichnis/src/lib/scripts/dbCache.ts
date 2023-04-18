@@ -1,4 +1,4 @@
-import pb from "./db.js"
+import pb from "./db.ts"
 
 async function getFull(tableName: string) {
   let arr = []

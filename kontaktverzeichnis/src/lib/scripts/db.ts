@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase"
-import { getDotEnv } from "./env.js"
+import { getDotEnv } from "./env.ts"
 
 let env: any = getDotEnv()
 
