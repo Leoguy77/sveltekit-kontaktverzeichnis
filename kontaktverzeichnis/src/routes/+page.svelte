@@ -31,13 +31,13 @@
 
   async function search() {
     clearSearchResult()
-    loading = true
+    //loading = true
     const response = await fetch(`/api/search/${selectedSearch}/${searchTxt.replace(/[/?=]|\s\s/g, "")}`)
     searchResult = await response.json()
     console.log(searchResult?.length)
     console.log(searchResult)
 
-    loading = false
+    //loading = false
   }
 
   function sortName(a: any, b: any) {
@@ -51,22 +51,18 @@
   }
 
   // pages
-  let pageSize = 20
+  let pageSize = 10
   let page = 1
-
-  function jumpToStart() {
-    scrollTo(0, 0)
-  }
 
   // Search on input
   let typingTimer: NodeJS.Timeout
   function searchOnInput() {
     clearTimeout(typingTimer)
     typingTimer = setTimeout(() => {
-      if (searchTxt.trim().length > 2) {
+      if (searchTxt.trim().length > 1) {
         search()
       }
-    }, 500)
+    }, 5)
   }
 </script>
 
@@ -163,15 +159,10 @@
               {/if}
             </svelte:fragment>
           </DataTable>
-          {#if searchResult?.length > pageSize}
-            <Pagination
-              bind:pageSize
-              bind:page
-              totalItems={searchResult?.length}
-              pageSizeInputDisabled
-              on:click:button--next={jumpToStart} />
-          {/if}
         </div>
+        {#if searchResult?.length > pageSize}
+          <Pagination bind:pageSize bind:page totalItems={searchResult?.length} pageSizeInputDisabled />
+        {/if}
       {:else if searchResult?.length === 0}
         <h4>Keine Ergebisse gefunden</h4>
       {/if}
@@ -217,7 +208,8 @@
     align-items: center;
   }
   .resultTable {
-    width: calc(100% - 6rem);
+    height: calc(100vh - 410px);
+    overflow-y: auto;
   }
   .w100 {
     width: 100%;
@@ -228,6 +220,8 @@
     justify-content: center;
     width: 100%;
     margin-bottom: 5rem;
+    flex-direction: column;
+    width: calc(100% - 6rem);
   }
   .search {
     width: 550px;
@@ -252,5 +246,10 @@
   }
   :global(.bx--link:visited) {
     color: var(--cds-text-01);
+  }
+  :global(#resultTable > div.bx--data-table-container > table > thead) {
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 </style>
