@@ -1,7 +1,8 @@
 <script lang="ts">
   import AddIcon from "$lib/icons/AddIcon.svelte"
   import SearchTable from "$lib/components/start/SearchTable.svelte"
-  import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem } from "carbon-components-svelte"
+  import DepartmentTable from "$lib/components/start/DepartmentTable.svelte"
+  import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem, Loading } from "carbon-components-svelte"
 
   let searchTxt: string
   let selectedSearch: number
@@ -11,6 +12,7 @@
   let loading = false
 
   let searchResult: any
+  let departments: any
 
   function clearSearchResult() {
     searchResult = null
@@ -32,7 +34,20 @@
       if (searchTxt.trim().length > 1) {
         search()
       }
-    }, 500)
+    }, 300)
+  }
+
+  function clearSearch() {
+    searchTxt = ""
+    clearSearchResult()
+  }
+
+  async function loadDepartments() {
+    clearSearch()
+    loading = true
+    const response = await fetch("/api/abteilung/")
+    departments = await response.json()
+    loading = false
   }
 </script>
 
@@ -43,8 +58,8 @@
 <div class="center-hd">
   <div class="contentSwitcher">
     <ContentSwitcher bind:selectedIndex={selectedSearch}>
-      <Switch text="Allgemeine Suche" />
-      <Switch text="Abteilungen" />
+      <Switch text="Allgemeine Suche" on:click={clearSearch} />
+      <Switch text="Abteilungen" on:click={loadDepartments} />
     </ContentSwitcher>
   </div>
   <div class="center-hd w100">
@@ -74,7 +89,16 @@
         </div>
       {/if}
     {/if}
-    <SearchTable bind:searchResult bind:loading />
+    {#if loading}
+      <div class="loading">
+        <Loading withOverlay={false} />
+      </div>
+    {/if}
+    {#if searchResult}
+      <SearchTable bind:searchResult />
+    {:else if departments}
+      <DepartmentTable bind:searchResult={departments} />
+    {/if}
   </div>
 </div>
 
@@ -124,5 +148,10 @@
   :global(.bx--content-switcher-btn) {
     display: flex;
     justify-content: center;
+  }
+  .loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 4rem;
   }
 </style>

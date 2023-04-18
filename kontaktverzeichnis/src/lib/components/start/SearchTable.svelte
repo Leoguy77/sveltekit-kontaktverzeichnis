@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { DataTable, Loading, Link, Pagination } from "carbon-components-svelte"
+  import { DataTable, Link, Pagination } from "carbon-components-svelte"
   import Contact from "$lib/components/start/Contact.svelte"
 
   // pages
   let pageSize = 10
   let page = 1
 
-  export let loading: boolean
   export let searchResult: any
 
   function sortName(a: any, b: any) {
@@ -21,11 +20,6 @@
 </script>
 
 <section class="dataTable">
-  {#if loading}
-    <div class="center">
-      <Loading withOverlay={false} />
-    </div>
-  {/if}
   {#if searchResult?.length > 0}
     <div class="resultTable" id="resultTable">
       <DataTable
@@ -41,7 +35,7 @@
         {page}>
         <svelte:fragment slot="cell" let:row let:cell>
           {#if cell.key === "name"}
-            <div class="center">
+            <div class="center-v">
               {#if cell.value.type === "person"}
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
                   <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
@@ -77,16 +71,20 @@
       <Pagination bind:pageSize bind:page totalItems={searchResult?.length} pageSizeInputDisabled />
     {/if}
   {:else if searchResult?.length === 0}
-    <div class="center">
+    <div class="center-h">
       <h4>Keine Ergebisse gefunden</h4>
     </div>
   {/if}
 </section>
 
 <style>
-  .center {
+  .center-h {
     display: flex;
     justify-content: center;
+  }
+  .center-v {
+    display: flex;
+    align-items: center;
   }
   .dataTable {
     margin-top: 2rem;
