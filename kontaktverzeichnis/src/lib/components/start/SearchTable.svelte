@@ -68,7 +68,15 @@
       </DataTable>
     </div>
     {#if searchResult?.length > pageSize}
-      <Pagination bind:pageSize bind:page totalItems={searchResult?.length} pageSizeInputDisabled />
+      <Pagination
+        bind:pageSize
+        bind:page
+        totalItems={searchResult?.length}
+        pageSizeInputDisabled
+        forwardText="Nächste Seite"
+        backwardText="Vorherige Seite"
+        itemRangeText={(min, max, total) => `${min}-${max} von ${total} Ergebnissen`}
+        pageRangeText={(current, total) => `von ${total} Seite${total === 1 ? "" : "n"}`} />
     {/if}
   {:else if searchResult?.length === 0}
     <div class="center-h">
