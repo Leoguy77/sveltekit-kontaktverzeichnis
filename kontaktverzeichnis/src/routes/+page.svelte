@@ -107,15 +107,20 @@
         <Loading withOverlay={false} />
       </div>
     {/if}
-    {#if searchResult}
-      <SearchTable bind:searchResult />
-    {:else if departments}
-      <DepartmentTable bind:departments bind:searchTxt />
-    {/if}
+    <section class="rs-table">
+      {#if searchResult}
+        <SearchTable bind:searchResult />
+      {:else if departments}
+        <DepartmentTable bind:departments bind:searchTxt />
+      {/if}
+    </section>
   </div>
 </div>
 
 <style>
+  section.rs-table {
+    width: calc(100% - 6rem);
+  }
   @media all and (min-width: 955px) {
     .add {
       position: absolute;

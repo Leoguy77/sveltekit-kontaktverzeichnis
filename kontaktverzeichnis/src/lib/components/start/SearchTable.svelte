@@ -101,7 +101,6 @@
     width: 100%;
     margin-bottom: 5rem;
     flex-direction: column;
-    width: calc(100% - 6rem);
   }
   p {
     font-size: 14px;
