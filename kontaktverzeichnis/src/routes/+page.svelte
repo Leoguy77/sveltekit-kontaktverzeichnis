@@ -22,8 +22,9 @@
   async function search() {
     removeTable()
     loading = true
-    const response = await fetch(`/api/search/${selectedSearch}/${searchTxt.replace(/[/?=]|\s\s/g, "")}`)
+    const response = await fetch(`/api/search/${searchTxt.replace(/[/?=]|\s\s/g, "")}`)
     searchResult = await response.json()
+    console.log(searchResult)
     loading = false
   }
 
