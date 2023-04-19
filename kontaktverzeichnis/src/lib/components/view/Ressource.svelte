@@ -5,10 +5,10 @@
   import DeleteIcon from "$lib/icons/DeleteIcon.svelte"
   import AddIcon from "$lib/icons/AddIcon.svelte"
   import { enhance } from "$app/forms"
-  import NumberTable from "./NumberTable.svelte"
-  import AddNumber from "./AddNumber.svelte"
-  import AddDepartment from "./AddDepartment.svelte"
-  import AddCompany from "./AddCompany.svelte"
+  import NumberTable from "./elements/NumberTable.svelte"
+  import AddNumber from "./elements/AddNumber.svelte"
+  import AddDepartment from "./elements/AddDepartment.svelte"
+  import AddCompany from "./elements/AddCompany.svelte"
 
   let popups: any = {
     AddNumber: AddNumber,
