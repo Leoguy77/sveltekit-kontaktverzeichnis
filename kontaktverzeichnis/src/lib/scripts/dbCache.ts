@@ -29,7 +29,7 @@ class dbCacheClass {
   }
 
   getCache() {
-    return this.cacheData
+    return structuredClone(this.cacheData)
   }
 
   async refreshCache() {
