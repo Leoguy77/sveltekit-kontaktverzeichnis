@@ -1,41 +1,99 @@
 <script lang="ts">
-  import TextField from "$lib/components/TextField.svelte"
   import SearchTable from "$lib/components/start/SearchTable.svelte"
-  import { TextInput, Loading } from "carbon-components-svelte"
+  import { TextInput } from "carbon-components-svelte"
+  import DeleteIcon from "$lib/icons/DeleteIcon.svelte"
+  import AcceptIcon from "$lib/icons/AcceptIcon.svelte"
+  import EditIcon from "$lib/icons/EditIcon.svelte"
+  import { page } from "$app/stores"
+  import { goto } from "$app/navigation"
+
+  let id = $page.params.id
 
   export let data: any
 
-  let loading: boolean = false
+  let edit = false
 
-  let Combofield: any
-  if (data?.user) {
-    Combofield = TextInput
-  } else {
-    Combofield = TextField
+  let name = data.department.bezeichnung
+
+  async function deleteDepartment() {
+    let response = await fetch(`/api/abteilung/${id}`, {
+      method: "DELETE",
+    })
+    if (response.ok) {
+      console.log("Abteilung gelöscht")
+    }
+  }
+
+  function renameDepartment() {
+    edit = false
+  }
+
+  function activateEdit() {
+    edit = true
   }
 </script>
 
-{#if loading}
-  <Loading />
-{:else}
-  <!-- {#if data?.user}
-    <div>edit</div>
-  {/if} -->
-  {#if data?.entities}
-    <section>
-      <h2>{data.department.bezeichnung}</h2>
-      <div class="center-hd">
-        <SearchTable searchResult={data.entities} />
+<svelte:head>
+  <title>{data.department.bezeichnung}</title>
+</svelte:head>
+
+<section class="abteilungView">
+  <div class="line">
+    {#if edit}
+      <div class="edt-btn">
+        <TextInput labelText="Bezeichnung" bind:value={name} />
+        <div class="accept-bnt dwn" on:click={renameDepartment} on:keydown>
+          <AcceptIcon size={24} />
+        </div>
       </div>
-    </section>
-  {/if}
-{/if}
+    {:else}
+      <h2>{name}</h2>
+    {/if}
+    <div class="dwn">
+      {#if data?.user}
+        <div on:click={activateEdit} on:keydown>
+          <EditIcon size={24} />
+        </div>
+        {#if data.entities.length == 0}
+          <div on:click={deleteDepartment} on:keydown>
+            <DeleteIcon size={24} />
+          </div>
+        {/if}
+      {/if}
+    </div>
+  </div>
+  <div class="center-hd">
+    <SearchTable searchResult={data.entities} />
+  </div>
+</section>
 
 <style>
-  h2 {
-    margin: 4rem 0 4rem 0;
+  div.line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 3rem 0 3rem 0;
+  }
+  div.line > div > div {
+    display: inline;
+    margin-right: 1rem;
+  }
+  .edt-btn {
+    min-width: 400px;
+    display: flex;
+    align-items: center;
+  }
+  .accept-bnt {
+    display: inline;
+    margin-left: 1rem;
   }
   section {
     margin: 2rem 3.5rem 0 3.5rem;
   }
+  .dwn {
+    transform: translate(0, 1rem);
+  }
+  /* :global(section.abteilungView > svg) {
+    margin: 0;
+  } */
 </style>
