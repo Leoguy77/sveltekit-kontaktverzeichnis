@@ -51,9 +51,11 @@
     {/if}
     <div class="dwn">
       {#if data?.user}
-        <div on:click={activateEdit} on:keydown>
-          <EditIcon size={24} />
-        </div>
+        {#if !edit}
+          <div on:click={activateEdit} on:keydown>
+            <EditIcon size={24} />
+          </div>
+        {/if}
         {#if data.entities.length == 0}
           <div on:click={deleteDepartment} on:keydown>
             <DeleteIcon size={24} />

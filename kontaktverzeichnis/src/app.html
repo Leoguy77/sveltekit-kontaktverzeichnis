@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
@@ -9,6 +9,9 @@
       let theme = localStorage.getItem("__carbon-theme")
       if (theme) {
         document.documentElement.setAttribute("theme", theme)
+      } else {
+        localStorage.setItem("__carbon-theme", "g100")
+        document.documentElement.setAttribute("theme", "g100")
       }
     </script>
     <style>
