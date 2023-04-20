@@ -38,5 +38,6 @@
     height: 1.5rem;
     margin: 0 1rem 0 1rem;
     cursor: pointer;
+    color: #f4f4f4;
   }
 </style>

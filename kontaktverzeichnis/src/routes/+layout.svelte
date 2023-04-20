@@ -2,7 +2,7 @@
   import ThemeSwitch from "$lib/components/layout/ThemeSwitch.svelte"
   import { page } from "$app/stores"
 
-  let currentPage
+  let currentPage: any
   $: {
     if (!$page.url.pathname.startsWith("/login")) {
       currentPage = $page.url.pathname
@@ -11,7 +11,12 @@
 </script>
 
 <header>
-  <a href="/"><h2>Kontaktverzeichnis</h2></a>
+  <a href="/" class="start-btn">
+    <div class="white-logo">
+      <img src={"/cust/logo.svg"} alt="" />
+      <h2>Kontaktverzeichnis</h2>
+    </div>
+  </a>
   <div class="hd-btn">
     <ThemeSwitch dark="g100" light="white" />
     <a href="/login?lastPage={currentPage}">
@@ -28,15 +33,24 @@
 <style>
   .hd-btn > a,
   header > a {
-    color: var(--cds-text-01);
+    color: #f4f4f4;
     text-decoration: none;
+  }
+  .white-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .white-logo > img {
+    width: 200px;
+    background-filter: invert(1);
   }
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background-color: var(--cds-ui-03);
+    background-color: #bc4c08;
   }
   .hd-btn {
     display: flex;
