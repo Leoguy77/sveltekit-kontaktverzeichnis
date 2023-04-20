@@ -13,21 +13,25 @@
 
   let edit = false
 
-  let name = ""
-  $: {
-    name = data.department.bezeichnung
-  }
-
   async function deleteDepartment() {
     let response = await fetch(`/api/abteilung/${id}`, {
       method: "DELETE",
     })
     if (response.ok) {
-      console.log("Abteilung gelöscht")
+      goto("/")
     }
   }
 
-  function renameDepartment() {
+  async function renameDepartment() {
+    let response = await fetch(`/api/abteilung/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        bezeichnung: data.department.bezeichnung,
+      }),
+    })
     edit = false
   }
 
@@ -44,13 +48,13 @@
   <div class="line">
     {#if edit}
       <div class="edt-btn">
-        <TextInput labelText="Bezeichnung" bind:value={name} />
+        <TextInput labelText="Bezeichnung" bind:value={data.department.bezeichnung} />
         <div class="accept-bnt dwn" on:click={renameDepartment} on:keydown>
           <AcceptIcon size={24} />
         </div>
       </div>
     {:else}
-      <h2>{name}</h2>
+      <h2>{data.department.bezeichnung}</h2>
     {/if}
     <div class="dwn">
       {#if data?.user}

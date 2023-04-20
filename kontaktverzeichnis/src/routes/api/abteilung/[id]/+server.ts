@@ -2,17 +2,6 @@ import dbCache from "$lib/scripts/dbCache.ts"
 import { parseEntities } from "$lib/scripts/entityParser.ts"
 import pb from "$lib/scripts/db.ts"
 
-function testAuth(locals: any) {
-  if (!locals?.pb?.authStore?.isValid) {
-    return new Response('{"message":"Not authenticated"}', {
-      status: 401,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-  }
-}
-
 export async function GET({ params }: any) {
   let [persons, ressources] = dbCache.getCache()
 
@@ -34,16 +23,22 @@ export async function GET({ params }: any) {
   return new Response(res, {
     headers: {
       "Content-Type": "application/json",
+      "Cache-Control": "max-age=60",
     },
   })
 }
 
-export async function POST({ locals, params, body }: any) {
-  testAuth(locals)
-
-  console.log(body)
-  await pb.collection("abteilung").update(params.id, { bezeichnung: "a" })
-
+export async function POST({ locals, params, request }: any) {
+  if (!locals?.pb?.authStore?.isValid) {
+    return new Response('{"message":"Not authenticated"}', {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
+  let json = await request.json()
+  await locals.pb.collection("abteilung").update(params.id, { bezeichnung: json.bezeichnung })
   return new Response(JSON.stringify({ Result: "Success" }), {
     headers: {
       "Content-Type": "application/json",
@@ -52,9 +47,16 @@ export async function POST({ locals, params, body }: any) {
 }
 
 export async function DELETE({ locals, params }: any) {
-  testAuth(locals)
+  if (!locals?.pb?.authStore?.isValid) {
+    return new Response('{"message":"Not authenticated"}', {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
 
-  // await pb.collection("abteilung").delete(params.id)
+  await locals.pb.collection("abteilung").delete(params.id)
   return new Response(JSON.stringify({ Result: "Success" }), {
     headers: {
       "Content-Type": "application/json",
