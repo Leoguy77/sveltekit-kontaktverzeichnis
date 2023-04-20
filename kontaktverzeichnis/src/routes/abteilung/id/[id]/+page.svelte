@@ -13,7 +13,10 @@
 
   let edit = false
 
-  let name = data.department.bezeichnung
+  let name = ""
+  $: {
+    name = data.department.bezeichnung
+  }
 
   async function deleteDepartment() {
     let response = await fetch(`/api/abteilung/${id}`, {
