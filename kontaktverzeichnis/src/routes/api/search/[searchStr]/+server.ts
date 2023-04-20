@@ -42,6 +42,7 @@ export async function GET({ params }: any) {
     return new Response(res, {
       headers: {
         "Content-Type": "application/json",
+        "Cache-Control": "max-age=60",
       },
     })
   } catch {
