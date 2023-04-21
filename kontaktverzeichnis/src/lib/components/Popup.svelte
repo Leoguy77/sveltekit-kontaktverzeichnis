@@ -18,9 +18,6 @@
 </section>
 
 <style>
-  .field {
-    min-width: 70%;
-  }
   .popup {
     position: absolute;
     top: 0;

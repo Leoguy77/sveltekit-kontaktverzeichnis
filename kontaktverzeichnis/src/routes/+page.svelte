@@ -2,6 +2,7 @@
   import AddIcon from "$lib/icons/AddIcon.svelte"
   import SearchTable from "$lib/components/start/SearchTable.svelte"
   import DepartmentTable from "$lib/components/start/DepartmentTable.svelte"
+  import NewDepartment from "$lib/components/start/NewDepartment.svelte"
   import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem, Loading } from "carbon-components-svelte"
 
   let searchTxt: string
@@ -10,6 +11,12 @@
   export let data: any
 
   let loading = false
+
+  let popups: any = {
+    NewDepartment: NewDepartment,
+  }
+
+  let popup: string = "NewDepartment"
 
   let searchResult: any
   let departments: any
@@ -67,7 +74,9 @@
 <svelte:head>
   <title>Kontaktverzeichnis</title>
 </svelte:head>
-
+{#if popup}
+  <svelte:component this={popups[popup]} bind:data bind:popup />
+{/if}
 <div class="center-hd">
   <div class="contentSwitcher">
     <ContentSwitcher bind:selectedIndex={selectedSearch}>
