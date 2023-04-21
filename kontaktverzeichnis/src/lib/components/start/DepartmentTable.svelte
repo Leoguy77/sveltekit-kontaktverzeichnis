@@ -4,7 +4,9 @@
 
   // pages
   let pageSize = 10
-  let page = 1
+  export let page = 1
+  export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
+  export let sortKey: string | undefined
 
   export let departments: any
   export let searchTxt: string
@@ -23,6 +25,8 @@
   {#if searchResult?.length > 0}
     <div class="resultTable" id="resultTable">
       <DataTable
+        bind:sortDirection
+        bind:sortKey
         sortable
         headers={[
           { key: "name", value: "Name" },
