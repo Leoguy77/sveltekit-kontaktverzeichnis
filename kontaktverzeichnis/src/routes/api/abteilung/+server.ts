@@ -1,5 +1,6 @@
 import db from "$lib/scripts/db.ts"
 import dbCache from "$lib/scripts/dbCache.ts"
+import type { RequestHandler, RequestEvent } from './$types.ts';
 
 export async function GET() {
   try {
@@ -37,3 +38,32 @@ export async function GET() {
     })
   }
 }
+
+export const POST = (async ({ request, locals }: any) => {
+  if (!locals?.pb?.authStore?.isValid) {
+    return new Response('{"message":"Not authenticated"}', {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
+  console.log(request)
+  const data = await request.json()
+  try{
+    let result = await locals.pb.collection("abteilung").create({bezeichnung: data.bezeichnung})
+    dbCache.refreshCache()
+    return new Response(JSON.stringify({ Result: "Success", id: result.id }), {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }catch{
+    return new Response('{"message":"Internal Error"}', {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
+}) satisfies RequestHandler;

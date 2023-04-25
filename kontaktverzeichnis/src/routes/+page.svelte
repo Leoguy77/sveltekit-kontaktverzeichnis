@@ -16,7 +16,7 @@
     NewDepartment: NewDepartment,
   }
 
-  let popup: string = "NewDepartment"
+  let popup: string = ""
 
   let searchResult: any
   let departments: any
