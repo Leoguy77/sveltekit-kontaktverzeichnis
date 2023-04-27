@@ -38,8 +38,6 @@ class dbCacheClass {
     return structuredClone(this.cacheData.departments)
   }
 
-  getDepartmentById(id: string) {}
-
   async refreshCache(): Promise<void> {
     if (this.refreshing) return
     this.refreshing = true
