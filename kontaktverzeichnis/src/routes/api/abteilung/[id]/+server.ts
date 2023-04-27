@@ -3,7 +3,7 @@ import { parseEntities } from "$lib/scripts/entityParser.ts"
 import pb from "$lib/scripts/db.ts"
 
 export async function GET({ params }: any) {
-  let [persons, ressources] = dbCache.getCache()
+  let [persons, ressources] = dbCache.getEntities()
 
   let abteilungenID = params.id
 

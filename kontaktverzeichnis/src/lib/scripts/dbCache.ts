@@ -20,7 +20,9 @@ async function getFull(tableName: string) {
 }
 
 class dbCacheClass {
-  cacheData: [Record[], Record[]] = [[], []]
+  cacheData: { entities: [Record[], Record[]]; departments: Record[] } = { entities: [[], []], departments: [] }
+
+  refreshing = false
 
   constructor() {
     setInterval(async () => {
@@ -28,17 +30,25 @@ class dbCacheClass {
     }, 1000 * 60 * 5)
   }
 
-  getCache() {
-    return structuredClone(this.cacheData)
+  getEntities() {
+    return structuredClone(this.cacheData.entities)
   }
 
-  async refreshCache() {
+  getDepartments() {
+    return structuredClone(this.cacheData.departments)
+  }
+
+  async refreshCache(): Promise<void> {
+    if (this.refreshing) return
+    this.refreshing = true
+
     let starttime = Date.now()
 
     let [persons, ressources] = await Promise.all([getFull("person"), getFull("ressource")])
 
-    this.cacheData = [persons, ressources]
+    this.cacheData.entities = [persons, ressources]
 
+    this.refreshing = false
     console.log("Cache refresh took " + (Date.now() - starttime) + "ms")
   }
 }

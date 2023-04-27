@@ -6,7 +6,7 @@ export async function GET({ params }: any) {
     let searchStr = params.searchStr
 
     function normalSearch() {
-      let [persons, ressources] = dbCache.getCache()
+      let [persons, ressources] = dbCache.getEntities()
 
       let result: any = parseEntities([persons, ressources], searchStr)
 

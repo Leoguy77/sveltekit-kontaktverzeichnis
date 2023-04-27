@@ -1,6 +1,6 @@
 import db from "$lib/scripts/db.ts"
 import dbCache from "$lib/scripts/dbCache.ts"
-import type { RequestHandler, RequestEvent } from './$types.ts';
+import type { RequestHandler, RequestEvent } from "./$types.ts"
 
 export async function GET() {
   try {
@@ -9,7 +9,7 @@ export async function GET() {
       abteilung.count = 0
     }
 
-    let [persons, ressources] = dbCache.getCache()
+    let [persons, ressources] = dbCache.getEntities()
     let entries = [...persons, ...ressources]
 
     for (let entry of entries) {
@@ -49,15 +49,15 @@ export const POST = (async ({ request, locals }: any) => {
     })
   }
   const data = await request.json()
-  try{
-    let result = await locals.pb.collection("abteilung").create({bezeichnung: data.bezeichnung})
+  try {
+    let result = await locals.pb.collection("abteilung").create({ bezeichnung: data.bezeichnung })
     dbCache.refreshCache()
     return new Response(JSON.stringify({ Result: "Success", id: result.id }), {
       headers: {
         "Content-Type": "application/json",
       },
     })
-  }catch(e){
+  } catch (e) {
     console.log(e)
     return new Response('{"message":"Internal Error"}', {
       status: 500,
@@ -66,4 +66,4 @@ export const POST = (async ({ request, locals }: any) => {
       },
     })
   }
-}) satisfies RequestHandler;
+}) satisfies RequestHandler
