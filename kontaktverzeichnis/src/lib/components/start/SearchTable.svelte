@@ -4,7 +4,14 @@
 
   // pages
   let pageSize = 10
-  let page = 1
+  export let page = 1
+  export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
+  export let sortKey: string | undefined
+
+  $: {
+    console.log(sortDirection)
+    console.log(sortKey)
+  }
 
   export let searchResult: any
 
@@ -23,6 +30,8 @@
   {#if searchResult?.length > 0}
     <div class="resultTable" id="resultTable">
       <DataTable
+        bind:sortDirection
+        bind:sortKey
         sortable
         headers={[
           { key: "name", value: "Name", sort: (a, b) => sortName(a, b) },
@@ -106,7 +115,7 @@
     font-size: 14px;
   }
   .resultTable {
-    height: calc(100vh - 410px);
+    height: calc(100vh - 415px);
     overflow-y: auto;
   }
   :global(.bx--data-table > tbody > tr > td) {
