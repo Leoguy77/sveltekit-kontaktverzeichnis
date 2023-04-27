@@ -6,6 +6,7 @@
 
   export let form: any
   export let popup: string
+
   let formData:any
   let department:string
   let standorte: any = []
@@ -13,21 +14,16 @@
   let filterEintrag: any = (item: any, value: string) => {
     return item.bezeichnung.toLowerCase().includes(value.toLowerCase())
   }
-  function closePopup() {
-    popup = ""
-  }
 
   async function submitForm() {
-    console.log(department)
     let result = await fetch ("/api/abteilung", {
       method: "POST",
       body: JSON.stringify({
         bezeichnung: department,
       })
     })
-    console.log(result.json())
-    closePopup()
-    //goto("/abteilung/id/" + result.json())
+    const json = await result.json()
+    await goto("/abteilung/id/" + json.id)
   }
 </script>
 
@@ -35,7 +31,7 @@
   <div class="Popup">
     <h4>Neue Abteilung</h4>
     <br />
-    <form class="center" on:submit|preventDefault={submitForm} use:enhance>
+    <form class="center" on:submit|preventDefault={submitForm}>
       <div class="TextInput">
         <TextInput
           class="TextInput"

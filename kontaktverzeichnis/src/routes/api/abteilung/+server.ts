@@ -48,7 +48,6 @@ export const POST = (async ({ request, locals }: any) => {
       },
     })
   }
-  console.log(request)
   const data = await request.json()
   try{
     let result = await locals.pb.collection("abteilung").create({bezeichnung: data.bezeichnung})
@@ -58,7 +57,8 @@ export const POST = (async ({ request, locals }: any) => {
         "Content-Type": "application/json",
       },
     })
-  }catch{
+  }catch(e){
+    console.log(e)
     return new Response('{"message":"Internal Error"}', {
       status: 500,
       headers: {

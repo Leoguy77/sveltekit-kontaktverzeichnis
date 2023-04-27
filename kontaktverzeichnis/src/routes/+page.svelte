@@ -108,7 +108,7 @@
   <title>Kontaktverzeichnis</title>
 </svelte:head>
 {#if popup}
-  <svelte:component this={popups[popup]} bind:data bind:popup />
+  <svelte:component this={popups[popup]} bind:popup />
 {/if}
 <div class="center-hd">
   <div class="contentSwitcher">
@@ -144,7 +144,7 @@
         </div>
       {:else if pageData.selectedSearch === 1}
         <div class="add2">
-          <Button icon={AddIcon} href="/abteilung/new" size="small" kind="ghost" iconDescription="Abteilung erstellen" />
+          <Button icon={AddIcon} on:click={()=>{popup="NewDepartment"}} size="small" kind="ghost" iconDescription="Abteilung erstellen" />
         </div>
       {/if}
     {/if}
