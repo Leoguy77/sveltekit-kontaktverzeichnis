@@ -38,15 +38,36 @@ class dbCacheClass {
     return structuredClone(this.cacheData.departments)
   }
 
+  getDepartmentById(id: string) {}
+
   async refreshCache(): Promise<void> {
     if (this.refreshing) return
     this.refreshing = true
 
     let starttime = Date.now()
 
-    let [persons, ressources] = await Promise.all([getFull("person"), getFull("ressource")])
-
+    // Entities, Departments
+    let [persons, ressources, departments] = await Promise.all([getFull("person"), getFull("ressource"), getFull("abteilung")])
     this.cacheData.entities = [persons, ressources]
+
+    // Departments
+    for (let department of departments) {
+      department.count = 0
+    }
+
+    let entries = [...persons, ...ressources]
+
+    for (let entry of entries) {
+      let abteilungenIDs = entry.abteilungen
+      for (let abteilung of abteilungenIDs) {
+        let index = departments.findIndex((a) => a.id === abteilung)
+        if (index !== -1) {
+          departments[index].count++
+        }
+      }
+    }
+
+    this.cacheData.departments = departments
 
     this.refreshing = false
     console.log("Cache refresh took " + (Date.now() - starttime) + "ms")

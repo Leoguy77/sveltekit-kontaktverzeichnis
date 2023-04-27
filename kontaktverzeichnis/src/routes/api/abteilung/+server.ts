@@ -1,28 +1,16 @@
 import db from "$lib/scripts/db.ts"
 import dbCache from "$lib/scripts/dbCache.ts"
+import { it } from "node:test"
 import type { RequestHandler, RequestEvent } from "./$types.ts"
 
 export async function GET() {
   try {
-    let abteilungen = await db.collection("abteilung").getFullList()
-    for (let abteilung of abteilungen) {
-      abteilung.count = 0
+    let departments = dbCache.getDepartments()
+    for (let department of departments) {
+      delete department.entities
     }
 
-    let [persons, ressources] = dbCache.getEntities()
-    let entries = [...persons, ...ressources]
-
-    for (let entry of entries) {
-      let abteilungenIDs = entry.abteilungen
-      for (let abteilung of abteilungenIDs) {
-        let index = abteilungen.findIndex((a) => a.id === abteilung)
-        if (index !== -1) {
-          abteilungen[index].count++
-        }
-      }
-    }
-
-    let res = JSON.stringify(abteilungen)
+    let res = JSON.stringify(departments)
 
     return new Response(res, {
       headers: {
