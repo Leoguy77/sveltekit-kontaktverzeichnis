@@ -10,6 +10,27 @@
   import AddDepartment from "./elements/AddDepartment.svelte"
   import AddCompany from "./elements/AddCompany.svelte"
 
+  interface Person {
+    abteilungen: string[]
+    collectionId: string
+    collectionName: string
+    email: string
+    expand: {
+      abteilungen: any
+      standort: any
+      telefonEintraege: any
+      secureData: any
+    }
+    id: string
+    index: string
+    nachname: string
+    secureData: string
+    standort: string[]
+    telefonEintraege: string[]
+    titel: string
+    vorname: string
+  }
+
   let popups: any = {
     AddNumber: AddNumber,
     AddDepartment: AddDepartment,
@@ -17,7 +38,7 @@
   }
   let popup: string = ""
 
-  export let data: any
+  export let data: { person: Person }
   export let form: any
   export let edit: boolean
 
@@ -69,6 +90,11 @@
   let companies: any = []
   $: if (data.person.expand.standort) {
     companies = data.person.expand.standort
+  }
+
+  $: {
+    console.log(form)
+    console.log(data)
   }
 </script>
 
@@ -130,7 +156,7 @@
         </svg>
       </a>
     </div>
-    {#if data.person.expand.secureData}
+    {#if edit}
       <div class="line">
         <Combofield labelText="Personalnummer" bind:value={data.person.expand.secureData.personalNummer} />
         <Combofield labelText="Kostenstelle" bind:value={data.person.expand.secureData.kostenstelle} />
