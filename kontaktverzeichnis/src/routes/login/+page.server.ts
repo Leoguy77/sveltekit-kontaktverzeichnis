@@ -6,6 +6,7 @@ export const actions = {
     let forward: boolean
     try {
       await locals.pb.collection("users").authWithPassword(body.email, body.password)
+      locals.pb.autoCancellation(false)
       forward = true
     } catch (err: any) {
       if (err.status?.toString()[0] === "4") {
