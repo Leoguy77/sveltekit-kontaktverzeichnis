@@ -1,4 +1,5 @@
 import { redirect } from "@sveltejs/kit"
+import dbCache from "$lib/scripts/dbCache.js"
 
 export async function GET({ locals }: any) {
   let person: any
@@ -14,6 +15,7 @@ export async function GET({ locals }: any) {
     }
     let secureData = await locals.pb.collection("secureData").create()
     person = await locals.pb.collection("person").create({ secureData: secureData.id })
+    dbCache.refreshCache()
     forward = true
   } catch {
     return new Response('{"message":"Internal Error"}', {

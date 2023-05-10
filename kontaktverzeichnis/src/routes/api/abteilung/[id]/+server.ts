@@ -57,6 +57,7 @@ export async function DELETE({ locals, params }: any) {
   }
 
   await locals.pb.collection("abteilung").delete(params.id)
+  dbCache.refreshCache()
   return new Response(JSON.stringify({ Result: "Success" }), {
     headers: {
       "Content-Type": "application/json",

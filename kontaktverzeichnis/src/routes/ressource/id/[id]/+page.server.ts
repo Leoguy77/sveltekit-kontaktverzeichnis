@@ -1,4 +1,4 @@
-import { error, redirect } from "@sveltejs/kit"
+import dbCache from "$lib/scripts/dbCache.js"
 import { getDotEnv } from "$lib/scripts/env.js"
 import PocketBase from "pocketbase"
 
@@ -13,6 +13,7 @@ export const actions = {
       }
       let pb = locals.pb
       let ressource = await pb.collection("ressource").update(data.id, submitData)
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -25,6 +26,7 @@ export const actions = {
       let id = body.data
       let pb = locals.pb
       await pb.collection("telefonEintrag").delete(id)
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -50,7 +52,7 @@ export const actions = {
       telefonEintraege.push(res[1].id)
 
       await pb.collection("ressource").update(params.id, { telefonEintraege: telefonEintraege })
-
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -66,7 +68,7 @@ export const actions = {
       abteilungen = abteilungen.filter((item: any) => item !== body.data)
 
       await pb.collection("ressource").update(params.id, { abteilungen: abteilungen })
-
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -82,7 +84,7 @@ export const actions = {
       abteilungen.push(body.abteilung)
 
       await pb.collection("ressource").update(params.id, { abteilungen: abteilungen })
-
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -98,7 +100,7 @@ export const actions = {
       standorte = standorte.filter((item: any) => item !== body.data)
 
       await pb.collection("ressource").update(params.id, { standort: standorte })
-
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -114,7 +116,7 @@ export const actions = {
       standorte.push(body.standort)
 
       await pb.collection("ressource").update(params.id, { standort: standorte })
-
+      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
