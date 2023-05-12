@@ -1,6 +1,7 @@
 // @ts-ignore
 import trigramSimilarity from "trigram-similarity"
 import type { Record } from "pocketbase"
+import { getPersonIndex, getRessourceIndex } from "./indexGenerator.js"
 
 function makeIterable(value: any): any {
   if (typeof value[Symbol.iterator] === "function") {
@@ -94,6 +95,7 @@ export function parseEntities([persons, ressources]: [Record[], Record[]], searc
 
   if (persons) {
     for (let person of makeIterable(persons)) {
+      person.index = getPersonIndex(person)
       let name = ""
       if (person.titel) {
         name += person.titel + " "
@@ -120,6 +122,7 @@ export function parseEntities([persons, ressources]: [Record[], Record[]], searc
 
   if (ressources) {
     for (let ressource of makeIterable(ressources)) {
+      ressource.index = getRessourceIndex(ressource)
       let data: any = {
         type: "ressource",
         name: {
