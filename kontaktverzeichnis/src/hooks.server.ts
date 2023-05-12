@@ -1,10 +1,11 @@
 import PocketBase from "pocketbase"
 import dbCache from "$lib/scripts/dbCache.ts"
+import { SERVER } from "$env/static/private"
 
 await dbCache.refreshCache()
 
 export const handle = async ({ event, resolve }: any) => {
-  event.locals.pb = new PocketBase("http://pocketbase:8090")
+  event.locals.pb = new PocketBase(`http://${SERVER}`)
   event.locals.pb.authStore.loadFromCookie(event.request.headers.get("cookie") || "")
 
   if (event.locals.pb.authStore.isValid) {
