@@ -1,5 +1,5 @@
 import dbCache from "$lib/scripts/dbCache.js"
-import { getDotEnv } from "$lib/scripts/env.js"
+import pb from "$lib/scripts/db.js"
 import PocketBase from "pocketbase"
 
 export const actions = {
@@ -127,12 +127,7 @@ export const actions = {
 export const load = async ({ locals, params }: any) => {
   let pb: any
 
-  if (!locals.pb.authStore.isValid) {
-    let env: any
-    env = getDotEnv()
-    pb = new PocketBase("http://127.0.0.1:8090")
-    await pb.collection("ressource").authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
-  } else {
+  if (locals.pb.authStore.isValid) {
     pb = locals.pb
   }
 
