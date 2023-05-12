@@ -1,7 +1,12 @@
 import type { Record } from "pocketbase"
 import pb from "./db.ts"
+import { building } from "$app/environment"
 
 async function getFull(tableName: string) {
+  if (building) {
+    return []
+  }
+
   let arr = []
   let resLenght = 500
   let page = 1

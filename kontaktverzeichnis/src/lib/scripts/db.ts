@@ -1,11 +1,14 @@
 import PocketBase from "pocketbase"
-import { getDotEnv } from "./env.ts"
+import { building } from "$app/environment"
 
-let env: any = getDotEnv()
+let pb: PocketBase = new PocketBase("")
 
-const pb = new PocketBase("http://127.0.0.1:8090")
-await pb.collection("users").authWithPassword(env.parsed.APIUser, env.parsed.APIPW)
-pb.autoCancellation(false)
-console.log("DB loaded")
+if (!building) {
+  pb = new PocketBase("http://pocketbase:8090")
+  if (!process.env.APIUser || !process.env.APIPW) throw new Error("APIUser or APIPW not set")
+  await pb.collection("users").authWithPassword(process.env.APIUser, process.env.APIPW)
+  pb.autoCancellation(false)
+  console.log("DB loaded")
+}
 
 export default pb

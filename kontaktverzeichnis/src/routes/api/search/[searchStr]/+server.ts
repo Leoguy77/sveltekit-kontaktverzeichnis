@@ -1,7 +1,11 @@
 import dbCache from "$lib/scripts/dbCache.ts"
 import { parseEntities } from "$lib/scripts/entityParser.ts"
+import { building } from "$app/environment"
 
 export async function GET({ params }: any) {
+  if (building) {
+    return
+  }
   try {
     let searchStr = params.searchStr
 
