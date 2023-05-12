@@ -1,6 +1,5 @@
 import db from "$lib/scripts/db.ts"
 import dbCache from "$lib/scripts/dbCache.ts"
-import { it } from "node:test"
 import type { RequestHandler, RequestEvent } from "./$types.ts"
 
 export async function GET() {
