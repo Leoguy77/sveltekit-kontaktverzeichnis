@@ -1,5 +1,8 @@
 FROM node
 
+ARG APIUser
+ARG APIPW
+
 WORKDIR /app
 
 COPY . .
