@@ -1,13 +1,14 @@
 FROM node
 
-ARG APIUser
-ARG APIPW
-
 WORKDIR /app
 
 COPY . .
 
 RUN npm install
+
+ARG APIUser
+ARG APIPW
+ARG SERVER
 
 RUN npm run build
 

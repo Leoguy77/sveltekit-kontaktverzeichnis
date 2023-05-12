@@ -4,17 +4,18 @@ services:
   pocketbase:
     build: pocketbase/
     restart: unless-stopped
-    ports:
-      - "8090:8090"
+    # ports:
+    #   - "8090:8090"
   svelte-kit:
     build:
       context: kontaktverzeichnis/
       args:
-        APIUser: ${APIUser}
-        APIPW: ${APIPW}
+        APIUser: api
+        APIPW: yourPassword
+        SERVER: pocketbase:8090
     restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file: .env #Benutzt standardmäßig .env im Folder
     depends_on:
       - pocketbase
+  ngnix:
