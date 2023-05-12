@@ -1,6 +1,5 @@
 import dbCache from "$lib/scripts/dbCache.js"
 import pb from "$lib/scripts/db.js"
-import PocketBase from "pocketbase"
 
 export const actions = {
   save: async ({ request, locals }: any) => {
@@ -125,12 +124,6 @@ export const actions = {
 }
 
 export const load = async ({ locals, params }: any) => {
-  let pb: any
-
-  if (locals.pb.authStore.isValid) {
-    pb = locals.pb
-  }
-
   let ressource: any
   ressource = await pb.collection("ressource").getOne(params.id, {
     expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
