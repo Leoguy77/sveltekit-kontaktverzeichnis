@@ -8,11 +8,6 @@
   export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
   export let sortKey: string | undefined
 
-  $: {
-    console.log(sortDirection)
-    console.log(sortKey)
-  }
-
   export let searchResult: any
 
   function sortName(a: any, b: any) {
