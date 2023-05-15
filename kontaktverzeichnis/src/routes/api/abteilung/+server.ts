@@ -10,10 +10,10 @@ export async function GET() {
     }
 
     let res = JSON.stringify(departments)
-
     return new Response(res, {
       headers: {
         "Content-Type": "application/json",
+        "cache-control": "max-age=60",
       },
     })
   } catch {

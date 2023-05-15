@@ -6,19 +6,20 @@
   import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem, Loading } from "carbon-components-svelte"
   import type { Snapshot } from "./$types.d.ts"
   import { goto } from "$app/navigation"
-  import { navigating } from "$app/stores"
+  import { navigating, page } from "$app/stores"
+  import { browser } from "$app/environment"
 
   interface PageData {
     entitiySearchTxt: string
     departmentSearchTxt: string
     entityTableState: {
       page: number
-      sortDirection: "none" | "ascending" | "descending" | undefined
+      sortDirection: "none" | "ascending" | "descending"
       sortKey: string | undefined
     }
     departmentTableState: {
       page: number
-      sortDirection: "none" | "ascending" | "descending" | undefined
+      sortDirection: "none" | "ascending" | "descending"
       sortKey: string | undefined
     }
     departments: any
@@ -26,22 +27,61 @@
     selectedSearch: number
   }
 
+  function paramToSortDirection(param: string | null): "none" | "ascending" | "descending" | undefined {
+    if (!param) {
+      return undefined
+    }
+    switch (param) {
+      case "ascending":
+        return "ascending"
+      case "descending":
+        return "descending"
+      default:
+        return "none"
+    }
+  }
+
   let pageData: PageData = {
     entitiySearchTxt: "",
     departmentSearchTxt: "",
     entityTableState: {
-      page: 1,
-      sortDirection: "none",
-      sortKey: undefined,
+      page: parseInt($page.url.searchParams.get("page") || "1"),
+      sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none",
+      sortKey: $page.url.searchParams.get("sortKey") || undefined,
     },
     departmentTableState: {
-      page: 1,
-      sortDirection: "none",
-      sortKey: undefined,
+      page: parseInt($page.url.searchParams.get("page") || "1"),
+      sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none",
+      sortKey: $page.url.searchParams.get("sortKey") || undefined,
     },
     departments: undefined,
     searchResult: undefined,
-    selectedSearch: 0,
+    selectedSearch: parseInt($page.url.searchParams.get("selectedSearch") || "0"),
+  }
+  $: {
+    if (pageData.entityTableState.sortDirection !== "none") {
+      $page.url.searchParams.set("sortDirection", pageData.entityTableState.sortDirection)
+    } else {
+      $page.url.searchParams.delete("sortDirection")
+      $page.url.searchParams.delete("sortKey")
+    }
+    if (pageData.entityTableState.sortKey) {
+      $page.url.searchParams.set("sortKey", pageData.entityTableState.sortKey)
+    } else {
+      $page.url.searchParams.delete("sortKey")
+    }
+    if (browser) goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+  }
+  $: {
+    if (pageData.entityTableState.page !== 1) {
+      $page.url.searchParams.set("page", pageData.entityTableState.page.toString())
+    } else {
+      $page.url.searchParams.delete("page")
+    }
+    if (browser) goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+  }
+  $: {
+    $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
   }
 
   export const snapshot: Snapshot = {
@@ -63,7 +103,8 @@
   }
   $: pageData.searchResult = data.searchResult
   async function search() {
-    goto(`?search=${pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")}`, { keepFocus: true })
+    $page.url.searchParams.set("search", pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, ""))
+    goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
     pageData.searchResult = undefined
   }
 
