@@ -1,10 +1,12 @@
-<script lang="ts">
+<script async lang="ts">
   import AddIcon from "$lib/icons/AddIcon.svelte"
   import SearchTable from "$lib/components/start/SearchTable.svelte"
   import DepartmentTable from "$lib/components/start/DepartmentTable.svelte"
   import NewDepartment from "$lib/components/start/NewDepartment.svelte"
   import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem, Loading } from "carbon-components-svelte"
   import type { Snapshot } from "./$types.d.ts"
+  import { goto } from "$app/navigation"
+  import { navigating } from "$app/stores"
 
   interface PageData {
     entitiySearchTxt: string
@@ -47,10 +49,7 @@
     restore: (value: any) => (pageData = value),
   }
 
-  export let data: any
-
-  let loading = false
-
+  export let data
 
   let popups: any = {
     NewDepartment: NewDepartment,
@@ -60,14 +59,12 @@
 
   function removeEntityTable() {
     pageData.searchResult = undefined
+    pageData.entitiySearchTxt = ""
   }
-
+  $: pageData.searchResult = data.searchResult
   async function search() {
-    removeEntityTable()
-    loading = true
-    const response = await fetch(`/api/search/${pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")}`)
-    pageData.searchResult = await response.json()
-    loading = false
+    goto(`?search=${pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")}`, { keepFocus: true })
+    pageData.searchResult = undefined
   }
 
   // Search on input
@@ -75,10 +72,10 @@
   function searchOnInput() {
     clearTimeout(typingTimer)
     typingTimer = setTimeout(() => {
-      if (pageData.entitiySearchTxt.trim().length > 1) {
+      if (pageData.entitiySearchTxt.trim().length > 2) {
         search()
       }
-    }, 300)
+    }, 0)
   }
 
   function clearDepartmentSearch() {
@@ -90,7 +87,6 @@
       return true
     }
     pageData.departments = undefined
-    loading = true
     const response = await fetch("/api/abteilung/")
     pageData.departments = await response.json()
     pageData.departments = pageData.departments.map((department: any) => {
@@ -100,7 +96,6 @@
         mitarbeiter: department.count,
       }
     })
-    loading = false
   }
 </script>
 
@@ -144,11 +139,18 @@
         </div>
       {:else if pageData.selectedSearch === 1}
         <div class="add2">
-          <Button icon={AddIcon} on:click={()=>{popup="NewDepartment"}} size="small" kind="ghost" iconDescription="Abteilung erstellen" />
+          <Button
+            icon={AddIcon}
+            on:click={() => {
+              popup = "NewDepartment"
+            }}
+            size="small"
+            kind="ghost"
+            iconDescription="Abteilung erstellen" />
         </div>
       {/if}
     {/if}
-    {#if loading}
+    {#if $navigating}
       <div class="loading">
         <Loading withOverlay={false} />
       </div>
