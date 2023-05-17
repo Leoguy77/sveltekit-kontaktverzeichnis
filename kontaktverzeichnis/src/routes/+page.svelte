@@ -114,7 +114,7 @@
   $: pageData.searchResult = data.searchResult
 
   $: {
-    console.log(pageData.entitiySearchTxt)
+    //console.log(pageData.entitiySearchTxt)
     pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
     if (pageData.entitiySearchTxt.trim().length > 2) {
       $page.url.searchParams.set("search", pageData.entitiySearchTxt)
