@@ -9,7 +9,9 @@
   import { navigating, page } from "$app/stores"
   import { browser } from "$app/environment"
 
-  interface PageData {
+  export let data
+
+  interface PageState {
     entitiySearchTxt: string
     departmentSearchTxt: string
     entityTableState: {
@@ -41,7 +43,7 @@
     }
   }
 
-  let pageData: PageData = {
+  let pageData: PageState = {
     entitiySearchTxt: "",
     departmentSearchTxt: "",
     entityTableState: {
@@ -59,6 +61,7 @@
     selectedSearch: parseInt($page.url.searchParams.get("selectedSearch") || "0"),
   }
   $: {
+    const params = $page.url.searchParams
     if (pageData.entityTableState.sortDirection !== "none") {
       $page.url.searchParams.set("sortDirection", pageData.entityTableState.sortDirection)
     } else {
@@ -70,26 +73,40 @@
     } else {
       $page.url.searchParams.delete("sortKey")
     }
-    if (browser) goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+    if (browser) {
+      if (params != $page.url.searchParams) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      }
+    }
   }
   $: {
+    const params = $page.url.searchParams
     if (pageData.entityTableState.page !== 1) {
       $page.url.searchParams.set("page", pageData.entityTableState.page.toString())
     } else {
       $page.url.searchParams.delete("page")
     }
-    if (browser) goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+    if (browser) {
+      if (params != $page.url.searchParams) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      }
+    }
   }
   $: {
+    const params = $page.url.searchParams
     if (pageData.selectedSearch != 0) {
       $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
       if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+        if (params != $page.url.searchParams) {
+          goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+        }
       }
     } else {
       $page.url.searchParams.delete("selectedSearch")
       if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+        if (params != $page.url.searchParams) {
+          goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+        }
       }
     }
   }
@@ -99,12 +116,10 @@
     restore: (value: any) => (pageData = value),
   }
 
-  export let data
-
+  $: pageData.departments = data.departments
   let popups: any = {
     NewDepartment: NewDepartment,
   }
-
   let popup: string = ""
 
   function removeEntityTable() {
@@ -132,22 +147,6 @@
   function clearDepartmentSearch() {
     pageData.departmentSearchTxt = ""
   }
-
-  async function loadDepartments() {
-    if (pageData.departments) {
-      return true
-    }
-    pageData.departments = undefined
-    const response = await fetch("/api/abteilung/")
-    pageData.departments = await response.json()
-    pageData.departments = pageData.departments.map((department: any) => {
-      return {
-        id: department.id,
-        name: department.bezeichnung,
-        mitarbeiter: department.count,
-      }
-    })
-  }
 </script>
 
 <svelte:head>
@@ -160,7 +159,7 @@
   <div class="contentSwitcher">
     <ContentSwitcher bind:selectedIndex={pageData.selectedSearch}>
       <Switch text="Allgemeine Suche" />
-      <Switch text="Abteilungen" on:click={loadDepartments} />
+      <Switch text="Abteilungen" />
     </ContentSwitcher>
   </div>
   <div class="center-hd w100">
