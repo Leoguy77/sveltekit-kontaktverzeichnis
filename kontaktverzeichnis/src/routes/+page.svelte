@@ -61,7 +61,6 @@
     selectedSearch: parseInt($page.url.searchParams.get("selectedSearch") || "0"),
   }
   $: {
-    const params = $page.url.searchParams
     if (pageData.entityTableState.sortDirection !== "none") {
       $page.url.searchParams.set("sortDirection", pageData.entityTableState.sortDirection)
     } else {
@@ -74,39 +73,29 @@
       $page.url.searchParams.delete("sortKey")
     }
     if (browser) {
-      if (params != $page.url.searchParams) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
+      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
     }
   }
   $: {
-    const params = $page.url.searchParams
     if (pageData.entityTableState.page !== 1) {
       $page.url.searchParams.set("page", pageData.entityTableState.page.toString())
     } else {
       $page.url.searchParams.delete("page")
     }
     if (browser) {
-      if (params != $page.url.searchParams) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
+      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
     }
   }
   $: {
-    const params = $page.url.searchParams
     if (pageData.selectedSearch != 0) {
       $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
       if (browser) {
-        if (params != $page.url.searchParams) {
-          goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-        }
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
       }
     } else {
       $page.url.searchParams.delete("selectedSearch")
       if (browser) {
-        if (params != $page.url.searchParams) {
-          goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-        }
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
       }
     }
   }
