@@ -81,7 +81,17 @@
     if (browser) goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
   }
   $: {
-    $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
+    if (pageData.selectedSearch != 0) {
+      $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
+      if (browser) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      }
+    } else {
+      $page.url.searchParams.delete("selectedSearch")
+      if (browser) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      }
+    }
   }
 
   export const snapshot: Snapshot = {
@@ -102,21 +112,21 @@
     pageData.entitiySearchTxt = ""
   }
   $: pageData.searchResult = data.searchResult
-  async function search() {
-    $page.url.searchParams.set("search", pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, ""))
-    goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-    pageData.searchResult = undefined
-  }
 
-  // Search on input
-  let typingTimer: NodeJS.Timeout
-  function searchOnInput() {
-    clearTimeout(typingTimer)
-    typingTimer = setTimeout(() => {
-      if (pageData.entitiySearchTxt.trim().length > 2) {
-        search()
+  $: {
+    //console.log(pageData.entitiySearchTxt)
+    pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
+    if (pageData.entitiySearchTxt.trim().length > 2) {
+      $page.url.searchParams.set("search", pageData.entitiySearchTxt)
+      if (browser) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
       }
-    }, 0)
+    } else {
+      $page.url.searchParams.delete("search")
+      if (browser) {
+        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      }
+    }
   }
 
   function clearDepartmentSearch() {
@@ -160,7 +170,6 @@
           name="entitiySearchTxt"
           placeholder="Kontaktverzeichnis durchsuchen..."
           bind:value={pageData.entitiySearchTxt}
-          on:input={searchOnInput}
           on:clear={removeEntityTable} />
       {:else}
         <Search
