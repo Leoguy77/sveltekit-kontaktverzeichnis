@@ -60,6 +60,7 @@
     searchResult: undefined,
     selectedSearch: parseInt($page.url.searchParams.get("selectedSearch") || "0"),
   }
+
   $: {
     if (pageData.entityTableState.sortDirection !== "none") {
       $page.url.searchParams.set("sortDirection", pageData.entityTableState.sortDirection)
@@ -72,31 +73,28 @@
     } else {
       $page.url.searchParams.delete("sortKey")
     }
-    if (browser) {
-      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-    }
-  }
-  $: {
+
     if (pageData.entityTableState.page !== 1) {
       $page.url.searchParams.set("page", pageData.entityTableState.page.toString())
     } else {
       $page.url.searchParams.delete("page")
     }
-    if (browser) {
-      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-    }
-  }
-  $: {
+
     if (pageData.selectedSearch != 0) {
       $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
-      if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
     } else {
       $page.url.searchParams.delete("selectedSearch")
-      if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
+    }
+
+    pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
+    if (pageData.entitiySearchTxt.trim().length > 2) {
+      $page.url.searchParams.set("search", pageData.entitiySearchTxt)
+    } else {
+      $page.url.searchParams.delete("search")
+    }
+
+    if (browser) {
+      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
     }
   }
 
@@ -116,22 +114,6 @@
     pageData.entitiySearchTxt = ""
   }
   $: pageData.searchResult = data.searchResult
-
-  $: {
-    //console.log(pageData.entitiySearchTxt)
-    pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
-    if (pageData.entitiySearchTxt.trim().length > 2) {
-      $page.url.searchParams.set("search", pageData.entitiySearchTxt)
-      if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
-    } else {
-      $page.url.searchParams.delete("search")
-      if (browser) {
-        goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
-      }
-    }
-  }
 
   function clearDepartmentSearch() {
     pageData.departmentSearchTxt = ""
