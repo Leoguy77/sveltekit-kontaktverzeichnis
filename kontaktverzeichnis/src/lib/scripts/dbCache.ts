@@ -36,11 +36,11 @@ class dbCacheClass {
   }
 
   getEntities() {
-    return structuredClone(this.cacheData.entities)
+    return this.cacheData.entities
   }
 
   getDepartments() {
-    return structuredClone(this.cacheData.departments)
+    return this.cacheData.departments
   }
 
   async refreshCache(): Promise<void> {
