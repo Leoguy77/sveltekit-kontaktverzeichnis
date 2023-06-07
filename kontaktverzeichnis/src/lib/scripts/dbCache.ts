@@ -57,8 +57,7 @@ class dbCacheClass {
     for (let department of departments) {
       department.count = 0
     }
-
-    let entries = [...persons, ...ressources]
+    let entries = persons.concat(ressources)
 
     for (let entry of entries) {
       let abteilungenIDs = entry.abteilungen
