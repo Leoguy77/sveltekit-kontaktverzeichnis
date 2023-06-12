@@ -1,106 +1,115 @@
-import { faker } from "@faker-js/faker"
-import sql from "mssql"
-import type { config } from "mssql"
-import dotenv from "dotenv"
-import commandLineArgs from "command-line-args"
-let env: any
-env = dotenv.config({ path: "../.env" })
+// import { faker } from "@faker-js/faker"
+// import sql from "mssql"
+// import type { config } from "mssql"
+// import dotenv from "dotenv"
+// import commandLineArgs from "command-line-args"
+// let env: any
+// env = dotenv.config({ path: "../.env" })
 
-const optionDefinitions = [
-  { name: "verbose", alias: "v", type: Boolean },
-  { name: "count", alias: "c", type: Number, defaultOption: true, defaultValue: 10 },
-]
+// const optionDefinitions = [
+//   { name: "verbose", alias: "v", type: Boolean },
+//   { name: "count", alias: "c", type: Number, defaultOption: true, defaultValue: 10 },
+// ]
 
-const options = commandLineArgs(optionDefinitions)
+// const options = commandLineArgs(optionDefinitions)
 
-// Consts
-const departments = [
-  "Personalabteilung",
-  "Controlling",
-  "Vorstand",
-  "Empfang",
-  "Informationstechnologie",
-  "Produktentwicklung",
-  "Fuhrparkverwaltung",
-  "Marketing",
-  "Unternehmenskommunikation",
-  "Vertrieb",
-  "Kundenbetreuung",
-  "Rechnungswesen",
-  "Finanzbuchhaltung",
-]
-const phonetyps = ["Festnetz", "Mobil", "Fax", "DECT"]
+// // Consts
+// const departments = [
+//   ["Personalabteilung"],
+//   ["Controlling"],
+//   ["Vorstand"],
+//   ["Empfang"],
+//   ["Informationstechnologie"],
+//   ["Produktentwicklung"],
+//   ["Fuhrparkverwaltung"],
+//   ["Marketing"],
+//   ["Unternehmenskommunikation"],
+//   ["Vertrieb"],
+//   ["Kundenbetreuung"],
+//   ["Rechnungswesen"],
+//   ["Finanzbuchhaltung"],
+// ]
+// const phonetyps = [["Festnetz"], ["Mobil"], ["Fax"], ["DECT"]]
 
-// Database connect
-var config: config = {
-  server: process.env.DB_SERVER || "",
-  user: process.env.DB_USER || "",
-  password: process.env.DB_PW || "",
-  database: process.env.DB_Name || "",
-  port: Number(process.env.DB_Port) || 0,
-  pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
-  },
-  options: {
-    encrypt: true,
-    trustServerCertificate: true,
-  },
-}
-const db = await sql.connect(config)
+// const locations = [
+//   ["Berlin", "0302-1132"],
+//   ["Hamburg", "040-45561"],
+//   ["München", "0501-7856"],
+//   ["Köln", "06412-3498"],
+// ]
 
-
-
-async function initData() {
-  const table = new sql.Table('abteilung');
-  table.create = false; // presuming table already exists
-  table.columns.add('departmentName', sql.VarChar, { nullable: true });
-
-  for (let i=0;i<100;i++) {
-    table.rows.add(getRandomItem(departments))
+async function main() {
+  console.profile()
+  console.log("start")
+  function sleep(ms: number) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms)
+    })
   }
-  
-  const request = new sql.Request(db);
-  request.bulk(table, (err, result) => {
-    console.log(err)
-    console.log("---------")
-    console.log(result)
-  })
 
-
-
-
-
-
-
-  // console.time("initData")
-  // // departments
-  // let departmentIds: any = []
-  // for (let i=0;i<1;i++) {
-  //   const request = new sql.Request(db)
-  //   request.input("departmentName", sql.VarChar, departments)
-
-  //   let department: any = await request.query(`INSERT INTO abteilung VALUES ?`, [departments])
-  //   departmentIds.push(department.recordset[0].id)
-  // }
-  // console.dir({deps:departmentIds})
-  // console.log({deps:departmentIds})
-  // console.log("hi")
-  // console.timeEnd("initData")
-
-
-  // phonetyps
-
-  // locations
+  await sleep(2000)
+  console.log("end")
+  console.profileEnd()
 }
 
-initData()
+main()
 
-// return random item of array
-function getRandomItem<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
-}
+// // Database connect
+// var config: config = {
+//   server: process.env.DB_SERVER || "",
+//   user: process.env.DB_USER || "",
+//   password: process.env.DB_PW || "",
+//   database: process.env.DB_Name || "",
+//   port: Number(process.env.DB_Port) || 0,
+//   pool: {
+//     max: 10,
+//     min: 0,
+//     idleTimeoutMillis: 30000,
+//   },
+//   options: {
+//     encrypt: true,
+//     trustServerCertificate: true,
+//   },
+// }
+// const db = await sql.connect(config)
+
+// async function bulkInsert(tableName: string, columns: string[], values: string[][]) {
+//   let table = new sql.Table(tableName)
+//   table.create = false
+//   for (let column of columns) {
+//     table.columns.add(column, sql.VarChar, { nullable: true })
+//   }
+
+//   for (let row of values) {
+//     table.rows.add(...row)
+//   }
+
+//   let request = new sql.Request(db)
+//   return await request.bulk(table)
+// }
+
+// async function initData() {
+//   // console.profile()
+//   //  departments
+//   await bulkInsert("abteilung", ["bezeichnung"], departments)
+//   console.log("departments inserted")
+
+//   // phonetyps
+//   await bulkInsert("eintragTyp", ["bezeichnung"], phonetyps)
+//   console.log("phonetyps inserted")
+
+//   // locations
+//   await bulkInsert("standort", ["bezeichnung", "vorwahl"], locations)
+//   console.log("locations inserted")
+//   // console.profileEnd()
+// }
+
+// await initData()
+
+// // return random item of array
+// function getRandomItem<T>(array: T[]): T {
+//   return array[Math.floor(Math.random() * array.length)]
+// }
 
 // const locations = [
 //   ["Berlin", "0302-1132"],
@@ -126,8 +135,6 @@ function getRandomItem<T>(array: T[]): T {
 //   // min and max included
 //   return Math.floor(Math.random() * (max - min + 1) + min)
 // }
-
-
 
 // async function createRandomPhoneNummer() {
 //   const standort = getRandomItem(locationIds)
