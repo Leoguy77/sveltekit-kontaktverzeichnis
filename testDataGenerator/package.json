@@ -3,7 +3,9 @@
     "@types/node": "^18.14.0",
     "command-line-args": "^5.2.1",
     "dotenv": "^16.0.3",
-    "pocketbase": "^0.11.0"
+    "mssql": "^9.1.1",
+    "pocketbase": "^0.11.0",
+    "tedious": "^16.1.0"
   },
   "scripts": {
     "t": "tsc",
@@ -12,6 +14,8 @@
   "type": "module",
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "@types/command-line-args": "^5.2.0"
+    "@types/command-line-args": "^5.2.0",
+    "@types/mssql": "^8.1.2",
+    "@types/tedious": "^4.0.9"
   }
 }

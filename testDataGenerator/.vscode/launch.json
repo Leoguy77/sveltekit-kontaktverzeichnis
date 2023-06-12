@@ -10,7 +10,7 @@
       "name": "Debug: TypeScript",
       "skipFiles": ["<node_internals>/**"],
       "program": "${file}",
-      "preLaunchTask": "npm: t",
+      "preLaunchTask": "tsc: build",
       "outFiles": ["${workspaceFolder}/**/*.js"]
     }
   ]
