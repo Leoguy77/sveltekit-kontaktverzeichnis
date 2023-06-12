@@ -1,21 +1,26 @@
 {
-    "configurations": [
+  "configurations": [
     {
-        "name": "Launch via NPM",
-        "request": "launch",
-        "runtimeArgs": [
-            "run",
-            "dev"
-        ],
-        "runtimeExecutable": "npm",
-        "skipFiles": [
-            "<node_internals>/**",
-            "/kontaktverzeichnis/node_modules/**"
-        ],
-        "type": "node",
-        //"trace": true,
-        "cwd": "${workspaceFolder}/kontaktverzeichnis",
-        "console": "integratedTerminal"
+      "name": "SvelteKit Debug",
+      "request": "launch",
+      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**", "/kontaktverzeichnis/node_modules/**"],
+      "type": "node",
+      //"trace": true,
+      "cwd": "${workspaceFolder}/kontaktverzeichnis",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "testDataGenerator Debug",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}/testDataGenerator",
+      "console": "integratedTerminal",
+      "program": "${workspaceFolder}/testDataGenerator/generate.ts",
+      "preLaunchTask": "tsc: build testDataGenerator",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
     }
-    ]
+  ]
 }
