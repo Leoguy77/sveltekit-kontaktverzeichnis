@@ -20,7 +20,7 @@
       // "console": "integratedTerminal",
       "program": "${workspaceFolder}/testDataGenerator/generate.ts",
       "preLaunchTask": "tsc: build testDataGenerator",
-      "outFiles": ["${workspaceFolder}/**/*.js"]
+      "outFiles": ["${workspaceFolder}/testDataGenerator/**/*.js"]
     }
   ]
 }

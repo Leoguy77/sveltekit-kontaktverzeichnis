@@ -4,6 +4,9 @@
     {
       "type": "typescript",
       "tsconfig": "testDataGenerator/tsconfig.json",
+      "options": {
+        "cwd": "${workspaceFolder}/testDataGenerator"
+      },
 
       "problemMatcher": ["$tsc"],
       "group": "build",
