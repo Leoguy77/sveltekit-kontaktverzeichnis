@@ -12,8 +12,5 @@
       "group": "build",
       "label": "tsc: build testDataGenerator"
     }
-  ],
-  "presentation": {
-    "reveal": "never"
-  }
+  ]
 }
