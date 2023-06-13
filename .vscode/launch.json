@@ -1,6 +1,14 @@
 {
   "configurations": [
     {
+      "type": "node-terminal",
+      "name": "testDataGenerator Debug",
+      "request": "launch",
+      "command": "ts-node -- ${workspaceFolder}/testDataGenerator/generate.ts",
+      "cwd": "${workspaceFolder}/testDataGenerator",
+      "internalConsoleOptions": "openOnSessionStart"
+    },
+    {
       "name": "SvelteKit Debug",
       "request": "launch",
       "runtimeArgs": ["run", "dev"],
@@ -10,17 +18,6 @@
       //"trace": true,
       "cwd": "${workspaceFolder}/kontaktverzeichnis",
       "console": "integratedTerminal"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "testDataGenerator Debug",
-      "skipFiles": ["<node_internals>/**"],
-      "cwd": "${workspaceFolder}/testDataGenerator",
-      // "console": "integratedTerminal",
-      "program": "${workspaceFolder}/testDataGenerator/generate.ts",
-      "preLaunchTask": "tsc: build testDataGenerator",
-      "outFiles": ["${workspaceFolder}/testDataGenerator/**/*.js"]
     }
   ]
 }
