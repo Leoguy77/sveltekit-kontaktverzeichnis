@@ -75,15 +75,15 @@ async function bulkInsert(tableName: string, columns: string[], values: string[]
   }
 
   let request = new sql.Request(db)
-  let query = await request.query(`SELECT MAX(id) FROM ${tableName}`)
-  let minId = Number() + 1
+  let query = await request.query(`SELECT IDENT_CURRENT('${tableName}') as id`)
+  let minId = Number(query.recordset[0].id) + 1
 
   request = new sql.Request(db)
   let res = await request.bulk(table)
 
   let ids = []
   for (let i = minId; i < minId + res.rowsAffected; i++) {
-    ids.push(minId + i)
+    ids.push(i)
   }
 
   return ids
