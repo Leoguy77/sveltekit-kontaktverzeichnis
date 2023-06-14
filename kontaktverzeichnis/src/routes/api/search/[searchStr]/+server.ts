@@ -1,5 +1,5 @@
-import dbCache from "$lib/scripts/dbCache.ts"
-import { parseEntities } from "$lib/scripts/entityParser.ts"
+import dbCache from "$lib/server/dbCache.ts"
+import { parseEntities } from "$lib/server/entityParser.ts"
 import { building } from "$app/environment"
 
 export async function GET({ params }: any) {

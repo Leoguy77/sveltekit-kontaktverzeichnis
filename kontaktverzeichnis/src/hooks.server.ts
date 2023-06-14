@@ -1,5 +1,5 @@
 import PocketBase from "pocketbase"
-import dbCache from "$lib/scripts/dbCache.ts"
+import dbCache from "$lib/server/dbCache.ts"
 import { SERVER } from "$env/static/private"
 
 await dbCache.refreshCache()

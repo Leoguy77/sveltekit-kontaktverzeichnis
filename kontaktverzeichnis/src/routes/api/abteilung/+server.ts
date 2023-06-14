@@ -1,5 +1,5 @@
-import db from "$lib/scripts/db.ts"
-import dbCache from "$lib/scripts/dbCache.ts"
+import db from "$lib/server/db.ts"
+import dbCache from "$lib/server/dbCache.ts"
 import type { RequestHandler, RequestEvent } from "./$types.ts"
 
 export async function GET() {

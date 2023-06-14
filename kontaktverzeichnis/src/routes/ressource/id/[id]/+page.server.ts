@@ -1,5 +1,5 @@
-import dbCache from "$lib/scripts/dbCache.js"
-import pb from "$lib/scripts/db.js"
+import dbCache from "$lib/server/dbCache.ts"
+import pb from "$lib/server/db.ts"
 
 export const actions = {
   save: async ({ request, locals }: any) => {

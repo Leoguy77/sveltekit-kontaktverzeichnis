@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit"
-import dbCache from "$lib/scripts/dbCache.js"
+import dbCache from "$lib/server/dbCache.ts"
 
 export async function GET({ locals }: any) {
   let person: any

@@ -1,6 +1,6 @@
-import dbCache from "$lib/scripts/dbCache.ts"
-import { parseEntities } from "$lib/scripts/entityParser.ts"
-import pb from "$lib/scripts/db.ts"
+import dbCache from "$lib/server/dbCache.ts"
+import { parseEntities } from "$lib/server/entityParser.ts"
+import pb from "$lib/server/db.ts"
 
 export async function GET({ params }: any) {
   let [persons, ressources] = dbCache.getEntities()

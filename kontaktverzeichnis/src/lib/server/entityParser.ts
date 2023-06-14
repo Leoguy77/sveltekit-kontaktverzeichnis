@@ -1,7 +1,7 @@
 // @ts-ignore
 import trigramSimilarity from "trigram-similarity"
 import type { Record } from "pocketbase"
-import { getPersonIndex, getRessourceIndex } from "./indexGenerator.js"
+import { getPersonIndex, getRessourceIndex } from "./indexGenerator.ts"
 
 function makeIterable(value: any): any {
   if (typeof value[Symbol.iterator] === "function") {
