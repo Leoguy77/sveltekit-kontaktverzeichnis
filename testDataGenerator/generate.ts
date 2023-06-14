@@ -64,11 +64,11 @@ async function dbConnect() {
 }
 
 // Helper functions
-async function bulkInsert(tableName: string, columns: string[], values: (string | undefined)[][]) {
+async function bulkInsert(tableName: string, columns: [string, boolean][], values: (string | undefined)[][]) {
   let table = new sql.Table(tableName)
   table.create = false
   for (let column of columns) {
-    table.columns.add(column, sql.VarChar)
+    table.columns.add(column[0], sql.VarChar, { nullable: column[1] })
   }
 
   for (let row of values) {
@@ -139,6 +139,14 @@ async function deleteRow(tableName: string, id: number, transaction: sql.Transac
   await request.query(`DELETE FROM ${tableName} WHERE id=@val0`)
 }
 
+async function deletePerson(personId: number, transaction: sql.Transaction) {
+  let request = new sql.Request(transaction)
+
+  request.input("val0", sql.Int, personId)
+
+  await request.query(`EXEC deletePerson @val0`)
+}
+
 async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
   if (columns.length != 2) {
     throw new Error("DB Junction Delete: columns and values must have the same length")
@@ -182,11 +190,18 @@ async function runRandomTimes(min: number, max: number, func: () => Promise<any>
 
 // Random data insert functions
 async function initData() {
-  let abteilungIds = bulkInsert("abteilung", ["bezeichnung"], departments)
+  let abteilungIds = bulkInsert("abteilung", [["bezeichnung", false]], departments)
 
-  let eintragTypIds = bulkInsert("eintragTyp", ["bezeichnung"], phonetyps)
+  let eintragTypIds = bulkInsert("eintragTyp", [["bezeichnung", false]], phonetyps)
 
-  let standortIds = bulkInsert("standort", ["bezeichnung", "vorwahl"], locations)
+  let standortIds = bulkInsert(
+    "standort",
+    [
+      ["bezeichnung", false],
+      ["vorwahl", true],
+    ],
+    locations
+  )
 
   return await Promise.all([abteilungIds, eintragTypIds, standortIds])
 }
@@ -267,12 +282,11 @@ async function main() {
   standortIds = res[2]
 
   // random person
-  await createRandomPerson()
-  // let jobarr = []
-  // for (let i = 0; i < options.count; i++) {
-  //   jobarr.push(createRandomPerson())
-  // }
-  // await Promise.all(jobarr)
+  let jobarr = []
+  for (let i = 0; i < options.count; i++) {
+    jobarr.push(createRandomPerson())
+  }
+  await Promise.all(jobarr)
 
   // random ressource
 
