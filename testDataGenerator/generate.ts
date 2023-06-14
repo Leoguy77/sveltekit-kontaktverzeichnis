@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker"
 import sql from "mssql"
 import commandLineArgs from "command-line-args"
 import db from "../kontaktverzeichnis/src/lib/server/db.js"
+import { bulkInsert, insertRow, insertJunction } from "../kontaktverzeichnis/src/lib/server/dbFunctions.js"
 
 const optionDefinitions = [
   { name: "verbose", alias: "v", type: Boolean },
@@ -37,116 +38,6 @@ const locations = [
 
 const costunits = ["11111", "22222", "33333", "44444", "55555"]
 
-// Helper functions
-async function bulkInsert(tableName: string, columns: [string, boolean][], values: (string | undefined)[][]) {
-  let table = new sql.Table(tableName)
-  table.create = false
-  for (let column of columns) {
-    table.columns.add(column[0], sql.VarChar, { nullable: column[1] })
-  }
-
-  for (let row of values) {
-    table.rows.add(...row)
-  }
-
-  let request = new sql.Request(db)
-  let query = await request.query(`SELECT IDENT_CURRENT('${tableName}') as id`)
-  let minId = Number(query.recordset[0].id) + 1
-
-  request = new sql.Request(db)
-  let res = await request.bulk(table)
-
-  let ids = []
-  for (let i = minId; i < minId + res.rowsAffected; i++) {
-    ids.push(i)
-  }
-
-  return ids
-}
-
-async function insertRow(tableName: string, columns: string[], values: (string | undefined | number)[], transaction: sql.Transaction) {
-  if (columns.length != values.length) {
-    throw new Error("DB Insert: columns and values must have the same length")
-  }
-
-  let request = new sql.Request(transaction)
-
-  let colomnString = columns.join(",")
-  let valueString = columns.map((v) => "@" + v).join(",")
-  for (let i = 0; i < columns.length; i++) {
-    request.input(columns[i], values[i])
-  }
-  let id = await request.query(`INSERT INTO ${tableName} (${colomnString}) OUTPUT Inserted.ID VALUES (${valueString})`)
-  return id.recordset[0].ID
-}
-
-async function updateRow(
-  tableName: string,
-  columns: string[],
-  id: number,
-  newValues: (string | undefined | number)[],
-  transaction: sql.Transaction
-) {
-  if (columns.length != newValues.length) {
-    throw new Error("DB Insert: columns and values must have the same length")
-  }
-
-  let request = new sql.Request(transaction)
-
-  let setString = ""
-  for (let i = 0; i < columns.length; i++) {
-    request.input(columns[i], newValues[i])
-    setString += columns[i] + "=@" + columns[i] + ","
-  }
-  setString = setString.substring(0, setString.length - 1)
-
-  request.input("id", sql.Int, id)
-
-  await request.query(`UPDATE ${tableName} SET ${setString} WHERE id=@id`)
-}
-
-async function deleteRow(tableName: string, id: number, transaction: sql.Transaction) {
-  let request = new sql.Request(transaction)
-
-  request.input("val0", sql.Int, id)
-
-  await request.query(`DELETE FROM ${tableName} WHERE id=@val0`)
-}
-
-async function deletePerson(personId: number, transaction: sql.Transaction) {
-  let request = new sql.Request(transaction)
-
-  request.input("val0", sql.Int, personId)
-
-  await request.query(`EXEC deletePerson @val0`)
-}
-
-async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
-  if (columns.length != 2) {
-    throw new Error("DB Junction Delete: columns and values must have the same length")
-  }
-
-  let request = new sql.Request(transaction)
-
-  request.input("val0", sql.Int, id1)
-  request.input("val1", sql.Int, id2)
-
-  await request.query(`DELETE FROM ${tableName} WHERE ${columns[0]}=@val0 and ${columns[1]}=@val1`)
-}
-
-async function insertJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
-  if (columns.length != 2) {
-    throw new Error("DB Junction Insert: columns and values must have the same length")
-  }
-
-  let request = new sql.Request(transaction)
-
-  request.input("val0", sql.Int, id1)
-  request.input("val1", sql.Int, id2)
-
-  await request.query(`INSERT INTO ${tableName} (${columns.join(",")}) VALUES (@val0, @val1)`)
-}
-
 // Tools
 function randomIntFromInterval(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min)
@@ -164,9 +55,9 @@ async function runRandomTimes(min: number, max: number, func: () => Promise<any>
 
 // Random data insert functions
 async function initData() {
-  let abteilungIds = bulkInsert("abteilung", [["bezeichnung", false]], departments)
+  let abteilungIds = bulkInsert("abteilung", [["bezeichnung", false]], departments, db)
 
-  let eintragTypIds = bulkInsert("eintragTyp", [["bezeichnung", false]], phonetyps)
+  let eintragTypIds = bulkInsert("eintragTyp", [["bezeichnung", false]], phonetyps, db)
 
   let standortIds = bulkInsert(
     "standort",
@@ -174,13 +65,19 @@ async function initData() {
       ["bezeichnung", false],
       ["vorwahl", true],
     ],
-    locations
+    locations,
+    db
   )
 
   return await Promise.all([abteilungIds, eintragTypIds, standortIds])
 }
 
-async function createRandomPhoneNummer(ranStandortIds: number[], personId: number, transaction: sql.Transaction) {
+async function createRandomPhoneNummer(
+  ranStandortIds: number[],
+  Id: number,
+  transaction: sql.Transaction,
+  type: "person" | "ressource"
+) {
   const standort = faker.helpers.arrayElement(ranStandortIds)
   const vorwahl = locations[standortIds.indexOf(standort)][1]
   const eintragTyp = faker.helpers.arrayElement(eintragTypIds)
@@ -194,14 +91,16 @@ async function createRandomPhoneNummer(ranStandortIds: number[], personId: numbe
     transaction
   )
 
-  await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, personId, transaction)
+  if (type == "person") {
+    await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, Id, transaction)
+  } else if (type == "ressource") {
+    await insertJunction("telefonEintragressource", ["telefonEintragID", "ressourceID"], telefonEintragId, Id, transaction)
+  }
 }
 
 async function createRandomPerson() {
   let transaction = new sql.Transaction(db)
-  let res = await transaction.begin()
-  let request = new sql.Request(transaction)
-
+  await transaction.begin()
   try {
     //Person
     const vorname = faker.name.firstName()
@@ -234,7 +133,7 @@ async function createRandomPerson() {
 
     //Telefonnummern
     await runRandomTimes(1, 7, async () => {
-      await createRandomPhoneNummer(standorte, personId, transaction)
+      await createRandomPhoneNummer(standorte, personId, transaction, "person")
     })
 
     await transaction.commit()
@@ -244,6 +143,40 @@ async function createRandomPerson() {
   }
 }
 
+async function createRandomRessource() {
+  let transaction = new sql.Transaction(db)
+  await transaction.begin()
+  try {
+    const bezeichnung = faker.random.word()
+    let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
+    const standort = await faker.helpers.arrayElement(standortIds)
+
+    const email = `${bezeichnung}@meinefirma.de`
+
+    const ressourceID = await insertRow("ressource", ["bezeichnung", "email"], [bezeichnung, email], transaction)
+
+    //Abteilungen
+    for (let abteilungId of abteilungen) {
+      await insertJunction("ressourceabteilung", ["abteilungID", "ressourceID"], abteilungId, ressourceID, transaction)
+    }
+
+    //Standorte
+    let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
+    for (let standortId of standorte) {
+      await insertJunction("standortressource", ["standortID", "ressourceID"], standortId, ressourceID, transaction)
+    }
+
+    //Telefonnummern
+    await runRandomTimes(1, 5, async () => {
+      await createRandomPhoneNummer(standorte, ressourceID, transaction, "ressource")
+    })
+
+    await transaction.commit()
+  } catch (err) {
+    console.log(err)
+    await transaction.rollback()
+  }
+}
 // Main
 var [abteilungIds, eintragTypIds, standortIds]: [number[], number[], number[]] = [[], [], []]
 async function main() {
@@ -254,107 +187,21 @@ async function main() {
   standortIds = res[2]
 
   // random person
-  let jobarr = []
-  for (let i = 0; i < options.count; i++) {
-    jobarr.push(createRandomPerson())
-  }
-  await Promise.all(jobarr)
+  // let jobarr = []
+  // for (let i = 0; i < options.count; i++) {
+  //   jobarr.push(createRandomPerson())
+  // }
+  // await Promise.all(jobarr)
 
   // random ressource
+  let ressourcejobarr = []
+  for (let i = 0; i < options.count; i++) {
+    ressourcejobarr.push(createRandomRessource())
+  }
+  await Promise.all(ressourcejobarr)
 
   console.log("done")
   await db.close()
 }
 
 main()
-
-// -------------------------
-
-// async function getDepartment(): Promise<string> {
-//   let department: string = getRandomItem(departmentIds)
-//   return department
-// }
-
-// async function createRandomPerson() {
-//   const firstName = faker.name.firstName()
-//   const lastName = faker.name.lastName()
-//   const email = `${firstName}.${lastName}@meinefirma.de`
-//   const phoneNumber = await runRandomTimes(1, 6, createRandomPhoneNummer)
-//   const title = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(["Dr.", "Prof.", "Dr. med.", "Prof. Dr."]), {
-//     probability: 0.1,
-//   })
-//   const abteilung = await runRandomTimes(1, 4, getDepartment)
-//   const randomLocation = await getRandomItem(locationIds)
-//   const location = randomLocation.id
-
-//   const user = await pb.collection("person").create({
-//     vorname: firstName,
-//     nachname: lastName,
-//     titel: title,
-//     email: email,
-//     telefonEintraege: phoneNumber,
-//     abteilungen: abteilung,
-//     standort: location,
-//     secureData: await createRandomSecureData(),
-//   })
-//   return user
-// }
-
-// async function createRandomResource() {
-//   const bezeichner = faker.random.word()
-//   const abteilungen = await runRandomTimes(1, 4, getDepartment)
-//   const standort = await getRandomItem(locationIds).id
-//   const telefonEintraege = await runRandomTimes(1, 6, createRandomPhoneNummer)
-
-//   const email = `${bezeichner}@meinefirma.de`
-
-//   const resource = await pb.collection("ressource").create({
-//     bezeichner: bezeichner,
-//     abteilungen: abteilungen,
-//     standort: standort,
-//     telefonEintraege: telefonEintraege,
-//     email: email,
-//   })
-//   return resource
-// }
-
-// function ifNotEmpty(value: string): string {
-//   if (value) {
-//     return value + " "
-//   }
-//   return ""
-// }
-
-// function makeIterable(value: any): any {
-//   if (typeof value[Symbol.iterator] === "function") {
-//     return value
-//   }
-//   return [value]
-// }
-
-// async function createEmptyResource() {
-//   const resource = await pb.collection("ressource").create({})
-// }
-
-// async function createEmptyUser() {
-//   const user = await pb.collection("person").create({
-//     vorname: "Max",
-//     nachname: "Mustermann",
-//   })
-// }
-
-// for (let index = 0; index < options.count; index++) {
-//   let user = await createRandomPerson()
-//   if (options.verbose) {
-//     console.log(user)
-//   }
-// }
-// for (let index = 0; index < options.count; index++) {
-//   let resource = await createRandomResource()
-//   if (options.verbose) {
-//     console.log(resource)
-//   }
-// }
-// //createEmptyResource();
-// //createEmptyUser();
-// //createPersonIndex("pwyy0zju75trv3e");
