@@ -12,6 +12,7 @@
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.2.4",
     "@sveltejs/kit": "^1.20.2",
+    "@types/mssql": "^8.1.2",
     "@types/node": "^20.2.5",
     "@types/string-similarity": "^4.0.0",
     "carbon-components-svelte": "^0.75.1",
@@ -23,6 +24,7 @@
   },
   "type": "module",
   "dependencies": {
+    "mssql": "^9.1.1",
     "pocketbase": "^0.15.2",
     "string-similarity": "^4.0.4",
     "trigram-similarity": "^1.0.7"
