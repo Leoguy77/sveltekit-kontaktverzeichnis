@@ -1,11 +1,7 @@
 import { faker } from "@faker-js/faker"
 import sql from "mssql"
-import type { config } from "mssql"
-import dotenv from "dotenv"
 import commandLineArgs from "command-line-args"
-import { request } from "http"
-let env: any
-env = dotenv.config({ path: "../.env" })
+import db from "../kontaktverzeichnis/src/lib/server/db.js"
 
 const optionDefinitions = [
   { name: "verbose", alias: "v", type: Boolean },
@@ -40,28 +36,6 @@ const locations = [
 ]
 
 const costunits = ["11111", "22222", "33333", "44444", "55555"]
-
-async function dbConnect() {
-  // Database connect
-  var config: config = {
-    server: process.env.DB_SERVER || "",
-    user: process.env.DB_USER || "",
-    password: process.env.DB_PW || "",
-    database: process.env.DB_Name || "",
-    port: Number(process.env.DB_Port) || 0,
-    pool: {
-      max: 10,
-      min: 0,
-      idleTimeoutMillis: 30000,
-    },
-    options: {
-      encrypt: true,
-      trustServerCertificate: true,
-    },
-  }
-  const db = await sql.connect(config)
-  return db
-}
 
 // Helper functions
 async function bulkInsert(tableName: string, columns: [string, boolean][], values: (string | undefined)[][]) {
@@ -271,11 +245,9 @@ async function createRandomPerson() {
 }
 
 // Main
-let db: sql.ConnectionPool
 var [abteilungIds, eintragTypIds, standortIds]: [number[], number[], number[]] = [[], [], []]
 async function main() {
   console.log("start")
-  db = await dbConnect()
   let res = await initData()
   abteilungIds = res[0]
   eintragTypIds = res[1]
