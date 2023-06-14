@@ -3,6 +3,7 @@ import sql from "mssql"
 import type { config } from "mssql"
 import dotenv from "dotenv"
 import commandLineArgs from "command-line-args"
+import { request } from "http"
 let env: any
 env = dotenv.config({ path: "../.env" })
 
@@ -89,12 +90,10 @@ async function bulkInsert(tableName: string, columns: string[], values: (string 
   return ids
 }
 
-async function insertRow(tableName: string, columns: string[], values: (string | undefined | number)[]) {
+async function insertRow(tableName: string, columns: string[], values: (string | undefined | number)[], request: sql.Request) {
   if (columns.length != values.length) {
     throw new Error("DB Insert: columns and values must have the same length")
   }
-
-  let request = new sql.Request(db)
 
   let colomnString = columns.join(",")
   let valueString = columns.map((v) => "@" + v).join(",")
@@ -105,12 +104,16 @@ async function insertRow(tableName: string, columns: string[], values: (string |
   return id.recordset[0].ID
 }
 
-async function updateRow(tableName: string, columns: string[], id: number, newValues: (string | undefined | number)[]) {
+async function updateRow(
+  tableName: string,
+  columns: string[],
+  id: number,
+  newValues: (string | undefined | number)[],
+  request: sql.Request
+) {
   if (columns.length != newValues.length) {
     throw new Error("DB Insert: columns and values must have the same length")
   }
-
-  let request = new sql.Request(db)
 
   let setString = ""
   for (let i = 0; i < columns.length; i++) {
@@ -124,19 +127,16 @@ async function updateRow(tableName: string, columns: string[], id: number, newVa
   await request.query(`UPDATE ${tableName} SET ${setString} WHERE id=@id`)
 }
 
-async function deleteRow(tableName: string, id: number) {
-  let request = new sql.Request(db)
-
+async function deleteRow(tableName: string, id: number, request: sql.Request) {
   request.input("val0", sql.Int, id)
 
   await request.query(`DELETE FROM ${tableName} WHERE id=@val0`)
 }
 
-async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number) {
+async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, request: sql.Request) {
   if (columns.length != 2) {
     throw new Error("DB Junction Delete: columns and values must have the same length")
   }
-  let request = new sql.Request(db)
 
   request.input("val0", sql.Int, id1)
   request.input("val1", sql.Int, id2)
@@ -144,11 +144,10 @@ async function deleteJunction(tableName: string, columns: string[], id1: number,
   await request.query(`DELETE FROM ${tableName} WHERE ${columns[0]}=@val0 and ${columns[1]}=@val1`)
 }
 
-async function insertJunction(tableName: string, columns: string[], id1: number, id2: number) {
+async function insertJunction(tableName: string, columns: string[], id1: number, id2: number, request: sql.Request) {
   if (columns.length != 2) {
     throw new Error("DB Junction Insert: columns and values must have the same length")
   }
-  let request = new sql.Request(db)
 
   request.input("val0", sql.Int, id1)
   request.input("val1", sql.Int, id2)
@@ -182,7 +181,7 @@ async function initData() {
   return await Promise.all([abteilungIds, eintragTypIds, standortIds])
 }
 
-async function createRandomPhoneNummer(ranStandortIds: number[], personId: number) {
+async function createRandomPhoneNummer(ranStandortIds: number[], personId: number, request: sql.Request) {
   const standort = faker.helpers.arrayElement(ranStandortIds)
   const vorwahl = locations[standortIds.indexOf(standort)][1]
   const eintragTyp = faker.helpers.arrayElement(eintragTypIds)
@@ -192,45 +191,57 @@ async function createRandomPhoneNummer(ranStandortIds: number[], personId: numbe
   const telefonEintragId = await insertRow(
     "telefonEintrag",
     ["eintragTypId", "nummer", "standortID"],
-    [eintragTyp, telNumber, standort]
+    [eintragTyp, telNumber, standort],
+    request
   )
 
-  await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, personId)
+  await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, personId, request)
 }
 
 async function createRandomPerson() {
-  //Person
-  const vorname = faker.name.firstName()
-  const nachname = faker.name.lastName()
-  const personalNummer = randomIntFromInterval(1, 99999)
-  const kostenstelle = faker.helpers.arrayElement(costunits)
-  const email = `${vorname}.${nachname}@firma.de`
-  const titel = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(["Dr.", "Prof.", "Dr. med.", "Prof. Dr."]), {
-    probability: 0.1,
-  })
+  let transaction = new sql.Transaction(db)
+  let res = await transaction.begin()
+  let request = new sql.Request(transaction)
 
-  const personId = await insertRow(
-    "person",
-    ["vorname", "nachname", "personalNummer", "kostenstelle", "email", "titel"],
-    [vorname, nachname, personalNummer.toString(), kostenstelle, email, titel]
-  )
+  try {
+    //Person
+    const vorname = faker.name.firstName()
+    const nachname = faker.name.lastName()
+    const personalNummer = randomIntFromInterval(1, 99999)
+    const kostenstelle = faker.helpers.arrayElement(costunits)
+    const email = `${vorname}.${nachname}@firma.de`
+    const titel = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(["Dr.", "Prof.", "Dr. med.", "Prof. Dr."]), {
+      probability: 0.1,
+    })
 
-  //Abteilungen
-  let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
-  for (let abteilungId of abteilungen) {
-    await insertJunction("personabteilung", ["abteilungID", "personID"], abteilungId, personId)
+    const personId = await insertRow(
+      "person",
+      ["vorname", "nachname", "personalNummer", "kostenstelle", "email", "titel"],
+      [vorname, nachname, personalNummer.toString(), kostenstelle, email, titel],
+      request
+    )
+
+    //Abteilungen
+    let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
+    for (let abteilungId of abteilungen) {
+      await insertJunction("personabteilung", ["abteilungID", "personID"], abteilungId, personId, request)
+    }
+
+    //Standorte
+    let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
+    for (let standortId of standorte) {
+      await insertJunction("standortperson", ["standortID", "personID"], standortId, personId, request)
+    }
+
+    //Telefonnummern
+    await runRandomTimes(1, 7, async () => {
+      await createRandomPhoneNummer(standorte, personId, request)
+    })
+
+    await transaction.commit()
+  } catch {
+    await transaction.rollback()
   }
-
-  //Standorte
-  let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
-  for (let standortId of standorte) {
-    await insertJunction("standortperson", ["standortID", "personID"], standortId, personId)
-  }
-
-  //Telefonnummern
-  await runRandomTimes(1, 7, async () => {
-    await createRandomPhoneNummer(standorte, personId)
-  })
 }
 
 // Main
@@ -245,11 +256,12 @@ async function main() {
   standortIds = res[2]
 
   // random person
-  let jobarr = []
-  for (let i = 0; i < options.count; i++) {
-    jobarr.push(createRandomPerson())
-  }
-  await Promise.all(jobarr)
+  await createRandomPerson()
+  // let jobarr = []
+  // for (let i = 0; i < options.count; i++) {
+  //   jobarr.push(createRandomPerson())
+  // }
+  // await Promise.all(jobarr)
 
   // random ressource
 
