@@ -68,7 +68,7 @@ async function bulkInsert(tableName: string, columns: string[], values: (string 
   let table = new sql.Table(tableName)
   table.create = false
   for (let column of columns) {
-    table.columns.add(column, sql.VarChar, { nullable: true })
+    table.columns.add(column, sql.VarChar)
   }
 
   for (let row of values) {
@@ -90,10 +90,12 @@ async function bulkInsert(tableName: string, columns: string[], values: (string 
   return ids
 }
 
-async function insertRow(tableName: string, columns: string[], values: (string | undefined | number)[], request: sql.Request) {
+async function insertRow(tableName: string, columns: string[], values: (string | undefined | number)[], transaction: sql.Transaction) {
   if (columns.length != values.length) {
     throw new Error("DB Insert: columns and values must have the same length")
   }
+
+  let request = new sql.Request(transaction)
 
   let colomnString = columns.join(",")
   let valueString = columns.map((v) => "@" + v).join(",")
@@ -109,11 +111,13 @@ async function updateRow(
   columns: string[],
   id: number,
   newValues: (string | undefined | number)[],
-  request: sql.Request
+  transaction: sql.Transaction
 ) {
   if (columns.length != newValues.length) {
     throw new Error("DB Insert: columns and values must have the same length")
   }
+
+  let request = new sql.Request(transaction)
 
   let setString = ""
   for (let i = 0; i < columns.length; i++) {
@@ -127,16 +131,20 @@ async function updateRow(
   await request.query(`UPDATE ${tableName} SET ${setString} WHERE id=@id`)
 }
 
-async function deleteRow(tableName: string, id: number, request: sql.Request) {
+async function deleteRow(tableName: string, id: number, transaction: sql.Transaction) {
+  let request = new sql.Request(transaction)
+
   request.input("val0", sql.Int, id)
 
   await request.query(`DELETE FROM ${tableName} WHERE id=@val0`)
 }
 
-async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, request: sql.Request) {
+async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
   if (columns.length != 2) {
     throw new Error("DB Junction Delete: columns and values must have the same length")
   }
+
+  let request = new sql.Request(transaction)
 
   request.input("val0", sql.Int, id1)
   request.input("val1", sql.Int, id2)
@@ -144,10 +152,12 @@ async function deleteJunction(tableName: string, columns: string[], id1: number,
   await request.query(`DELETE FROM ${tableName} WHERE ${columns[0]}=@val0 and ${columns[1]}=@val1`)
 }
 
-async function insertJunction(tableName: string, columns: string[], id1: number, id2: number, request: sql.Request) {
+async function insertJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
   if (columns.length != 2) {
     throw new Error("DB Junction Insert: columns and values must have the same length")
   }
+
+  let request = new sql.Request(transaction)
 
   request.input("val0", sql.Int, id1)
   request.input("val1", sql.Int, id2)
@@ -181,7 +191,7 @@ async function initData() {
   return await Promise.all([abteilungIds, eintragTypIds, standortIds])
 }
 
-async function createRandomPhoneNummer(ranStandortIds: number[], personId: number, request: sql.Request) {
+async function createRandomPhoneNummer(ranStandortIds: number[], personId: number, transaction: sql.Transaction) {
   const standort = faker.helpers.arrayElement(ranStandortIds)
   const vorwahl = locations[standortIds.indexOf(standort)][1]
   const eintragTyp = faker.helpers.arrayElement(eintragTypIds)
@@ -192,10 +202,10 @@ async function createRandomPhoneNummer(ranStandortIds: number[], personId: numbe
     "telefonEintrag",
     ["eintragTypId", "nummer", "standortID"],
     [eintragTyp, telNumber, standort],
-    request
+    transaction
   )
 
-  await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, personId, request)
+  await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, personId, transaction)
 }
 
 async function createRandomPerson() {
@@ -218,28 +228,29 @@ async function createRandomPerson() {
       "person",
       ["vorname", "nachname", "personalNummer", "kostenstelle", "email", "titel"],
       [vorname, nachname, personalNummer.toString(), kostenstelle, email, titel],
-      request
+      transaction
     )
 
     //Abteilungen
     let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
     for (let abteilungId of abteilungen) {
-      await insertJunction("personabteilung", ["abteilungID", "personID"], abteilungId, personId, request)
+      await insertJunction("personabteilung", ["abteilungID", "personID"], abteilungId, personId, transaction)
     }
 
     //Standorte
     let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
     for (let standortId of standorte) {
-      await insertJunction("standortperson", ["standortID", "personID"], standortId, personId, request)
+      await insertJunction("standortperson", ["standortID", "personID"], standortId, personId, transaction)
     }
 
     //Telefonnummern
     await runRandomTimes(1, 7, async () => {
-      await createRandomPhoneNummer(standorte, personId, request)
+      await createRandomPhoneNummer(standorte, personId, transaction)
     })
 
     await transaction.commit()
-  } catch {
+  } catch (err) {
+    console.log(err)
     await transaction.rollback()
   }
 }
@@ -264,12 +275,6 @@ async function main() {
   // await Promise.all(jobarr)
 
   // random ressource
-
-  // empty person
-
-  // empty ressource
-
-  // empty abteilung
 
   console.log("done")
   await db.close()
