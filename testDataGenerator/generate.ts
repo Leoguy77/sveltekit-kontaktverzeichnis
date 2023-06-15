@@ -187,11 +187,11 @@ async function main() {
   standortIds = res[2]
 
   // random person
-  // let jobarr = []
-  // for (let i = 0; i < options.count; i++) {
-  //   jobarr.push(createRandomPerson())
-  // }
-  // await Promise.all(jobarr)
+  let jobarr = []
+  for (let i = 0; i < options.count; i++) {
+    jobarr.push(createRandomPerson())
+  }
+  await Promise.all(jobarr)
 
   // random ressource
   let ressourcejobarr = []
