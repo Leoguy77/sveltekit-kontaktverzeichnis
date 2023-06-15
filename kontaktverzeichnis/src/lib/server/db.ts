@@ -18,9 +18,9 @@ var config: config = {
   database: process.env.DB_Name || "",
   port: Number(process.env.DB_Port) || 0,
   pool: {
-    max: 10,
-    min: 0,
-    idleTimeoutMillis: 30000,
+    max: 100,
+    min: 1,
+    acquireTimeoutMillis: 90000,
   },
   options: {
     encrypt: true,
