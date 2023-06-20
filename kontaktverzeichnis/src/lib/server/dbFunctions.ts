@@ -117,3 +117,28 @@ export async function insertJunction(tableName: string, columns: string[], id1: 
 
   await request.query(`INSERT INTO ${tableName} (${columns.join(",")}) VALUES (@val0, @val1)`)
 }
+//search all tables for a string and return any person or ressource that matches
+export async function searchAllPersons(searchString: string, db: sql.ConnectionPool) {
+  let request = new sql.Request(db)
+  let table = new sql.Table("SearchTableType")
+  table.columns.add("String", sql.VarChar(50))
+  searchString.split(" ").forEach((word) => {
+    table.rows.add(word)
+  })
+  request.input("SearchTable", table)
+  const result = await request.execute("SearchAllPersons")
+  return result.recordset
+}
+
+export async function SearchAllRessources(searchString: string, db: sql.ConnectionPool) {
+  let request = new sql.Request(db)
+  let table = new sql.Table("SearchTableType")
+  table.columns.add("String", sql.VarChar(50))
+  searchString.split(" ").forEach((word) => {
+    table.rows.add(word)
+  })
+  request.input("SearchTable", table)
+  const result = await request.execute("SearchAllRessources")
+
+  return result.recordset
+}
