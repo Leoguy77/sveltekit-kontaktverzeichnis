@@ -2,7 +2,13 @@ import { faker } from "@faker-js/faker"
 import sql from "mssql"
 import commandLineArgs from "command-line-args"
 import db from "../kontaktverzeichnis/src/lib/server/db.js"
-import { bulkInsert, insertRow, insertJunction } from "../kontaktverzeichnis/src/lib/server/dbFunctions.js"
+import {
+  bulkInsert,
+  insertRow,
+  insertJunction,
+  searchAllPersons,
+  SearchAllRessources,
+} from "../kontaktverzeichnis/src/lib/server/dbFunctions.js"
 
 const optionDefinitions = [
   { name: "verbose", alias: "v", type: Boolean },
