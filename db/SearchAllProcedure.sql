@@ -93,13 +93,44 @@ ALTER PROCEDURE SearchAllRessources
 AS	
 SELECT 
 	ressource.id,
-	ressource.bezeichnung,
-	standort.bezeichnung as standortbezeichnung,
-	standort.vorwahl,
-	abteilung.bezeichnung as abteilungsbezeichnung,
-	telefonEintrag.nummer,
-	eintragTyp.bezeichnung as telefoneintragbezeichnung,
-	telefonEintrag.eintragTypID 
+	MAX(ressource.bezeichnung) AS bezeichnung,
+	STUFF(
+		(SELECT DISTINCT ', ' + standort.bezeichnung
+		 FROM standort
+		 JOIN standortressource ON standort.id = standortressource.standortID
+		 WHERE standortressource.ressourceID = ressource.id
+		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+		1, 2, '') AS standortbezeichnung,
+	STUFF(
+		(SELECT DISTINCT ', ' + standort.vorwahl
+		 FROM standort
+		 JOIN standortressource ON standort.id = standortressource.standortID
+		 WHERE standortressource.ressourceID = ressource.id
+		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+		1, 2, '') AS vorwahl,
+	STUFF(
+		(SELECT DISTINCT ', ' + abteilung.bezeichnung
+		 FROM abteilung
+		 JOIN ressourceabteilung ON abteilung.id = ressourceabteilung.abteilungID
+		 WHERE ressourceabteilung.ressourceID = ressourceID
+		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+		1, 2, '') AS abteilungbezeichnung,
+	STUFF(
+        (SELECT DISTINCT ', ' + telefonEintrag.nummer
+         FROM telefonEintrag
+         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
+         WHERE telefonEintragressource.ressourceID = ressource.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS nummern,
+	STUFF(
+        (SELECT DISTINCT ', ' + eintragTyp.bezeichnung
+         FROM eintragTyp
+         JOIN telefonEintrag ON eintragTyp.id = telefonEintrag.eintragTypID
+         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
+         WHERE telefonEintragressource.ressourceID = ressource.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS telefoneintragbezeichnung,
+	MAX(telefonEintrag.eintragTypID) AS eintragTypID
 FROM 
 	Ressource
 	JOIN standortressource on ressource.id = standortressource.ressourceId
@@ -109,11 +140,12 @@ FROM
 	JOIN telefonEintragRessource on ressource.id = telefonEintragRessource.ressourceId
 	JOIN telefonEintrag on telefonEintrag.id = telefonEintragRessource.telefonEintragId
 	JOIN eintragTyp on telefonEintrag.eintragTypID = eintragTyp.id
-    -- Search for all abteilugen containing any of the strings from the table
 WHERE
 	Ressource.bezeichnung IN (SELECT String FROM @SearchTable)
 	OR standort.bezeichnung IN (SELECT String FROM @SearchTable)
     OR abteilung.bezeichnung IN (SELECT String FROM @SearchTable)
+GROUP BY
+	ressource.id
 GO
 
 ALTER PROCEDURE SearchAll
