@@ -6,8 +6,11 @@ import {
   bulkInsert,
   insertRow,
   insertJunction,
+  SearchAll,
   searchAllPersons,
   SearchAllRessources,
+  getDepartments,
+  getDepartment,
 } from "../kontaktverzeichnis/src/lib/server/dbFunctions.js"
 
 const optionDefinitions = [
