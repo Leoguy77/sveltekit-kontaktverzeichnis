@@ -67,10 +67,13 @@ SELECT
          WHERE telefonEintragPerson.personId = person.id
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
         1, 2, '') AS telefoneintragbezeichnung,
-    (SELECT TOP 1 telefonEintrag.eintragTypID
-     FROM telefonEintrag
-     JOIN telefonEintragPerson ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
-     WHERE telefonEintragPerson.personId = person.id) AS eintragTypID
+    STUFF(
+        (SELECT DISTINCT ', ' + CAST(telefonEintrag.eintragTypID AS nvarchar(MAX))
+         FROM telefonEintrag
+         JOIN telefonEintragPerson ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
+         WHERE telefonEintragPerson.personId = person.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS eintragTypIDs
 FROM
     Person
     JOIN standortperson ON person.id = standortperson.personId
@@ -130,7 +133,13 @@ SELECT
          WHERE telefonEintragressource.ressourceID = ressource.id
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
         1, 2, '') AS telefoneintragbezeichnung,
-	MAX(telefonEintrag.eintragTypID) AS eintragTypID
+	STUFF(
+        (SELECT DISTINCT ', ' + CAST(telefonEintrag.eintragTypID AS nvarchar(MAX))
+         FROM telefonEintrag
+         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
+         WHERE telefonEintragressource.ressourceID = ressource.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS eintragTypIDs
 FROM 
 	Ressource
 	JOIN standortressource on ressource.id = standortressource.ressourceId
