@@ -80,8 +80,6 @@ FROM
     JOIN Standort ON standort.id = standortperson.standortId
     JOIN personabteilung ON person.id = personabteilung.personId
     JOIN abteilung ON abteilung.id = personabteilung.abteilungId
-    JOIN telefonEintragPerson ON person.id = telefonEintragPerson.personId
-    JOIN telefonEintrag ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
 WHERE
     Person.vorname IN (SELECT String FROM @SearchTable) 
     OR person.nachname IN (SELECT String FROM @SearchTable)
@@ -146,9 +144,6 @@ FROM
     JOIN Standort on standort.id = standortressource.standortId
     JOIN ressourceabteilung on ressource.id = ressourceabteilung.ressourceId
     JOIN abteilung on abteilung.id = ressourceabteilung.abteilungId
-	JOIN telefonEintragRessource on ressource.id = telefonEintragRessource.ressourceId
-	JOIN telefonEintrag on telefonEintrag.id = telefonEintragRessource.telefonEintragId
-	JOIN eintragTyp on telefonEintrag.eintragTypID = eintragTyp.id
 WHERE
 	Ressource.bezeichnung IN (SELECT String FROM @SearchTable)
 	OR standort.bezeichnung IN (SELECT String FROM @SearchTable)
