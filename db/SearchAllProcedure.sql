@@ -27,7 +27,7 @@ GO
 
 
 ALTER PROCEDURE SearchAllPersons
-@SearchTable SearchTableType READONLY
+    @SearchTable SearchTableType READONLY
 AS
 SELECT
     p.id,
@@ -76,66 +76,49 @@ GROUP BY
 GO
 
 ALTER PROCEDURE SearchAllRessources
-@SearchTable SearchTableType READONLY
-AS	
+    @SearchTable SearchTableType READONLY
+AS
 SELECT 
-	ressource.id,
-	MAX(ressource.bezeichnung) AS bezeichnung,
-	STUFF(
-		(SELECT DISTINCT ', ' + standort.bezeichnung
-		 FROM standort
-		 JOIN standortressource ON standort.id = standortressource.standortID
-		 WHERE standortressource.ressourceID = ressource.id
-		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-		1, 2, '') AS standortbezeichnung,
-	STUFF(
-		(SELECT DISTINCT ', ' + standort.vorwahl
-		 FROM standort
-		 JOIN standortressource ON standort.id = standortressource.standortID
-		 WHERE standortressource.ressourceID = ressource.id
-		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-		1, 2, '') AS vorwahl,
-	STUFF(
-		(SELECT DISTINCT ', ' + abteilung.bezeichnung
-		 FROM abteilung
-		 JOIN ressourceabteilung ON abteilung.id = ressourceabteilung.abteilungID
-		 WHERE ressourceabteilung.ressourceID = ressourceID
-		 FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-		1, 2, '') AS abteilungbezeichnung,
-	STUFF(
-        (SELECT DISTINCT ', ' + telefonEintrag.nummer
-         FROM telefonEintrag
-         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
-         WHERE telefonEintragressource.ressourceID = ressource.id
+    r.id,
+    MAX(r.bezeichnung) AS bezeichnung,
+    STUFF(
+        (SELECT ', ' + CONCAT(s.id, ' (', s.bezeichnung, ')')
+         FROM standortressource sr
+         JOIN standort s ON s.id = sr.standortID
+         WHERE sr.ressourceID = r.id
+         GROUP BY s.id, s.bezeichnung
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS nummern,
-	STUFF(
-        (SELECT DISTINCT ', ' + eintragTyp.bezeichnung
-         FROM eintragTyp
-         JOIN telefonEintrag ON eintragTyp.id = telefonEintrag.eintragTypID
-         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
-         WHERE telefonEintragressource.ressourceID = ressource.id
+        1, 2, '') AS standorte,
+    STUFF(
+        (SELECT ', ' + CONCAT(a.id, ' (', a.bezeichnung, ')')
+         FROM ressourceabteilung pd
+         JOIN abteilung a ON a.id = pd.abteilungId
+         WHERE pd.ressourceID = r.id
+         GROUP BY a.id, a.bezeichnung
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS telefoneintragbezeichnung,
-	STUFF(
-        (SELECT DISTINCT ', ' + CAST(telefonEintrag.eintragTypID AS nvarchar(MAX))
-         FROM telefonEintrag
-         JOIN telefonEintragressource ON telefonEintrag.id = telefonEintragressource.telefonEintragId
-         WHERE telefonEintragressource.ressourceID = ressource.id
+        1, 2, '') AS abteilungen,
+    STUFF(
+        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ', ', et.id, ', ', et.bezeichnung, ')')
+         FROM telefonEintragressource tp
+         JOIN telefonEintrag t ON t.id = tp.telefonEintragID
+		 JOIN eintragTyp et ON t.eintragTypID = et.id
+         JOIN standort s ON s.id = t.standortID
+         WHERE tp.ressourceID = r.id
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS eintragTypIDs
+        1, 2, '') AS nummern
 FROM 
-	Ressource
-	JOIN standortressource on ressource.id = standortressource.ressourceId
-    JOIN Standort on standort.id = standortressource.standortId
-    JOIN ressourceabteilung on ressource.id = ressourceabteilung.ressourceId
-    JOIN abteilung on abteilung.id = ressourceabteilung.abteilungId
+    Ressource r
+    JOIN standortressource sr ON r.id = sr.ressourceId
+    JOIN Standort s ON s.id = sr.standortId
+    JOIN ressourceabteilung ra ON r.id = ra.ressourceId
+    JOIN abteilung a ON a.id = ra.abteilungId
 WHERE
     EXISTS (SELECT 1 FROM @SearchTable WHERE r.bezeichnung LIKE '%' + String + '%')
     OR EXISTS (SELECT 1 FROM @SearchTable WHERE s.bezeichnung LIKE '%' + String + '%')
     OR EXISTS (SELECT 1 FROM @SearchTable WHERE a.bezeichnung LIKE '%' + String + '%')
 GROUP BY
-	ressource.id
+    r.id;
+
 GO
 
 ALTER PROCEDURE SearchAll
