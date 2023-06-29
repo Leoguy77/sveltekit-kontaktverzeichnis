@@ -1,4 +1,4 @@
-import sql from "mssql"
+import sql, { type IRecordSet } from "mssql"
 
 export async function bulkInsert(
   tableName: string,
@@ -141,4 +141,105 @@ export async function SearchAllRessources(searchString: string, db: sql.Connecti
   const result = await request.execute("SearchAllRessources")
 
   return result.recordset
+}
+
+export async function SearchAll(searchString: string, db: sql.ConnectionPool): Promise<any> {
+  let request = new sql.Request(db)
+  let table = new sql.Table("SearchTableType")
+  table.columns.add("String", sql.VarChar(50))
+  searchString.split(" ").forEach((word) => {
+    table.rows.add(word)
+  })
+  request.input("SearchTable", table)
+  const result = await request.execute("SearchAll")
+  return result.recordsets
+}
+
+export async function getDepartments(db: sql.ConnectionPool) {
+  let request = new sql.Request(db)
+  //get all departments with count of persons from junction table
+  const result = await request.query(`
+  SELECT d.id, d.bezeichnung, COUNT(pd.personId) as count
+  FROM abteilung d
+  LEFT JOIN Personabteilung pd ON d.id = pd.abteilungId
+  GROUP BY d.id, d.bezeichnung
+  ORDER BY count DESC
+
+  `)
+
+  return result.recordset
+}
+
+export async function getDepartment(departmentid: number, db: sql.ConnectionPool): Promise<any> {
+  let request = new sql.Request(db)
+  request.input("val0", sql.Int, departmentid)
+  //get persons and ressources from department
+  const result = await request.query(`
+  (SELECT
+    p.id,
+    p.vorname,
+    p.nachname,
+    p.email,
+    STUFF(
+        (SELECT ', ' + CONCAT(t.nummer, ' (', s.vorwahl, ', ', s.bezeichnung, ', ', s.id, ')')
+         FROM telefonEintragperson tp
+         JOIN telefonEintrag t ON t.id = tp.telefonEintragID
+         JOIN standort s ON s.id = t.standortID
+         WHERE tp.personID = p.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS person_nummern,
+    STUFF(
+        (SELECT ', ' + CONCAT(s.id, ' (', s.bezeichnung, ')')
+         FROM standortperson sp
+         JOIN standort s ON s.id = sp.standortID
+         WHERE sp.personID = p.id
+         GROUP BY s.id, s.bezeichnung
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS person_standorte,
+    STUFF(
+        (SELECT ', ' + CONCAT(a.id, ' (', a.bezeichnung, ')')
+         FROM Personabteilung pd
+         JOIN abteilung a ON a.id = pd.abteilungId
+         WHERE pd.personId = p.id
+         GROUP BY a.id, a.bezeichnung
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS abteilung_ids_bezeichnungen
+	FROM Person p
+	JOIN Personabteilung pd ON p.id = pd.personId
+	WHERE pd.abteilungId = 1448
+	GROUP BY p.id, p.vorname, p.nachname, p.email) 
+  (SELECT
+    r.id,
+    r.bezeichnung,
+    r.email,
+    STUFF(
+        (SELECT ', ' + CONCAT(t.nummer, ' (', s.vorwahl, ', ', s.bezeichnung, ', ', s.id, ')')
+         FROM telefonEintragressource tr
+         JOIN telefonEintrag t ON t.id = tr.telefonEintragID
+         JOIN standort s ON s.id = t.standortID
+         WHERE tr.ressourceID = r.id
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS ressource_nummern,
+    STUFF(
+        (SELECT ', ' + CONCAT(s.id, ' (', s.bezeichnung, ')')
+         FROM standortressource sr
+         JOIN standort s ON s.id = sr.standortID
+         WHERE sr.ressourceID = r.id
+         GROUP BY s.id, s.bezeichnung
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS ressource_standorte,
+    STUFF(
+        (SELECT ', ' + CONCAT(a.id, ' (', a.bezeichnung, ')')
+         FROM ressourceabteilung rd
+         JOIN abteilung a ON a.id = rd.abteilungID
+         WHERE rd.ressourceID = r.id
+         GROUP BY a.id, a.bezeichnung
+         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
+        1, 2, '') AS abteilung_ids_bezeichnungen
+	FROM ressource r
+	JOIN ressourceabteilung rd ON r.id = rd.ressourceID
+	WHERE rd.abteilungID = 1448
+	GROUP BY r.id, r.bezeichnung, r.email)    
+  `)
+  return result.recordsets
 }
