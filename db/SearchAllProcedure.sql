@@ -52,9 +52,10 @@ SELECT
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
         1, 2, '') AS abteilungen,
     STUFF(
-        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ')')
+        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ', ', et.id, ', ', et.bezeichnung, ')')
          FROM telefonEintragperson tp
          JOIN telefonEintrag t ON t.id = tp.telefonEintragID
+		 JOIN eintragTyp et ON t.eintragTypID = et.id
          JOIN standort s ON s.id = t.standortID
          WHERE tp.personID = p.id
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
