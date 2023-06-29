@@ -30,63 +30,47 @@ ALTER PROCEDURE SearchAllPersons
 @SearchTable SearchTableType READONLY
 AS
 SELECT
-    MAX(person.vorname) AS vorname,
-    MAX(person.nachname) AS nachname,
-    MAX(person.email) AS email,
-    person.id,
+    p.id,
+	MAX(p.vorname) AS vorname,
+    MAX(p.nachname) AS nachname,
+    MAX(p.email) AS email,
     STUFF(
-        (SELECT DISTINCT ', ' + standort.bezeichnung
-         FROM Standort
-         JOIN standortperson ON standort.id = standortperson.standortId
-         WHERE standortperson.personId = person.id
+        (SELECT ', ' + CONCAT(s.id, ' (', s.bezeichnung, ')')
+         FROM standortperson sp
+         JOIN standort s ON s.id = sp.standortID
+         WHERE sp.personID = p.id
+         GROUP BY s.id, s.bezeichnung
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS standortbezeichnung,
+        1, 2, '') AS standorte,
     STUFF(
-        (SELECT DISTINCT ', ' + abteilung.bezeichnung
-         FROM Abteilung
-         JOIN personabteilung ON abteilung.id = personabteilung.abteilungId
-         WHERE personabteilung.personId = person.id
+        (SELECT ', ' + CONCAT(a.id, ' (', a.bezeichnung, ')')
+         FROM Personabteilung pd
+         JOIN abteilung a ON a.id = pd.abteilungId
+         WHERE pd.personId = p.id
+         GROUP BY a.id, a.bezeichnung
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS abteilungbezeichnung,
+        1, 2, '') AS abteilungen,
     STUFF(
-        (SELECT DISTINCT ', ' + telefonEintrag.nummer
-         FROM telefonEintrag
-         JOIN telefonEintragPerson ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
-         WHERE telefonEintragPerson.personId = person.id
+        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ')')
+         FROM telefonEintragperson tp
+         JOIN telefonEintrag t ON t.id = tp.telefonEintragID
+         JOIN standort s ON s.id = t.standortID
+         WHERE tp.personID = p.id
          FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS nummern,
-    (SELECT TOP 1 standort.vorwahl
-     FROM Standort
-     JOIN standortperson ON standort.id = standortperson.standortId
-     WHERE standortperson.personId = person.id) AS vorwahl,
-    STUFF(
-        (SELECT DISTINCT ', ' + eintragTyp.bezeichnung
-         FROM eintragTyp
-         JOIN telefonEintrag ON eintragTyp.id = telefonEintrag.eintragTypID
-         JOIN telefonEintragPerson ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
-         WHERE telefonEintragPerson.personId = person.id
-         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS telefoneintragbezeichnung,
-    STUFF(
-        (SELECT DISTINCT ', ' + CAST(telefonEintrag.eintragTypID AS nvarchar(MAX))
-         FROM telefonEintrag
-         JOIN telefonEintragPerson ON telefonEintrag.id = telefonEintragPerson.telefonEintragId
-         WHERE telefonEintragPerson.personId = person.id
-         FOR XML PATH(''), TYPE).value('.', 'nvarchar(MAX)'),
-        1, 2, '') AS eintragTypIDs
+        1, 2, '') AS nummern
 FROM
-    Person
-    JOIN standortperson ON person.id = standortperson.personId
-    JOIN Standort ON standort.id = standortperson.standortId
-    JOIN personabteilung ON person.id = personabteilung.personId
-    JOIN abteilung ON abteilung.id = personabteilung.abteilungId
+    Person p
+    JOIN standortperson sp ON p.id = sp.personId
+    JOIN Standort s ON s.id = sp.standortId
+    JOIN personabteilung pa ON p.id = pa.personId
+    JOIN abteilung a ON a.id = pa.abteilungId
 WHERE
-    Person.vorname IN (SELECT String FROM @SearchTable) 
-    OR person.nachname IN (SELECT String FROM @SearchTable)
-    OR standort.bezeichnung IN (SELECT String FROM @SearchTable)
-    OR abteilung.bezeichnung IN (SELECT String FROM @SearchTable)
+    EXISTS (SELECT 1 FROM @SearchTable WHERE String = p.vorname)
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = p.nachname)
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = s.bezeichnung)
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = a.bezeichnung)
 GROUP BY
-    person.id;
+    p.id;
 GO
 
 ALTER PROCEDURE SearchAllRessources
