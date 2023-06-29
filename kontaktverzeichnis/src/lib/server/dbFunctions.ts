@@ -206,7 +206,7 @@ export async function getDepartment(departmentid: number, db: sql.ConnectionPool
         1, 2, '') AS abteilung_ids_bezeichnungen
 	FROM Person p
 	JOIN Personabteilung pd ON p.id = pd.personId
-	WHERE pd.abteilungId = 1448
+	WHERE pd.abteilungId = @val0
 	GROUP BY p.id, p.vorname, p.nachname, p.email) 
   (SELECT
     r.id,
@@ -238,7 +238,7 @@ export async function getDepartment(departmentid: number, db: sql.ConnectionPool
         1, 2, '') AS abteilung_ids_bezeichnungen
 	FROM ressource r
 	JOIN ressourceabteilung rd ON r.id = rd.ressourceID
-	WHERE rd.abteilungID = 1448
+	WHERE rd.abteilungID = @val0
 	GROUP BY r.id, r.bezeichnung, r.email)    
   `)
   return result.recordsets
