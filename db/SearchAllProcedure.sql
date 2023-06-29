@@ -33,6 +33,7 @@ SELECT
     p.id,
 	MAX(p.vorname) AS vorname,
     MAX(p.nachname) AS nachname,
+	MAX(p.titel) AS titel,
     MAX(p.email) AS email,
     STUFF(
         (SELECT ', ' + CONCAT(s.id, ' (', s.bezeichnung, ')')
