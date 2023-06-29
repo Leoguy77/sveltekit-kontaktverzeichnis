@@ -66,10 +66,10 @@ FROM
     JOIN personabteilung pa ON p.id = pa.personId
     JOIN abteilung a ON a.id = pa.abteilungId
 WHERE
-    EXISTS (SELECT 1 FROM @SearchTable WHERE String = p.vorname)
-    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = p.nachname)
-    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = s.bezeichnung)
-    OR EXISTS (SELECT 1 FROM @SearchTable WHERE String = a.bezeichnung)
+    EXISTS (SELECT 1 FROM @SearchTable WHERE p.vorname LIKE '%' + String + '%')
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE p.nachname LIKE '%' + String + '%')
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE s.bezeichnung LIKE '%' + String + '%')
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE a.bezeichnung LIKE '%' + String + '%')
 GROUP BY
     p.id;
 GO
@@ -130,9 +130,9 @@ FROM
     JOIN ressourceabteilung on ressource.id = ressourceabteilung.ressourceId
     JOIN abteilung on abteilung.id = ressourceabteilung.abteilungId
 WHERE
-	Ressource.bezeichnung IN (SELECT String FROM @SearchTable)
-	OR standort.bezeichnung IN (SELECT String FROM @SearchTable)
-    OR abteilung.bezeichnung IN (SELECT String FROM @SearchTable)
+    EXISTS (SELECT 1 FROM @SearchTable WHERE r.bezeichnung LIKE '%' + String + '%')
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE s.bezeichnung LIKE '%' + String + '%')
+    OR EXISTS (SELECT 1 FROM @SearchTable WHERE a.bezeichnung LIKE '%' + String + '%')
 GROUP BY
 	ressource.id
 GO
