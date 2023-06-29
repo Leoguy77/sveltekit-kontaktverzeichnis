@@ -181,7 +181,7 @@ export async function getDepartment(departmentid: number, db: sql.ConnectionPool
     p.nachname,
     p.email,
     STUFF(
-        (SELECT ', ' + CONCAT(t.nummer, ' (', s.vorwahl, ', ', s.bezeichnung, ', ', s.id, ')')
+        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ')')
          FROM telefonEintragperson tp
          JOIN telefonEintrag t ON t.id = tp.telefonEintragID
          JOIN standort s ON s.id = t.standortID
@@ -213,7 +213,7 @@ export async function getDepartment(departmentid: number, db: sql.ConnectionPool
     r.bezeichnung,
     r.email,
     STUFF(
-        (SELECT ', ' + CONCAT(t.nummer, ' (', s.vorwahl, ', ', s.bezeichnung, ', ', s.id, ')')
+        (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ')')
          FROM telefonEintragressource tr
          JOIN telefonEintrag t ON t.id = tr.telefonEintragID
          JOIN standort s ON s.id = t.standortID
