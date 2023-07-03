@@ -25,8 +25,13 @@
     index: string
     nachname: string
     secureData: string
-    standort: string[]
-    telefonEintraege: string[]
+    standorte: string[]
+    telefonEintraege: {
+      id: string
+      number: string
+      standort: string
+      type: string
+    }[]
     titel: string
     vorname: string
   }
@@ -49,21 +54,20 @@
     Combofield = TextField
   }
 
-  let name: string
-  $: {
-    if (data.person.titel != undefined) {
-      name = data.person.titel + " "
-    }
-    name += data.person.vorname + " " + data.person.nachname
+  let name: string = ""
+
+  if (data.person.titel != undefined) {
+    name = data.person.titel + " "
   }
+  name += data.person.vorname + " " + data.person.nachname
 
   let telefonEintraege: any = []
 
   function getTelefonEintraege() {
     let telefonEintraege: any = []
-    if (data.person.expand.telefonEintraege) {
-      for (let eintrag of data?.person?.expand?.telefonEintraege) {
-        let standort = eintrag?.expand?.standort?.bezeichnung
+    if (data.person.telefonEintraege) {
+      for (let eintrag of data?.person?.telefonEintraege) {
+        let standort = eintrag.standort
         if (telefonEintraege[standort]) {
           telefonEintraege[standort].push(eintrag)
         } else {
@@ -74,7 +78,7 @@
     }
   }
 
-  $: if (data.person.expand.telefonEintraege) {
+  $: if (data.person.telefonEintraege) {
     telefonEintraege = getTelefonEintraege()
   }
 
@@ -83,18 +87,19 @@
   }
 
   let departments: any = []
-  $: if (data.person.expand.abteilungen) {
-    departments = data.person.expand.abteilungen
+  $: if (data.person.abteilungen) {
+    departments = data.person.abteilungen
   }
 
   let companies: any = []
-  $: if (data.person.expand.standort) {
-    companies = data.person.expand.standort
+  $: if (data.person.standorte) {
+    companies = data.person.standorte
   }
 
   $: {
     console.log(form)
-    console.log(data)
+    console.log(data.person)
+    console.log(telefonEintraege)
   }
 </script>
 
@@ -141,7 +146,9 @@
     {/if}
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
-      <Combofield labelText="Titel" bind:value={data.person.titel} />
+      {#if data.person.titel}
+        <Combofield labelText="Titel" bind:value={data.person.titel} />
+      {/if}
       <Combofield labelText="Vorname" bind:value={data.person.vorname} />
       <Combofield labelText="Nachname" bind:value={data.person.nachname} />
     </div>

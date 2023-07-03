@@ -1,23 +1,13 @@
 import dbCache from "$lib/server/dbCache.ts"
 import { parseEntities } from "$lib/server/entityParser.ts"
-import pb from "$lib/server/db.ts"
+import { getDepartment } from "$lib/server/dbFunctions.ts"
+import util from "util"
+import db from "$lib/server/db.ts"
 
 export async function GET({ params }: any) {
-  let [persons, ressources] = dbCache.getEntities()
-
-  let abteilungenID = params.id
-
-  let filteredPersons = persons.filter((entry) => {
-    if (entry.abteilungen.includes(abteilungenID)) return true
-    else return false
-  })
-  let filteredRessources = ressources.filter((entry) => {
-    if (entry.abteilungen.includes(abteilungenID)) return true
-    else return false
-  })
-
-  let parsedEntities = parseEntities([filteredPersons, filteredRessources], null)
-
+  let [bezeichnung, persons, ressources] = await getDepartment(params.id, db)
+  let parsedEntities = parseEntities([persons, ressources], null)
+  parsedEntities[0].bezeichnung = bezeichnung[0].bezeichnung
   let res = JSON.stringify(parsedEntities)
 
   return new Response(res, {

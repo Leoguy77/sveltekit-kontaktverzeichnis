@@ -1,5 +1,8 @@
+import db from "$lib/server/db.ts"
 import pb from "$lib/server/db.ts"
 import dbCache from "$lib/server/dbCache.ts"
+import { getPerson } from "$lib/server/dbFunctions.ts"
+import { createCommonData } from "$lib/server/entityParser.ts"
 
 export const actions = {
   save: async ({ request, locals }: any) => {
@@ -16,7 +19,6 @@ export const actions = {
       let person = pb.collection("person").update(data.id, submitData)
       let secureData = pb.collection("secureData").update(data.expand.secureData.id, data.expand.secureData)
       await Promise.all([person, secureData])
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -29,7 +31,6 @@ export const actions = {
       let id = body.data
       let pb = locals.pb
       await pb.collection("telefonEintrag").delete(id)
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -55,7 +56,6 @@ export const actions = {
       telefonEintraege.push(res[1].id)
 
       await pb.collection("person").update(params.id, { telefonEintraege: telefonEintraege })
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -71,7 +71,6 @@ export const actions = {
       abteilungen = abteilungen.filter((item: any) => item !== body.data)
 
       await pb.collection("person").update(params.id, { abteilungen: abteilungen })
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -87,7 +86,6 @@ export const actions = {
       abteilungen.push(body.abteilung)
 
       await pb.collection("person").update(params.id, { abteilungen: abteilungen })
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -103,7 +101,6 @@ export const actions = {
       standorte = standorte.filter((item: any) => item !== body.data)
 
       await pb.collection("person").update(params.id, { standort: standorte })
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -119,7 +116,6 @@ export const actions = {
       standorte.push(body.standort)
 
       await pb.collection("person").update(params.id, { standort: standorte })
-      dbCache.refreshCache()
       return { success: true }
     } catch {
       return { error: "Internal Server Error" }
@@ -135,10 +131,85 @@ export const load = async ({ locals, params }: any) => {
   }
 
   let person: any
-  person = await pocketbase.collection("person").getOne(params.id, {
-    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort,secureData",
+  person = await getPerson(db, params.id)
+  person = person[0]
+  let telefonEintraege = []
+
+  const regex = /(\d+)\s\(([^)]+)\)/g
+
+  let match
+  while ((match = regex.exec(person.nummern)) !== null) {
+    const id = match[1]
+    const entryData = match[2]
+    const entryParts = entryData.split(", ").map((part) => part.trim())
+    const vorwahl = entryParts[0]
+    const nummer = entryParts[1]
+    const standort = entryParts[2]
+    const einTragTyp = entryParts[3]
+    telefonEintraege.push({ id, vorwahl, nummer, standort, einTragTyp })
+  }
+
+  let standorte = []
+  if (person.standorte) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const entries = []
+
+    let match
+    while ((match = regex.exec(person.standorte)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2].trim()
+
+      entries.push({ id, bezeichnung })
+    }
+
+    for (let standort of entries) {
+      standorte.push({
+        id: standort.id,
+        bezeichnung: standort.bezeichnung,
+      })
+    }
+  }
+  standorte.sort((a: any, b: any) => {
+    if (a.bezeichnung < b.bezeichnung) {
+      return -1
+    }
+    if (a.bezeichnung > b.bezeichnung) {
+      return 1
+    }
+    return 0
   })
-  person = structuredClone(person)
+
+  let abteilungen = []
+  if (person.abteilungen) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const departmentPairs = []
+
+    let match
+    while ((match = regex.exec(person.abteilungen)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2]
+      departmentPairs.push({ id, bezeichnung })
+    }
+    for (let abteilung of departmentPairs) {
+      abteilungen.push({
+        id: abteilung.id,
+        bezeichnung: abteilung.bezeichnung,
+      })
+    }
+  }
+  abteilungen.sort((a: any, b: any) => {
+    if (a.bezeichnung < b.bezeichnung) {
+      return -1
+    }
+    if (a.bezeichnung > b.bezeichnung) {
+      return 1
+    }
+    return 0
+  })
+
+  person.telefonEintraege = telefonEintraege
+  person.standorte = standorte
+  person.abteilungen = abteilungen
 
   return { person }
 }

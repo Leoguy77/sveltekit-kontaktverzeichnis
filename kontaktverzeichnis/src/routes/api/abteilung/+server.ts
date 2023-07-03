@@ -1,13 +1,10 @@
 import db from "$lib/server/db.ts"
 import dbCache from "$lib/server/dbCache.ts"
 import type { RequestHandler, RequestEvent } from "./$types.ts"
-
+import { getDepartments } from "$lib/server/dbFunctions.ts"
 export async function GET() {
   try {
-    let departments = dbCache.getDepartments()
-    for (let department of departments) {
-      delete department.entities
-    }
+    let departments = await getDepartments(db)
 
     let res = JSON.stringify(departments)
     return new Response(res, {
@@ -38,7 +35,7 @@ export const POST = (async ({ request, locals }: any) => {
   const data = await request.json()
   try {
     let result = await locals.pb.collection("abteilung").create({ bezeichnung: data.bezeichnung })
-    dbCache.refreshCache()
+    //dbCache.refreshCache()
     return new Response(JSON.stringify({ Result: "Success", id: result.id }), {
       headers: {
         "Content-Type": "application/json",

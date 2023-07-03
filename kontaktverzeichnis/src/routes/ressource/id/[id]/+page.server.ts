@@ -1,5 +1,8 @@
 import dbCache from "$lib/server/dbCache.ts"
 import pb from "$lib/server/db.ts"
+import { get } from "http"
+import { getRessource } from "$lib/server/dbFunctions.ts"
+import db from "$lib/server/db.ts"
 
 export const actions = {
   save: async ({ request, locals }: any) => {
@@ -125,10 +128,85 @@ export const actions = {
 
 export const load = async ({ locals, params }: any) => {
   let ressource: any
-  ressource = await pb.collection("ressource").getOne(params.id, {
-    expand: "standort,abteilungen,telefonEintraege,telefonEintraege.eintragTyp,telefonEintraege.standort",
-  })
-  ressource = structuredClone(ressource)
+  ressource = await getRessource(db, params.id)
+  ressource = ressource[0]
 
+  let telefonEintraege = []
+
+  const regex = /(\d+)\s\(([^)]+)\)/g
+
+  let match
+  while ((match = regex.exec(ressource.nummern)) !== null) {
+    const id = match[1]
+    const entryData = match[2]
+    const entryParts = entryData.split(", ").map((part) => part.trim())
+    const vorwahl = entryParts[0]
+    const nummer = entryParts[1]
+    const standort = entryParts[2]
+    const einTragTyp = entryParts[3]
+    telefonEintraege.push({ id, vorwahl, nummer, standort, einTragTyp })
+  }
+
+  let standorte = []
+  if (ressource.standorte) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const entries = []
+
+    let match
+    while ((match = regex.exec(ressource.standorte)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2].trim()
+
+      entries.push({ id, bezeichnung })
+    }
+
+    for (let standort of entries) {
+      standorte.push({
+        id: standort.id,
+        bezeichnung: standort.bezeichnung,
+      })
+    }
+  }
+  standorte.sort((a: any, b: any) => {
+    if (a.bezeichnung < b.bezeichnung) {
+      return -1
+    }
+    if (a.bezeichnung > b.bezeichnung) {
+      return 1
+    }
+    return 0
+  })
+
+  let abteilungen = []
+  if (ressource.abteilungen) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const departmentPairs = []
+
+    let match
+    while ((match = regex.exec(ressource.abteilungen)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2]
+      departmentPairs.push({ id, bezeichnung })
+    }
+    for (let abteilung of departmentPairs) {
+      abteilungen.push({
+        id: abteilung.id,
+        bezeichnung: abteilung.bezeichnung,
+      })
+    }
+  }
+  abteilungen.sort((a: any, b: any) => {
+    if (a.bezeichnung < b.bezeichnung) {
+      return -1
+    }
+    if (a.bezeichnung > b.bezeichnung) {
+      return 1
+    }
+    return 0
+  })
+
+  ressource.telefonEintraege = telefonEintraege
+  ressource.standorte = standorte
+  ressource.abteilungen = abteilungen
   return { ressource }
 }

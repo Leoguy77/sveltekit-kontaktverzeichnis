@@ -19,22 +19,28 @@ export function getPersonIndex(person: any) {
   index += ifNotEmpty(person["nachname"])
   index += ifNotEmpty(person["email"])
 
-  if (person.expand.standort) {
-    for (let standort of makeIterable(person.expand.standort)) {
-      index += ifNotEmpty(standort["bezeichnung"])
+  if (person.standorte) {
+    const standortRegex = /\((.*?)\)/g
+    const standortNamen = [...person.standorte.matchAll(standortRegex)].map((match) => match[1])
+    for (let standort of standortNamen) {
+      index += ifNotEmpty(standort)
+      //console.log("standort: " + person.standorte)
     }
   }
 
-  if (person.expand.telefonEintraege) {
-    for (let telefonEintrag of makeIterable(person.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag["nummer"])
+  if (person.nummern) {
+    const regex = /\(([^)]+)\)/g
+    let nummern = [...person.nummern.matchAll(regex)].map((match) => match[1].split(",")[1].trim())
+    for (let telefonEintrag of makeIterable(nummern)) {
+      index += ifNotEmpty(telefonEintrag)
     }
   }
 
-  if (person.expand.abteilungen) {
-    for (let abteilung of makeIterable(person.expand.abteilungen)) {
-      index += ifNotEmpty(abteilung["bezeichnung"])
-      index += ifNotEmpty(abteilung["kurzBezeichnung"])
+  if (person.abteilungen) {
+    const allesinklammernregex = /\((.*?)\)/g
+    const abteilungsnamen = [...person.abteilungen.matchAll(allesinklammernregex)].map((match) => match[1])
+    for (let abteilung of makeIterable(abteilungsnamen)) {
+      index += ifNotEmpty(abteilung)
     }
   }
 
@@ -43,25 +49,31 @@ export function getPersonIndex(person: any) {
 
 export function getRessourceIndex(ressource: any) {
   let index = ""
-  index += ifNotEmpty(ressource["bezeichner"])
+  index += ifNotEmpty(ressource["bezeichnung"])
   index += ifNotEmpty(ressource["email"])
 
-  if (ressource.expand.standort) {
-    for (let standort of makeIterable(ressource.expand.standort)) {
-      index += ifNotEmpty(standort["bezeichnung"])
+  if (ressource.standorte) {
+    const standortRegex = /\((.*?)\)/g
+    const standortNamen = [...ressource.standorte.matchAll(standortRegex)].map((match) => match[1])
+    for (let standort of standortNamen) {
+      index += ifNotEmpty(standort)
+      //console.log("standort: " + ressource.standorte)
     }
   }
 
-  if (ressource.expand.telefonEintraege) {
-    for (let telefonEintrag of makeIterable(ressource.expand.telefonEintraege)) {
-      index += ifNotEmpty(telefonEintrag["nummer"])
+  if (ressource.nummern) {
+    const regex = /\(([^)]+)\)/g
+    let nummern = [...ressource.nummern.matchAll(regex)].map((match) => match[1].split(",")[1].trim())
+    for (let telefonEintrag of makeIterable(nummern)) {
+      index += ifNotEmpty(telefonEintrag)
     }
   }
 
-  if (ressource.expand.abteilungen) {
-    for (let abteilung of makeIterable(ressource.expand.abteilungen)) {
-      index += ifNotEmpty(abteilung["bezeichnung"])
-      index += ifNotEmpty(abteilung["kurzBezeichnung"])
+  if (ressource.abteilungen) {
+    const allesinklammernregex = /\((.*?)\)/g
+    const abteilungsnamen = [...ressource.abteilungen.matchAll(allesinklammernregex)].map((match) => match[1])
+    for (let abteilung of makeIterable(abteilungsnamen)) {
+      index += ifNotEmpty(abteilung)
     }
   }
 

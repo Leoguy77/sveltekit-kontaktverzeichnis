@@ -1,15 +1,6 @@
 export const load = async ({ params, fetch }: any) => {
-  let [entities, department] = await Promise.all([
-    (async () => {
-      const response = await fetch(`/api/abteilung/${params.id}`)
-      return await response.json()
-    })(),
-    (async () => {
-      const response = await fetch("/api/abteilung")
-      let departments = await response.json()
-      return departments.find((department: any) => department.id === params.id)
-    })(),
-  ])
-
+  let entities = await fetch(`/api/abteilung/${params.id}`).then((res: any) => res.json())
+  let department = { bezeichnung: "" }
+  department.bezeichnung = entities[0].bezeichnung
   return { entities, department }
 }

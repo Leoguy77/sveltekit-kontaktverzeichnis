@@ -32,9 +32,9 @@
 
   function getTelefonEintraege() {
     let telefonEintraege: any = []
-    if (data.ressource.expand.telefonEintraege) {
-      for (let eintrag of data?.ressource?.expand?.telefonEintraege) {
-        let standort = eintrag?.expand?.standort?.bezeichnung
+    if (data.ressource.telefonEintraege) {
+      for (let eintrag of data?.ressource?.telefonEintraege) {
+        let standort = eintrag?.standort
         if (telefonEintraege[standort]) {
           telefonEintraege[standort].push(eintrag)
         } else {
@@ -45,7 +45,7 @@
     }
   }
 
-  $: if (data.ressource.expand.telefonEintraege) {
+  $: if (data.ressource.telefonEintraege) {
     telefonEintraege = getTelefonEintraege()
   }
 
@@ -54,18 +54,22 @@
   }
 
   let departments: any = []
-  $: if (data.ressource.expand.abteilungen) {
-    departments = data.ressource.expand.abteilungen
+  $: if (data.ressource.abteilungen) {
+    departments = data.ressource.abteilungen
   }
 
   let companies: any = []
-  $: if (data.ressource.expand.standort) {
-    companies = data.ressource.expand.standort
+  $: if (data.ressource.standorte) {
+    companies = data.ressource.standorte
+  }
+
+  $: {
+    console.log(data.ressource.telefonEintraege)
   }
 </script>
 
 <svelte:head>
-  <title>{data.ressource.bezeichner}</title>
+  <title>{data.ressource.bezeichnung}</title>
 </svelte:head>
 
 {#if form?.error}
@@ -88,7 +92,7 @@
       d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
       fill="currentColor"
       d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
-  <h2>{data.ressource.bezeichner}</h2>
+  <h2>{data.ressource.bezeichnung}</h2>
 </div>
 <div class="grid">
   <Tile light>
@@ -107,7 +111,7 @@
     {/if}
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
-      <Combofield labelText="Name" bind:value={data.ressource.bezeichner} />
+      <Combofield labelText="Name" bind:value={data.ressource.bezeichnung} />
     </div>
     <div class="line">
       <Combofield labelText="E-Mail" bind:value={data.ressource.email} />

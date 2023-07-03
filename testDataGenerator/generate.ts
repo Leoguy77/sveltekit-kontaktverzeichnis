@@ -195,20 +195,30 @@ async function main() {
   eintragTypIds = res[1]
   standortIds = res[2]
 
-  // random person
-  let jobarr = []
-  for (let i = 0; i < options.count; i++) {
-    jobarr.push(createRandomPerson())
-  }
-  await Promise.all(jobarr)
+  // // random person
+  // let jobarr = []
+  // for (let i = 0; i < options.count; i++) {
+  //   jobarr.push(createRandomPerson())
+  // }
+  // await Promise.all(jobarr)
 
-  // random ressource
-  let ressourcejobarr = []
-  for (let i = 0; i < options.count; i++) {
-    ressourcejobarr.push(createRandomRessource())
-  }
-  await Promise.all(ressourcejobarr)
+  // // random ressource
+  // let ressourcejobarr = []
+  // for (let i = 0; i < options.count; i++) {
+  //   ressourcejobarr.push(createRandomRessource())
+  // }
+  // await Promise.all(ressourcejobarr)
+  console.time("search")
+  //let all = await SearchAll("Hans Metal", db)
+  //let persons = searchAllPersons("sdfsdfsdf", db)
+  //let ressources = SearchAllRessources("Metal", db)
+  //let searchres = await Promise.all([persons, ressources])
 
+  let department = await getDepartment(1448, db)
+  console.log(department[0][0])
+  //let all = await SearchAll("Hans Metal", db)
+  //console.timeEnd("search")
+  //console.log(all[0][0].abteilungbezeichnung)
   console.log("done")
   await db.close()
 }

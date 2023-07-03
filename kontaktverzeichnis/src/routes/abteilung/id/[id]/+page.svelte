@@ -38,6 +38,7 @@
   function activateEdit() {
     edit = true
   }
+  console.log(data.entities)
 </script>
 
 <svelte:head>

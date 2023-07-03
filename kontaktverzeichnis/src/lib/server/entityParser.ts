@@ -10,10 +10,19 @@ function makeIterable(value: any): any {
   return [value]
 }
 
-function createCommonData(obj: any, searchStr: string | null) {
+export function createCommonData(obj: any, searchStr: string | null) {
   let abteilungen = []
-  if (obj.expand.abteilungen) {
-    for (let abteilung of makeIterable(obj.expand.abteilungen)) {
+  if (obj.abteilungen) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const departmentPairs = []
+
+    let match
+    while ((match = regex.exec(obj.abteilungen)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2]
+      departmentPairs.push({ id, bezeichnung })
+    }
+    for (let abteilung of departmentPairs) {
       abteilungen.push({
         id: abteilung.id,
         bezeichnung: abteilung.bezeichnung,
@@ -31,20 +40,46 @@ function createCommonData(obj: any, searchStr: string | null) {
   })
 
   let telefonEintraege = []
-  if (obj.expand.telefonEintraege) {
-    for (let telefonEintrag of makeIterable(obj.expand.telefonEintraege)) {
+  if (obj.nummern) {
+    const regex = /(\d+)\s\(([^)]+)\),\s(\d+)\s\(([^)]+)\)/g
+    const entries = []
+
+    let match
+    while ((match = regex.exec(obj.nummern)) !== null) {
+      const id = match[1]
+      const entryData = match[2]
+      const entryParts = entryData.split(", ").map((part) => part.trim())
+      const vorwahl = entryParts[0]
+      const nummer = entryParts[1]
+      const standort = entryParts[2]
+      const einTragTyp = entryParts[3]
+      entries.push({ id, vorwahl, nummer, standort, einTragTyp })
+    }
+
+    for (let telefonEintrag of entries) {
       telefonEintraege.push({
         id: telefonEintrag.id,
         nummer: telefonEintrag.nummer,
-        eintragTyp: telefonEintrag.expand.eintragTyp.bezeichner,
-        standort: telefonEintrag.expand.standort.bezeichnung,
+        eintragTyp: telefonEintrag.einTragTyp,
+        standort: telefonEintrag.standort,
       })
     }
   }
 
   let standorte = []
-  if (obj.expand.standort) {
-    for (let standort of makeIterable(obj.expand.standort)) {
+  if (obj.standorte) {
+    const regex = /(\d+)\s\(([^)]+)\)/g
+    const entries = []
+
+    let match
+    while ((match = regex.exec(obj.standorte)) !== null) {
+      const id = match[1]
+      const bezeichnung = match[2].trim()
+
+      entries.push({ id, bezeichnung })
+    }
+
+    for (let standort of entries) {
       standorte.push({
         id: standort.id,
         bezeichnung: standort.bezeichnung,
@@ -126,7 +161,7 @@ export function parseEntities([persons, ressources]: [Record[], Record[]], searc
       let data: any = {
         type: "ressource",
         name: {
-          name: ressource.bezeichner,
+          name: ressource.bezeichnung,
           id: ressource.id,
           type: "ressource",
         },
@@ -141,6 +176,5 @@ export function parseEntities([persons, ressources]: [Record[], Record[]], searc
       }
     }
   }
-
   return result
 }
