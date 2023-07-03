@@ -1,8 +1,7 @@
 import PocketBase from "pocketbase"
 import dbCache from "$lib/server/dbCache.ts"
 import { SERVER } from "$env/static/private"
-
-await dbCache.refreshCache()
+//await dbCache.refreshCache()
 
 export const handle = async ({ event, resolve }: any) => {
   event.locals.pb = new PocketBase(`http://${SERVER}`)
