@@ -34,13 +34,17 @@ export async function insertRow(
   tableName: string,
   columns: string[],
   values: (string | undefined | number)[],
-  transaction: sql.Transaction
+  transaction?: sql.Transaction
 ) {
   if (columns.length != values.length) {
     throw new Error("DB Insert: columns and values must have the same length")
   }
-
-  let request = new sql.Request(transaction)
+  let request: sql.Request
+  if (transaction) {
+    request = new sql.Request(transaction)
+  } else {
+    request = new sql.Request()
+  }
 
   let colomnString = columns.join(",")
   let valueString = columns.map((v) => "@" + v).join(",")
