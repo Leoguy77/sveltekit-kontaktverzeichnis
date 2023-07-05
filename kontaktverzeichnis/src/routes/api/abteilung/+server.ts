@@ -24,14 +24,14 @@ export async function GET() {
 }
 
 export const POST = (async ({ request, locals }: any) => {
-  // if (!locals?.pb?.authStore?.isValid) {
-  //   return new Response('{"message":"Not authenticated"}', {
-  //     status: 401,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   })
-  // }
+  if (!locals?.pb?.authStore?.isValid) {
+    return new Response('{"message":"Not authenticated"}', {
+      status: 401,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
   const data = await request.json()
   try {
     let result = await createDepartment(db, data.bezeichnung)
