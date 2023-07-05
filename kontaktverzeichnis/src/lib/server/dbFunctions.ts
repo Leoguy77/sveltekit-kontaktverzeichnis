@@ -261,6 +261,8 @@ export async function getPerson(db: sql.ConnectionPool | undefined, id: number) 
       p.vorname,
       p.nachname,
       p.email,
+      p.personalnummer,
+      p.kostenstelle,
       STUFF(
           (SELECT ', ' + CONCAT(s.id, ' (', s.vorwahl, ', ', t.nummer, ', ', s.bezeichnung, ', ', et.bezeichnung, ')')
           FROM telefonEintragperson tp
