@@ -1,6 +1,6 @@
 export const load = async ({ params, fetch }: any) => {
-  let entities = await fetch(`/api/abteilung/${params.id}`).then((res: any) => res.json())
-  let department = { bezeichnung: "" }
-  department.bezeichnung = entities[0].bezeichnung
+  let res = await fetch(`/api/abteilung/${params.id}`).then((res: any) => res.json())
+  let entities = res.entities
+  let department = res.department
   return { entities, department }
 }
