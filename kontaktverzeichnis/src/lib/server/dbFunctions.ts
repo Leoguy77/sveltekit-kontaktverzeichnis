@@ -332,3 +332,8 @@ export async function getRessource(db: sql.ConnectionPool | undefined, id: numbe
   `)
   return result.recordset
 }
+
+export async function createDepartment(db: sql.ConnectionPool, name: string) {
+  let result = insertRow("abteilung", ["bezeichnung"], [name])
+  return result
+}
