@@ -1,14 +1,13 @@
-import dbCache from "$lib/server/dbCache.ts"
 import { parseEntities } from "$lib/server/entityParser.ts"
-import { getDepartment } from "$lib/server/dbFunctions.ts"
-import util from "util"
+import { getDepartment, updateRow, deleteRow } from "$lib/server/dbFunctions.ts"
 import db from "$lib/server/db.ts"
+import mssql from "mssql"
 
 export async function GET({ params }: any) {
   let [bezeichnung, persons, ressources] = await getDepartment(params.id, db)
   let parsedEntities = parseEntities([persons, ressources], null)
-  parsedEntities[0].bezeichnung = bezeichnung[0].bezeichnung
-  let res = JSON.stringify(parsedEntities)
+  let result = { entities: parsedEntities, department: bezeichnung[0] }
+  let res = JSON.stringify(result)
 
   return new Response(res, {
     headers: {
@@ -28,7 +27,21 @@ export async function POST({ locals, params, request }: any) {
     })
   }
   let json = await request.json()
-  await locals.pb.collection("abteilung").update(params.id, { bezeichnung: json.bezeichnung })
+  let transaction = new mssql.Transaction(db)
+  await transaction.begin()
+  try {
+    await updateRow("abteilung", ["bezeichnung"], params.id, [json.bezeichnung], transaction)
+    await transaction.commit()
+  } catch (e) {
+    console.log(e)
+    await transaction.rollback()
+    return new Response('{"message":"Internal Error"}', {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
   return new Response(JSON.stringify({ Result: "Success" }), {
     headers: {
       "Content-Type": "application/json",
@@ -47,7 +60,21 @@ export async function DELETE({ locals, params }: any) {
   }
 
   await locals.pb.collection("abteilung").delete(params.id)
-  dbCache.refreshCache()
+  let transaction = new mssql.Transaction(db)
+  await transaction.begin()
+  try {
+    await deleteRow("abteilung", params.id, transaction)
+    await transaction.commit()
+  } catch (e) {
+    console.log(e)
+    await transaction.rollback()
+    return new Response('{"message":"Internal Error"}', {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+  }
   return new Response(JSON.stringify({ Result: "Success" }), {
     headers: {
       "Content-Type": "application/json",
