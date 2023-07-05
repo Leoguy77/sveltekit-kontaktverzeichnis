@@ -210,6 +210,9 @@ export const load = async ({ locals, params }: any) => {
   person.telefonEintraege = telefonEintraege
   person.standorte = standorte
   person.abteilungen = abteilungen
-
+  if (!locals.user) {
+    delete person.kostenstelle
+    delete person.personalnummer
+  }
   return { person }
 }
