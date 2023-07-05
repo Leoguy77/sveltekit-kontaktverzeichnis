@@ -24,7 +24,8 @@
     id: string
     index: string
     nachname: string
-    secureData: string
+    personalnummer: string
+    kostenstelle: string
     standorte: string[]
     telefonEintraege: {
       id: string
@@ -165,8 +166,8 @@
     </div>
     {#if edit}
       <div class="line">
-        <Combofield labelText="Personalnummer" bind:value={data.person.expand.secureData.personalNummer} />
-        <Combofield labelText="Kostenstelle" bind:value={data.person.expand.secureData.kostenstelle} />
+        <Combofield labelText="Personalnummer" bind:value={data.person.personalnummer} />
+        <Combofield labelText="Kostenstelle" bind:value={data.person.kostenstelle} />
       </div>
     {/if}
   </Tile>
