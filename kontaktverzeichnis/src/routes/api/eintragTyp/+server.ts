@@ -1,3 +1,6 @@
+import { getEintragTypen } from "$lib/server/dbFunctions.ts"
+import db from "$lib/server/db.ts"
+
 export async function GET({ locals }: any) {
   try {
     if (!locals?.pb?.authStore?.isValid) {
@@ -8,7 +11,7 @@ export async function GET({ locals }: any) {
         },
       })
     }
-    let eintragTypen = await locals.pb.collection("eintragTyp").getFullList()
+    let eintragTypen = await getEintragTypen(db)
     let res = JSON.stringify(eintragTypen)
 
     return new Response(res, {
