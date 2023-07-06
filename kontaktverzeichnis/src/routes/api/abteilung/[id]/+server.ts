@@ -59,7 +59,6 @@ export async function DELETE({ locals, params }: any) {
     })
   }
 
-  await locals.pb.collection("abteilung").delete(params.id)
   let transaction = new mssql.Transaction(db)
   await transaction.begin()
   try {
