@@ -1,4 +1,5 @@
 export async function load(event: any) {
+  console.log("load function triggered")
   if (event.url.searchParams.get("selectedSearch") === "1") {
     const response = await event.fetch("/api/abteilung")
     let departments = await response.json()
@@ -11,8 +12,7 @@ export async function load(event: any) {
     })
     return {
       departments,
-      //user: event.data?.user,
-      user: "testuser",
+      user: event.data?.user,
     }
   } else {
     let searchText = event.url.searchParams.get("search")
@@ -22,8 +22,7 @@ export async function load(event: any) {
       const searchResult = await response.json()
       return {
         searchResult,
-        //user: event.data?.user,
-        user: "testuser",
+        user: event.data?.user,
       }
     } else {
       return {}
