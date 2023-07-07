@@ -333,6 +333,11 @@ export async function getRessource(db: sql.ConnectionPool | undefined, id: numbe
   return result.recordset
 }
 
+export async function getAllStandorte(db: sql.ConnectionPool) {
+  let standorte = (await db.query("SELECT * FROM standort")).recordset
+  return standorte[0]
+}
+
 export async function createDepartment(db: sql.ConnectionPool, name: string) {
   let result = insertRow("abteilung", ["bezeichnung"], [name])
   return result

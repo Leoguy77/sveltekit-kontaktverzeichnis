@@ -1,3 +1,5 @@
+import { getAllStandorte } from "$lib/server/dbFunctions.ts"
+import db from "$lib/server/db.ts"
 export async function GET({ locals }: any) {
   try {
     if (!locals?.pb?.authStore?.isValid) {
@@ -8,7 +10,7 @@ export async function GET({ locals }: any) {
         },
       })
     }
-    let standorte = await locals.pb.collection("standort").getFullList()
+    let standorte = await getAllStandorte(db)
     let res = JSON.stringify(standorte)
 
     return new Response(res, {
