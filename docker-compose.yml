@@ -11,6 +11,11 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    healthcheck: #optional (recommended) since v0.10.0
+      test: wget --no-verbose -Y off --tries=1 --spider http://127.0.0.1:8090/api/health || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
   svelte-kit:
     build:
       context: kontaktverzeichnis/
@@ -21,11 +26,13 @@ services:
     restart: unless-stopped
     #ports:
     #  - "3000:3000"
+    #ports:
+    #  - "3000:3000"
     depends_on:
       - pocketbase
   ngnix:
     build: nginx/
-    #restart: unless-stopped
+    restart: unless-stopped
     ports:
       - 80:80
       - 443:443

@@ -9,3 +9,8 @@ indexGenerator/generateIndex.js.map
 indexGenerator/generateIndex.js
 testDataGenerator/generate.js
 testDataGenerator/generate.js.map
+kontaktverzeichnis/static/cust/logo.svg
+nginx/domain.crt
+nginx/domain.rsa
+nginx/kontaktverzeichnis.gnh.net.pfx
+kontaktverzeichnis/static/cust/logo.svg

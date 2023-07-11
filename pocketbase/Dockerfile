@@ -3,6 +3,7 @@ FROM alpine:latest
 WORKDIR /pb
 
 COPY . .
+RUN mkdir ./pb_data
 RUN mv ./defaultData/data.db ./pb_data/data.db
 RUN rmdir ./defaultData
 
