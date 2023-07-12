@@ -342,3 +342,8 @@ export async function createDepartment(db: sql.ConnectionPool, name: string) {
   let result = insertRow("abteilung", ["bezeichnung"], [name])
   return result
 }
+
+export async function getEintragTypen(db: sql.ConnectionPool) {
+  let result = await db.query("SELECT * FROM EintragTyp")
+  return result.recordset
+}
