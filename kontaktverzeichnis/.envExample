@@ -1,0 +1,11 @@
+DB_SERVER=""
+DB_USER=""
+DB_PW=""
+DB_Port=""
+DB_Name=""
+
+JWT_Secret=""
+
+AD_Controller=""
+AD_Searchbase=""
+AD_AccessGroupDN=""

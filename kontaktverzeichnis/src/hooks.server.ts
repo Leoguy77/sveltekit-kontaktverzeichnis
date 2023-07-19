@@ -1,20 +1,78 @@
-import PocketBase from "pocketbase"
-import dbCache from "$lib/server/dbCache.ts"
-import { SERVER } from "$env/static/private"
 
-export const handle = async ({ event, resolve }: any) => {
-  event.locals.pb = new PocketBase(`http://${SERVER}`)
-  event.locals.pb.authStore.loadFromCookie(event.request.headers.get("cookie") || "")
+import ldap from "ldapjs"
+import {AD_Searchbase,AD_Controller,AD_AccessGroupDN} from "$env/static/private"
 
-  if (event.locals.pb.authStore.isValid) {
-    event.locals.user = structuredClone(event.locals.pb.authStore.model)
-  } else {
-    event.locals.user = undefined
-  }
 
-  const response = await resolve(event)
+async function validateCredentials(username: string, password: string) {
+  return new Promise<string | undefined>((resolve, reject) => {
+    const client = ldap.createClient({
+      url: `ldap://${AD_Controller}`,
+    })
 
-  response.headers.set("set-cookie", event.locals.pb.authStore.exportToCookie({ secure: false })) //TODO: secure: true
+    client.bind(`skk\\${username}`, password, (bindErr) => {
+      if (bindErr) {
+        reject("Invalid credentials")
+        //throw new Error("Invalid credentials")
+        return
+      }
+      client.search(
+        AD_Searchbase,
+        {
+          filter: `(&(memberOf:1.2.840.113556.1.4.1941:=${AD_AccessGroupDN})(objectCategory=person)(objectClass=user)(sAMAccountName=${username}))`,
+          scope: "sub",
+        },
+        (err, res) => {
+          if (err) {
+            resolve(undefined)
+            return
+          }
+          res.on("searchEntry", (entry) => {
+            let displayName = entry.attributes.find((el) => {
+              if (el.type == "displayName") {
+                return true
+              }
+            })
 
-  return response
+            if (displayName) {
+              resolve(displayName.vals[0])
+            }
+          })
+
+          res.on("end", (result) => {
+            reject("No access rights")
+            // client.unbind()
+            // resolve(undefined)
+            // return
+          })
+        }
+      )
+    })
+    client.on("error", (err) => {
+      console.log("binderror", err)
+      resolve(undefined)
+    })
+  })
 }
+
+export const handle = async () => ({
+  // return { name: "hi", id: "hi", status: 400 }
+  // let credentials = { username: String(inp.username), password: String(inp.password) }
+
+  // if (!credentials.password || !credentials.username) {
+  //   throw new Error("Username or password empty")
+  // }
+
+  // event.locals.loginError = "his"
+
+  // let user = await validateCredentials(credentials.username, credentials.password)
+
+  // console.log(JSON.stringify(user))
+
+  // return {
+  //   name: user,
+  //   id: String(credentials.username),
+  //   status: 400,
+  // }
+
+})
+  
