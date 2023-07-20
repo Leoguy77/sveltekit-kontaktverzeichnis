@@ -11,7 +11,7 @@
 <div class="middle">
   {#if !data.user}
     <form action="?/login" method="POST" class="center" use:enhance>
-      <TextInput name="email" type="text" labelText="Benutzername" placeholder="user@example.com" />
+      <TextInput name="username" type="text" labelText="Benutzername" placeholder="user" />
 
       <PasswordInput name="password" labelText="Passwort" placeholder="mySecretPassword" />
 
@@ -23,7 +23,7 @@
       {/if}
     </form>
   {:else}
-    <h3>Angemeldet als: {data.user.name}</h3>
+    <h3>Angemeldet als: {data.user.displayName}</h3>
     <form action="?/logout" method="POST" use:enhance>
       <Button type="submit">Abmelden</Button>
     </form>
