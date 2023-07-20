@@ -12,6 +12,7 @@
   "devDependencies": {
     "@sveltejs/adapter-node": "^1.2.4",
     "@sveltejs/kit": "^1.20.2",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/ldapjs": "^3.0.0",
     "@types/mssql": "^8.1.2",
     "@types/node": "^20.2.5",
