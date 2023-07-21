@@ -3,10 +3,7 @@
   "editor.formatOnSave": true,
   "editor.formatOnSaveMode": "file",
   "prettier.prettierPath": "./node_modules/prettier",
-  "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[svelte]": {
-    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare"
+  "[nginx]": {
+    "editor.defaultFormatter": "raynigon.nginx-formatter"
   }
 }
