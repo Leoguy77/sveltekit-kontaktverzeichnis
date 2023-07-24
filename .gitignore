@@ -13,3 +13,4 @@ kontaktverzeichnis/static/cust/logo.svg
 nginx/domain.crt
 nginx/domain.rsa
 nginx/kontaktverzeichnis.gnh.net.pfx
+meilisearch/data/*
