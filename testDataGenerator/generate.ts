@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker"
 import sql from "mssql"
 import commandLineArgs from "command-line-args"
-import db from "../kontaktverzeichnis/src/lib/server/db.js"
+import db from "../kontaktverzeichnis/src/lib/server/db/db.js"
 import {
   bulkInsert,
   insertRow,

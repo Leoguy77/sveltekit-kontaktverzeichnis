@@ -88,14 +88,6 @@ export async function deleteRow(tableName: string, id: number, transaction: sql.
   await request.query(`DELETE FROM ${tableName} WHERE id=@val0`)
 }
 
-export async function deletePerson(personId: number, transaction: sql.Transaction) {
-  let request = new sql.Request(transaction)
-
-  request.input("val0", sql.Int, personId)
-
-  await request.query(`EXEC deletePerson @val0`)
-}
-
 export async function deleteJunction(tableName: string, columns: string[], id1: number, id2: number, transaction: sql.Transaction) {
   if (columns.length != 2) {
     throw new Error("DB Junction Delete: columns and values must have the same length")
@@ -120,43 +112,6 @@ export async function insertJunction(tableName: string, columns: string[], id1: 
   request.input("val1", sql.Int, id2)
 
   await request.query(`INSERT INTO ${tableName} (${columns.join(",")}) VALUES (@val0, @val1)`)
-}
-//search all tables for a string and return any person or ressource that matches
-export async function searchAllPersons(searchString: string, db: sql.ConnectionPool) {
-  let request = new sql.Request(db)
-  let table = new sql.Table("SearchTableType")
-  table.columns.add("String", sql.VarChar(50))
-  searchString.split(" ").forEach((word) => {
-    table.rows.add(word)
-  })
-  request.input("SearchTable", table)
-  const result = await request.execute("SearchAllPersons")
-  return result.recordset
-}
-
-export async function SearchAllRessources(searchString: string, db: sql.ConnectionPool) {
-  let request = new sql.Request(db)
-  let table = new sql.Table("SearchTableType")
-  table.columns.add("String", sql.VarChar(50))
-  searchString.split(" ").forEach((word) => {
-    table.rows.add(word)
-  })
-  request.input("SearchTable", table)
-  const result = await request.execute("SearchAllRessources")
-
-  return result.recordset
-}
-
-export async function SearchAll(searchString: string, db: sql.ConnectionPool): Promise<any> {
-  let request = new sql.Request(db)
-  let table = new sql.Table("SearchTableType")
-  table.columns.add("String", sql.VarChar(50))
-  searchString.split(" ").forEach((word) => {
-    table.rows.add(word)
-  })
-  request.input("SearchTable", table)
-  const result = await request.execute("SearchAll")
-  return result.recordsets
 }
 
 export async function getDepartments(db: sql.ConnectionPool) {
