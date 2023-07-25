@@ -2,7 +2,7 @@ import type { RequestHandler } from "@sveltejs/kit"
 import sql from "mssql"
 import db from "./db.ts"
 
-interface DBActionResponse {
+export interface DBActionResponse {
   status: "success" | "error"
   message: string
   statusCode: number
@@ -12,7 +12,7 @@ type DBRequestHandler = RequestHandler extends (...a: infer U) => infer R
   ? (action: (transaction: sql.Transaction) => Promise<DBActionResponse>, ...a: U) => R
   : never
 
-const dbRequestHandler: DBRequestHandler = async (action: (transactio: sql.Transaction) => Promise<DBActionResponse>) => {
+const dbRequestHandler: DBRequestHandler = async (action: (transaction: sql.Transaction) => Promise<DBActionResponse>) => {
   let transaction = new sql.Transaction(db)
   try {
     await transaction.begin()

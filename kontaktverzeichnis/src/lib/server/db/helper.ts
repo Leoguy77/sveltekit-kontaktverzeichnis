@@ -6,7 +6,7 @@ import sql from "mssql"
 export async function insertRow(
   tableName: string,
   columns: string[],
-  values: (string | undefined | number)[],
+  values: (string | null | number)[],
   transaction?: sql.Transaction
 ) {
   if (columns.length != values.length) {
@@ -32,7 +32,7 @@ export async function updateRow(
   tableName: string,
   columns: string[],
   id: number,
-  newValues: (string | undefined | number)[],
+  newValues: (string | null | number)[],
   transaction: sql.Transaction
 ) {
   if (columns.length != newValues.length) {
@@ -90,7 +90,7 @@ export async function insertJunction(tableName: string, columns: string[], id1: 
 export async function bulkInsert(
   tableName: string,
   columns: [string, boolean][],
-  values: (string | undefined)[][],
+  values: (string | null)[][],
   db: sql.ConnectionPool
 ) {
   let table = new sql.Table(tableName)

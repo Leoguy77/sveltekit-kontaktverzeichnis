@@ -1,5 +1,5 @@
 import sql from "mssql"
-import type { Person } from "./dataTypes.ts"
+import { Person } from "./dataTypes.ts"
 import { insertRow, insertJunction } from "./helper.ts"
 
 export async function createPerson(person: Person, transaction: sql.Transaction) {
@@ -10,7 +10,7 @@ export async function createPerson(person: Person, transaction: sql.Transaction)
     person.vorname,
     person.nachname,
     person.personalnummer,
-    person.konstenstelle,
+    person.kostenstelle,
     person.email,
     person.titel,
   ]
@@ -34,13 +34,17 @@ export async function createPerson(person: Person, transaction: sql.Transaction)
   }
 }
 
-export async function readPerson(person: Person, transaction: sql.Transaction) {
-  // let request = new sql.Request(transaction)
-  // request.input("val0", sql.Int, personId)
-  // await request.query(`EXEC deletePerson @val0`)
+export async function readPerson(personId: number, transaction: sql.Transaction): Promise<Person> {
+  let request = new sql.Request(transaction)
+  request.input("val0", sql.Int, personId)
+  let res = await request.query(`select (Select * from JSONPerson where id=@val0 for json path) as result`)
+  let resStr = res.recordset[0].result
+  let person = new Person(resStr)
+
+  return person
 }
 
-export async function updatePerson(transaction: sql.Transaction) {}
+export async function updatePerson(person: Person, transaction: sql.Transaction) {}
 
 export async function deletePerson(personId: number, transaction: sql.Transaction) {
   let request = new sql.Request(transaction)

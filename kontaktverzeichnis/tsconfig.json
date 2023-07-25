@@ -10,7 +10,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-
+    //"noImplicitAny": true,
     /* Type Checking */
     "strict": true
   },
