@@ -1,42 +1,31 @@
 import { faker } from "@faker-js/faker"
-import sql from "mssql"
 import commandLineArgs from "command-line-args"
-import db from "../kontaktverzeichnis/src/lib/server/db/db.js"
-import {
-  bulkInsert,
-  insertRow,
-  insertJunction,
-  SearchAll,
-  searchAllPersons,
-  SearchAllRessources,
-  getDepartments,
-  getDepartment,
-} from "../kontaktverzeichnis/src/lib/server/dbFunctions.js"
+import prisma from "../kontaktverzeichnis/src/lib/server/prisma.js"
 
 const optionDefinitions = [
   { name: "verbose", alias: "v", type: Boolean },
-  { name: "count", alias: "c", type: Number, defaultOption: true, defaultValue: 10 },
+  { name: "count", alias: "c", type: Number, defaultOption: true, defaultValue: 100 },
 ]
 
 const options = commandLineArgs(optionDefinitions)
 
 // Consts
 const departments = [
-  ["Personalabteilung"],
-  ["Controlling"],
-  ["Vorstand"],
-  ["Empfang"],
-  ["Informationstechnologie"],
-  ["Produktentwicklung"],
-  ["Fuhrparkverwaltung"],
-  ["Marketing"],
-  ["Unternehmenskommunikation"],
-  ["Vertrieb"],
-  ["Kundenbetreuung"],
-  ["Rechnungswesen"],
-  ["Finanzbuchhaltung"],
+  "Personalabteilung",
+  "Controlling",
+  "Vorstand",
+  "Empfang",
+  "Informationstechnologie",
+  "Produktentwicklung",
+  "Fuhrparkverwaltung",
+  "Marketing",
+  "Unternehmenskommunikation",
+  "Vertrieb",
+  "Kundenbetreuung",
+  "Rechnungswesen",
+  "Finanzbuchhaltung",
 ]
-const phonetyps = [["Festnetz"], ["Mobil"], ["Fax"], ["DECT"]]
+const phonetyps = ["Festnetz", "Mobil", "Fax", "DECT"]
 
 const locations = [
   ["Berlin", "0302-1132"],
@@ -64,128 +53,103 @@ async function runRandomTimes(min: number, max: number, func: () => Promise<any>
 
 // Random data insert functions
 async function initData() {
-  let abteilungIds = bulkInsert("abteilung", [["bezeichnung", false]], departments, db)
+  let abteilungIds: number[] = []
+  for (let abteilung of departments) {
+    let res = await prisma.abteilung.create({ data: { bezeichnung: abteilung } })
+    abteilungIds.push(res.id)
+  }
 
-  let eintragTypIds = bulkInsert("eintragTyp", [["bezeichnung", false]], phonetyps, db)
+  let eintragTypIds: number[] = []
+  for (let eintragTyp of phonetyps) {
+    let res = await prisma.eintragTyp.create({ data: { bezeichnung: eintragTyp } })
+    eintragTypIds.push(res.id)
+  }
 
-  let standortIds = bulkInsert(
-    "standort",
-    [
-      ["bezeichnung", false],
-      ["vorwahl", true],
-    ],
-    locations,
-    db
-  )
+  let standortIds: number[] = []
+  for (let standort of locations) {
+    let res = await prisma.standort.create({ data: { bezeichnung: standort[0], vorwahl: standort[1] } })
+    standortIds.push(res.id)
+  }
 
-  return await Promise.all([abteilungIds, eintragTypIds, standortIds])
+  return [abteilungIds, eintragTypIds, standortIds]
 }
 
-async function createRandomPhoneNummer(
-  ranStandortIds: number[],
-  Id: number,
-  transaction: sql.Transaction,
-  type: "person" | "ressource"
-) {
-  const standort = faker.helpers.arrayElement(ranStandortIds)
+async function createRandomPhoneNummer(ranStandortIds: { id: number }[]) {
+  const standort = faker.helpers.arrayElement(ranStandortIds.map((obj) => obj.id))
   const vorwahl = locations[standortIds.indexOf(standort)][1]
   const eintragTyp = faker.helpers.arrayElement(eintragTypIds)
 
   const telNumber = faker.phone.number(vorwahl + "-" + "#".repeat(randomIntFromInterval(1, 5)))
+  let res = await prisma.telefonEintrag.create({
+    data: {
+      eintragTyp: { connect: { id: eintragTyp } },
+      nummer: telNumber,
+      standort: { connect: { id: standort } },
+    },
+  })
 
-  const telefonEintragId = await insertRow(
-    "telefonEintrag",
-    ["eintragTypId", "nummer", "standortID"],
-    [eintragTyp, telNumber, standort],
-    transaction
-  )
-
-  if (type == "person") {
-    await insertJunction("telefonEintragperson", ["telefonEintragID", "personID"], telefonEintragId, Id, transaction)
-  } else if (type == "ressource") {
-    await insertJunction("telefonEintragressource", ["telefonEintragID", "ressourceID"], telefonEintragId, Id, transaction)
-  }
+  return res.id
 }
 
 async function createRandomPerson() {
-  let transaction = new sql.Transaction(db)
-  await transaction.begin()
-  try {
-    //Person
-    const vorname = faker.name.firstName()
-    const nachname = faker.name.lastName()
-    const personalNummer = randomIntFromInterval(1, 99999)
-    const kostenstelle = faker.helpers.arrayElement(costunits)
-    const email = `${vorname}.${nachname}@firma.de`
-    const titel = faker.helpers.maybe<string>(() => faker.helpers.arrayElement(["Dr.", "Prof.", "Dr. med.", "Prof. Dr."]), {
+  let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4)).map((id) => ({ id }))
+  let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3)).map((id) => ({ id }))
+
+  //Telefonnummern
+  let telNums = await runRandomTimes(1, 7, async () => {
+    return await createRandomPhoneNummer(standorte)
+  })
+
+  //Person
+  const vorname = faker.name.firstName()
+  const nachname = faker.name.lastName()
+  const personalnummer = randomIntFromInterval(1, 99999).toString()
+  const kostenstelle = faker.helpers.arrayElement(costunits)
+  const email = `${vorname}.${nachname}@firma.de`
+  const titel =
+    faker.helpers.maybe<string>(() => faker.helpers.arrayElement(["Dr.", "Prof.", "Dr. med.", "Prof. Dr."]), {
       probability: 0.1,
-    })
+    }) || null
 
-    const personId = await insertRow(
-      "person",
-      ["vorname", "nachname", "personalNummer", "kostenstelle", "email", "titel"],
-      [vorname, nachname, personalNummer.toString(), kostenstelle, email, titel],
-      transaction
-    )
-
-    //Abteilungen
-    let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
-    for (let abteilungId of abteilungen) {
-      await insertJunction("personabteilung", ["abteilungID", "personID"], abteilungId, personId, transaction)
-    }
-
-    //Standorte
-    let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
-    for (let standortId of standorte) {
-      await insertJunction("standortperson", ["standortID", "personID"], standortId, personId, transaction)
-    }
-
-    //Telefonnummern
-    await runRandomTimes(1, 7, async () => {
-      await createRandomPhoneNummer(standorte, personId, transaction, "person")
-    })
-
-    await transaction.commit()
-  } catch (err) {
-    console.log(err)
-    await transaction.rollback()
-  }
+  await prisma.person.create({
+    data: {
+      vorname,
+      nachname,
+      personalnummer,
+      kostenstelle,
+      email,
+      titel,
+      abteilung: { connect: abteilungen },
+      standort: { connect: standorte },
+      telefonEintrag: { connect: telNums.map((id) => ({ id })) },
+    },
+  })
 }
 
 async function createRandomRessource() {
-  let transaction = new sql.Transaction(db)
-  await transaction.begin()
-  try {
-    const bezeichnung = faker.random.word()
-    let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4))
-    const standort = await faker.helpers.arrayElement(standortIds)
+  let abteilungen = faker.helpers.arrayElements(abteilungIds, randomIntFromInterval(1, 4)).map((id) => ({ id }))
+  let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3)).map((id) => ({ id }))
 
-    const email = `${bezeichnung}@meinefirma.de`
+  //Telefonnummern
+  let telNums = await runRandomTimes(1, 7, async () => {
+    return await createRandomPhoneNummer(standorte)
+  })
 
-    const ressourceID = await insertRow("ressource", ["bezeichnung", "email"], [bezeichnung, email], transaction)
+  //Ressource
+  const bezeichnung = faker.random.word()
+  const email = `${bezeichnung}@meinefirma.de`
 
-    //Abteilungen
-    for (let abteilungId of abteilungen) {
-      await insertJunction("ressourceabteilung", ["abteilungID", "ressourceID"], abteilungId, ressourceID, transaction)
-    }
-
-    //Standorte
-    let standorte = faker.helpers.arrayElements(standortIds, randomIntFromInterval(1, 3))
-    for (let standortId of standorte) {
-      await insertJunction("standortressource", ["standortID", "ressourceID"], standortId, ressourceID, transaction)
-    }
-
-    //Telefonnummern
-    await runRandomTimes(1, 5, async () => {
-      await createRandomPhoneNummer(standorte, ressourceID, transaction, "ressource")
-    })
-
-    await transaction.commit()
-  } catch (err) {
-    console.log(err)
-    await transaction.rollback()
-  }
+  await prisma.ressource.create({
+    data: {
+      bezeichnung,
+      email,
+      abteilung: { connect: abteilungen },
+      standort: { connect: standorte },
+      telefonEintrag: { connect: telNums.map((id) => ({ id })) },
+    },
+  })
 }
+
 // Main
 var [abteilungIds, eintragTypIds, standortIds]: [number[], number[], number[]] = [[], [], []]
 async function main() {
@@ -196,31 +160,20 @@ async function main() {
   standortIds = res[2]
 
   // // random person
-  // let jobarr = []
-  // for (let i = 0; i < options.count; i++) {
-  //   jobarr.push(createRandomPerson())
-  // }
-  // await Promise.all(jobarr)
+  let jobarr = []
+  for (let i = 0; i < options.count; i++) {
+    jobarr.push(createRandomPerson())
+  }
+  await Promise.all(jobarr)
 
   // // random ressource
-  // let ressourcejobarr = []
-  // for (let i = 0; i < options.count; i++) {
-  //   ressourcejobarr.push(createRandomRessource())
-  // }
-  // await Promise.all(ressourcejobarr)
-  console.time("search")
-  //let all = await SearchAll("Hans Metal", db)
-  //let persons = searchAllPersons("sdfsdfsdf", db)
-  //let ressources = SearchAllRessources("Metal", db)
-  //let searchres = await Promise.all([persons, ressources])
+  let ressourcejobarr = []
+  for (let i = 0; i < options.count; i++) {
+    ressourcejobarr.push(createRandomRessource())
+  }
+  await Promise.all(ressourcejobarr)
 
-  let department = await getDepartment(1448, db)
-  console.log(department[0][0])
-  //let all = await SearchAll("Hans Metal", db)
-  //console.timeEnd("search")
-  //console.log(all[0][0].abteilungbezeichnung)
   console.log("done")
-  await db.close()
 }
 
 main()
