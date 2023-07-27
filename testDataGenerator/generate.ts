@@ -97,7 +97,8 @@ async function createRandomPerson() {
 
   //Telefonnummern
   let telNums = await runRandomTimes(1, 7, async () => {
-    return await createRandomPhoneNummer(standorte)
+    let num = await createRandomPhoneNummer(standorte)
+    return num
   })
 
   //Person
@@ -160,18 +161,15 @@ async function main() {
   standortIds = res[2]
 
   // // random person
-  let jobarr = []
   for (let i = 0; i < options.count; i++) {
-    jobarr.push(createRandomPerson())
+    await createRandomPerson()
   }
-  await Promise.all(jobarr)
 
   // // random ressource
-  let ressourcejobarr = []
+
   for (let i = 0; i < options.count; i++) {
-    ressourcejobarr.push(createRandomRessource())
+    await createRandomRessource()
   }
-  await Promise.all(ressourcejobarr)
 
   console.log("done")
 }
