@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client"
 //import { MEILI_MASTER_KEY } from "$env/static/private"
 import { MeiliSearch } from "meilisearch"
-const MeiliSearchClient = new MeiliSearch({
+export const meili = new MeiliSearch({
   host: "http://localhost:7700",
   //apiKey: MEILI_MASTER_KEY,
 })
-const meili = MeiliSearchClient.index("entities")
+export const meiliIndex = meili.index("entities")
 
 const prisma = new PrismaClient().$extends({
   query: {
@@ -13,22 +13,22 @@ const prisma = new PrismaClient().$extends({
       async create({ operation, model, args, query }) {
         args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
         let res = await query(args)
-        let meilidoc = JSON.parse(JSON.stringify(res))
+        let meilidoc: any = res
         meilidoc.id = `p_${res.id}`
-        meili.addDocuments([meilidoc])
+        meiliIndex.addDocuments([meilidoc])
         return res
       },
       async update({ operation, model, args, query }) {
         args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
         let res = await query(args)
-        let meilidoc = JSON.parse(JSON.stringify(res))
+        let meilidoc: any = res
         meilidoc.id = `p_${res.id}`
-        meili.addDocuments([meilidoc])
+        meiliIndex.addDocuments([meilidoc])
         return res
       },
       async delete({ operation, model, args, query }) {
         let res = await query(args)
-        meili.deleteDocument(`p_${res.id}`)
+        meiliIndex.deleteDocument(`p_${res.id}`)
         return res
       },
     },
@@ -36,22 +36,22 @@ const prisma = new PrismaClient().$extends({
       async create({ operation, model, args, query }) {
         args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
         let res = await query(args)
-        let meilidoc = JSON.parse(JSON.stringify(res))
+        let meilidoc: any = res
         meilidoc.id = `r_${res.id}`
-        meili.addDocuments([meilidoc])
+        meiliIndex.addDocuments([meilidoc])
         return res
       },
       async update({ operation, model, args, query }) {
         args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
         let res = await query(args)
-        let meilidoc = JSON.parse(JSON.stringify(res))
+        let meilidoc: any = res
         meilidoc.id = `r_${res.id}`
-        meili.addDocuments([meilidoc])
+        meiliIndex.addDocuments([meilidoc])
         return res
       },
       async delete({ operation, model, args, query }) {
         let res = await query(args)
-        meili.deleteDocument(`r_${res.id}`)
+        meiliIndex.deleteDocument(`r_${res.id}`)
         return res
       },
     },
@@ -71,14 +71,14 @@ const prisma = new PrismaClient().$extends({
           for (let person of res.person) {
             let meilidoc = JSON.parse(JSON.stringify(person))
             meilidoc.id = `p_${person.id}`
-            meili.addDocuments([meilidoc])
+            meiliIndex.addDocuments([meilidoc])
           }
         }
         if (res.ressource) {
           for (let ressource of res.ressource) {
             let meilidoc = JSON.parse(JSON.stringify(ressource))
             meilidoc.id = `p_${ressource.id}`
-            meili.addDocuments([meilidoc])
+            meiliIndex.addDocuments([meilidoc])
           }
         }
         return res
@@ -87,4 +87,5 @@ const prisma = new PrismaClient().$extends({
   },
 })
 
+await prisma.$connect()
 export default prisma
