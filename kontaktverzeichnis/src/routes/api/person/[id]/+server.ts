@@ -1,48 +1,82 @@
-import dbRequestHandler from "$lib/server/db/dbRequestHandler.ts"
-import type { DBActionResponse } from "$lib/server/db/dbRequestHandler.ts"
-import type { RequestEvent, RequestHandler } from "@sveltejs/kit"
-import sql from "mssql"
-import db from "$lib/server/db/db.ts"
-import { readPerson } from "$lib/server/db/person.ts"
+import prisma, { prismaInclude } from "$lib/server/prisma.ts"
+import type { person } from "@prisma/client"
 
-// const test2: (action: () => Promise<DBActionResponse>) => Promise<RequestHandler> = async () => {
-//   const func: RequestHandler = async (action) => {
-//     let transaction = new sql.Transaction(db)
-//     try {
-//       await transaction.begin()
-//       let res = await action(transaction)
-//       await transaction.commit()
-//       return new Response(JSON.stringify(res), {
-//         status: res.statusCode,
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       })
-//     } catch {
-//       await transaction.rollback()
-//       return new Response('{status: "error","message":"Internal Error"}', {
-//         status: 500,
-//         headers: {
-//           "Content-Type": "application/json",
-//         },
-//       })
-//     }
-//   }
+import type { RequestHandler } from "@sveltejs/kit"
 
-//   return func
-// }
+export const GET: RequestHandler = async ({ params, locals }) => {
+  if (!params.id) {
+    return new Response("Invalid request", {
+      status: 400,
+    })
+  }
 
-export const GET: RequestHandler = async ({ params }) => {
-  // console.log(params.id)
-  let transaction = new sql.Transaction(db)
-  await transaction.begin()
-  let res = await readPerson(Number(params.id), transaction)
-  // console.log(res)
-  return new Response(JSON.stringify(res))
-  return new Response("test", {
+  let person = await prisma.person.findUnique({
+    where: {
+      id: Number(params.id),
+    },
+    include: prismaInclude,
+  })
+
+  if (!person) {
+    return new Response(`User ${params.id} not found`, {
+      status: 404,
+    })
+  }
+
+  if (!locals.user) {
+    person.kostenstelle = null
+    person.personalnummer = null
+  }
+
+  return new Response(JSON.stringify(person), {
     status: 200,
     headers: {
       "Content-Type": "application/json",
     },
+  })
+}
+
+export const POST: RequestHandler = async ({ params, request, locals }) => {
+  const body = await request.json()
+  if (body) {
+  }
+
+  let person = await prisma.person.create({
+    data: {
+      vorname: body.vorname,
+      nachname: body.nachname,
+      titel: body.titel,
+      email: body.email,
+      kostenstelle: body?.kostenstelle,
+      personalnummer: body?.personalnummer,
+      telefonEintrag: { create: body.telefonEintrag },
+      abteilung: {
+        connect: [
+          body.abteilung.map((obj: any) => {
+            return { id: obj.id }
+          }),
+        ],
+      },
+      standort: {
+        connect: [
+          body.standort.map((obj: any) => {
+            return { id: obj.id }
+          }),
+        ],
+      },
+    },
+  })
+
+  return new Response(JSON.stringify(`{id:${person.id}}`), {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+export const PUT: RequestHandler = async ({ params, request, locals }) => {
+  return new Response("Success", {
+    status: 200,
   })
 }
