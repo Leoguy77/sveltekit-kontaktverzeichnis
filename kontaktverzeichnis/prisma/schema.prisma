@@ -8,7 +8,7 @@ datasource db {
 }
 
 model person {
-  id             Int              @unique @id @default(autoincrement())
+  id             Int              @id @unique @default(autoincrement())
   vorname        String           @db.VarChar(255)
   nachname       String           @db.VarChar(255)
   personalnummer String?          @db.VarChar(255)
@@ -21,7 +21,7 @@ model person {
 }
 
 model ressource {
-  id             Int              @unique @id @default(autoincrement())
+  id             Int              @id @unique @default(autoincrement())
   bezeichnung    String           @db.VarChar(255)
   email          String?          @db.VarChar(255)
   abteilung      abteilung[]
@@ -30,20 +30,20 @@ model ressource {
 }
 
 model abteilung {
-  id          Int         @unique @id @default(autoincrement())
+  id          Int         @id @unique @default(autoincrement())
   bezeichnung String      @db.VarChar(255)
   person      person[]
   ressource   ressource[]
 }
 
 model eintragTyp {
-  id             Int              @unique @id @default(autoincrement())
+  id             Int              @id @unique @default(autoincrement())
   bezeichnung    String           @db.VarChar(255)
   telefonEintrag telefonEintrag[]
 }
 
 model standort {
-  id             Int              @unique @id @default(autoincrement())
+  id             Int              @id @unique @default(autoincrement())
   bezeichnung    String           @db.VarChar(255)
   vorwahl        String?          @db.VarChar(255)
   person         person[]
@@ -52,14 +52,17 @@ model standort {
 }
 
 model telefonEintrag {
-  id        Int         @unique @id @default(autoincrement())
-  nummer    String      @db.VarChar(255)
-  person    person[]
-  ressource ressource[]
+  id        Int       @id @unique @default(autoincrement())
+  nummer    String    @db.VarChar(255)
+  
+  person    person?    @relation(fields: [personId], references: [id])
+  personId    Int?
+  ressource ressource? @relation(fields: [ressourceId], references: [id])
+  ressourceId Int?
 
   eintragTyp   eintragTyp @relation(fields: [eintragTypId], references: [id])
   eintragTypId Int
 
-  standort   standort @relation(fields: [standortId], references: [id])
-  standortId Int
+  standort    standort @relation(fields: [standortId], references: [id])
+  standortId  Int
 }
