@@ -6,12 +6,13 @@ export const meili = new MeiliSearch({
   //apiKey: MEILI_MASTER_KEY,
 })
 export const meiliIndex = meili.index("entities")
+export const prismaInclude = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
 
 const prisma = new PrismaClient().$extends({
   query: {
     person: {
       async create({ operation, model, args, query }) {
-        args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
+        args.include = prismaInclude
         let res = await query(args)
         let meilidoc: any = res
         meilidoc.id = `p_${res.id}`
@@ -19,7 +20,7 @@ const prisma = new PrismaClient().$extends({
         return res
       },
       async update({ operation, model, args, query }) {
-        args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
+        args.include = prismaInclude
         let res = await query(args)
         let meilidoc: any = res
         meilidoc.id = `p_${res.id}`
@@ -34,7 +35,7 @@ const prisma = new PrismaClient().$extends({
     },
     ressource: {
       async create({ operation, model, args, query }) {
-        args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
+        args.include = prismaInclude
         let res = await query(args)
         let meilidoc: any = res
         meilidoc.id = `r_${res.id}`
@@ -42,7 +43,7 @@ const prisma = new PrismaClient().$extends({
         return res
       },
       async update({ operation, model, args, query }) {
-        args.include = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
+        args.include = prismaInclude
         let res = await query(args)
         let meilidoc: any = res
         meilidoc.id = `r_${res.id}`
@@ -59,10 +60,10 @@ const prisma = new PrismaClient().$extends({
       async update({ operation, model, args, query }) {
         args.include = {
           person: {
-            include: { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true },
+            include: prismaInclude,
           },
           ressource: {
-            include: { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true },
+            include: prismaInclude,
           },
         }
         let res = await query(args)
