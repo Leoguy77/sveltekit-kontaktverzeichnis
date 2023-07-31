@@ -96,12 +96,6 @@
   $: if (data.person.standorte) {
     companies = data.person.standorte
   }
-
-  $: {
-    console.log(form)
-    console.log(data.person)
-    console.log(telefonEintraege)
-  }
 </script>
 
 <svelte:head>
