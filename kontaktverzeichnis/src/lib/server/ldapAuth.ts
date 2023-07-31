@@ -34,7 +34,8 @@ export default async function validateCredentials(username: string, password: st
             })
 
             if (displayName) {
-              resolve(displayName.vals[0])
+              //@ts-ignore
+              resolve(displayName.values[0])
             }
           })
 
