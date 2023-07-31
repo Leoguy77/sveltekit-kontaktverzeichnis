@@ -2,7 +2,7 @@
 import type { PageLoad } from "./$types.ts"
 
 export const load: PageLoad = async ({ params, fetch }) => {
-  let person = fetch("/api/person/" + params.id)
-  console.log("person", await person)
-  return person
+  let res = await fetch("/api/person/" + params.id)
+  let person = await res.json()
+  return { person: person }
 }
