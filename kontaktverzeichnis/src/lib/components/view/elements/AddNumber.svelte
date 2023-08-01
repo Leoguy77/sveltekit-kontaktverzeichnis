@@ -3,40 +3,28 @@
   import { TextInput, ComboBox, Button } from "carbon-components-svelte"
   import { enhance } from "$app/forms"
 
-  export let form: any
+  export let data: any
   export let popup: string
   let number: string
-  let standortId: string
-  let eintragTypId: string
-
-  function setVorwahl(vorwahl: string) {
-    number = vorwahl
-  }
-  $: {
-    setVorwahl(vorwahlen[standortId])
-  }
-
   let eintragTypen: any = []
-  async function getEintragTyp() {
-    const response = await fetch("/api/eintragTyp")
-    let res = await response.json()
-    for (let eintrag of res) {
-      eintragTypen.push({ id: eintrag.id, text: eintrag.bezeichner })
-    }
-  }
-  getEintragTyp()
-
-  let vorwahlen: any = []
   let standorte: any = []
-  async function getStandorte() {
-    const response = await fetch("/api/standort")
-    let res = await response.json()
-    for (let standort of res) {
-      standorte.push({ id: standort.id, text: standort.bezeichnung })
-      vorwahlen[standort.id] = standort.vorwahl
-    }
+  let standortId: number
+  let eintragTypId: number
+
+  function setVorwahl(standortId: number) {
+    number = standorte.find((el: any) => el.id === standortId).vorwahl
   }
-  getStandorte()
+  $: if (standortId) {
+    setVorwahl(standortId)
+  }
+
+  ;(async () => {
+    let eintragTypenRequest = fetch("/api/eintragTyp")
+    let standorteRequest = fetch("/api/standort")
+    let res = await Promise.all([eintragTypenRequest, standorteRequest])
+    eintragTypen = await res[0].json()
+    standorte = await res[1].json()
+  })()
 
   function filterEintrag(item: any, value: any) {
     if (!value) return true
@@ -44,37 +32,52 @@
   }
 
   function closePopup() {
-    form = null
     setTimeout(() => {
       popup = ""
     }, 50)
   }
+
+  function ok() {
+    data.person.telefonEintrag.push({
+      nummer: number,
+      personId: data.person.id,
+      ressourceId: null,
+      eintragTyp: eintragTypen.find((el: any) => el.id === eintragTypId),
+      standort: standorte.find((el: any) => el.id === standortId),
+    })
+    data.person.telefonEintrag = data.person.telefonEintrag
+    closePopup()
+  }
+
+  function tranformForCombobox(obj: any) {
+    obj = obj.map((el: any) => {
+      el.text = el.bezeichnung
+      return el
+    })
+    return obj
+  }
 </script>
 
-<Popup bind:popup bind:form>
-  <form action="?/addNumber" method="POST" class="center" use:enhance>
-    <ComboBox
-      titleText="Eintrags-Typ"
-      placeholder="Eintrags-Typ auswählen"
-      items={eintragTypen}
-      shouldFilterItem={filterEintrag}
-      bind:selectedId={eintragTypId}
-      required />
-    <ComboBox
-      titleText="Standort"
-      placeholder="Standort auswählen"
-      items={standorte}
-      shouldFilterItem={filterEintrag}
-      bind:selectedId={standortId}
-      required />
+<Popup bind:popup>
+  <ComboBox
+    titleText="Eintrags-Typ"
+    placeholder="Eintrags-Typ auswählen"
+    items={tranformForCombobox(eintragTypen)}
+    shouldFilterItem={filterEintrag}
+    bind:selectedId={eintragTypId}
+    required />
+  <ComboBox
+    titleText="Standort"
+    placeholder="Standort auswählen"
+    items={tranformForCombobox(standorte)}
+    shouldFilterItem={filterEintrag}
+    bind:selectedId={standortId}
+    required />
 
-    <input type="hidden" name="eintragTyp" bind:value={eintragTypId} />
-    <input type="hidden" name="standort" bind:value={standortId} />
-    <TextInput name="number" labelText="Nummer" placeholder="Nummer eintragen" bind:value={number} required />
-    <div class="Button">
-      <Button type="submit" on:click={closePopup}>Ok</Button>
-    </div>
-  </form>
+  <TextInput name="number" labelText="Nummer" placeholder="Nummer eintragen" bind:value={number} required />
+  <div class="Button">
+    <Button type="submit" on:click={ok}>Ok</Button>
+  </div>
 </Popup>
 
 <style>

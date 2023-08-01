@@ -2,7 +2,6 @@
   import { Tile } from "carbon-components-svelte"
 
   export let popup: string
-  export let form: any
 
   function closePopup() {
     popup = ""
@@ -12,7 +11,7 @@
 <section on:click|self={closePopup} on:keydown class="popup">
   <div class="field">
     <Tile light>
-      <slot {form} />
+      <slot />
     </Tile>
   </div>
 </section>
