@@ -1,15 +1,15 @@
 <script lang="ts">
+  import type { PageData } from "./$types.ts"
   import Person from "$lib/components/view/Person.svelte"
 
-  export let form: any
-  export let data: any
+  export let data: PageData
 </script>
 
 <section>
   {#if data?.user}
-    <svelte:component this={Person} bind:form edit={true} bind:data />
+    <svelte:component this={Person} edit={true} bind:data />
   {:else}
-    <svelte:component this={Person} bind:form edit={false} bind:data />
+    <svelte:component this={Person} edit={false} bind:data />
   {/if}
 </section>
 

@@ -1,7 +1,6 @@
-import prisma, { prismaInclude } from "$lib/server/prisma.ts"
-import type { person } from "@prisma/client"
-
+import prisma from "$lib/server/prisma.ts"
 import type { RequestHandler } from "@sveltejs/kit"
+import { prismaInclude } from "$lib/shared/prismaTypes.ts"
 
 export const GET: RequestHandler = async ({ params, locals }) => {
   if (!params.id) {
