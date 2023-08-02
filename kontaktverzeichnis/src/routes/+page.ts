@@ -7,9 +7,10 @@ export async function load(event: any) {
       return {
         id: department.id,
         name: department.bezeichnung,
-        mitarbeiter: department.count,
+        mitarbeiter: department._count.person,
       }
     })
+    console.log(departments)
     return {
       departments,
       user: event.data?.user,
