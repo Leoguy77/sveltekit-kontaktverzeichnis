@@ -1,15 +1,15 @@
 <script lang="ts">
+  import type { PageData } from "./$types.ts"
   import Ressource from "$lib/components/view/Ressource.svelte"
 
-  export let form: any
   export let data: any
 </script>
 
 <section>
   {#if data?.user}
-    <svelte:component this={Ressource} bind:form edit={true} bind:data />
+    <svelte:component this={Ressource} edit={true} bind:data />
   {:else}
-    <svelte:component this={Ressource} bind:form edit={false} bind:data />
+    <svelte:component this={Ressource} edit={false} bind:data />
   {/if}
 </section>
 

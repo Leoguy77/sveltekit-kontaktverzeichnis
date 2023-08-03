@@ -4,11 +4,12 @@
   import AcceptIcon from "$lib/icons/AcceptIcon.svelte"
   import DeleteIcon from "$lib/icons/DeleteIcon.svelte"
   import AddIcon from "$lib/icons/AddIcon.svelte"
-  import { enhance } from "$app/forms"
-  import NumberTable from "./elements/NumberTable.svelte"
+  import NumberRow from "./elements/NumberRow.svelte"
   import AddNumber from "./elements/AddNumber.svelte"
   import AddDepartment from "./elements/AddDepartment.svelte"
   import AddCompany from "./elements/AddCompany.svelte"
+  import type { ressource } from "$lib/shared/prismaTypes.ts"
+  import { goto } from "$app/navigation"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -17,8 +18,7 @@
   }
   let popup: string = ""
 
-  export let data: any
-  export let form: any
+  export let data: { ressource: ressource }
   export let edit: boolean
 
   let Combofield: any
@@ -32,39 +32,53 @@
 
   function getTelefonEintraege() {
     let telefonEintraege: any = []
-    if (data.ressource.telefonEintraege) {
-      for (let eintrag of data?.ressource?.telefonEintraege) {
-        let standort = eintrag?.standort
+    if (data.ressource.telefonEintrag) {
+      for (let eintrag of data.ressource.telefonEintrag) {
+        let standort = eintrag.standort.bezeichnung
+
         if (telefonEintraege[standort]) {
           telefonEintraege[standort].push(eintrag)
         } else {
           telefonEintraege[standort] = [eintrag]
         }
       }
-      return telefonEintraege
     }
+    return telefonEintraege
   }
 
-  $: if (data.ressource.telefonEintraege) {
+  $: if (data.ressource.telefonEintrag) {
     telefonEintraege = getTelefonEintraege()
   }
 
-  function resetForm() {
-    form = null
-  }
-
   let departments: any = []
-  $: if (data.ressource.abteilungen) {
-    departments = data.ressource.abteilungen
+  $: if (data.ressource.abteilung) {
+    departments = data.ressource.abteilung
   }
 
   let companies: any = []
-  $: if (data.ressource.standorte) {
-    companies = data.ressource.standorte
+  $: if (data.ressource.standort) {
+    companies = data.ressource.standort
   }
 
-  $: {
-    console.log(data.ressource.telefonEintraege)
+  function delNumber(id: number) {
+    data.ressource.telefonEintrag = data.ressource.telefonEintrag.filter((e) => e.id != id)
+  }
+
+  function delDepartment(id: number) {
+    data.ressource.abteilung = data.ressource.abteilung.filter((e) => e.id != id)
+  }
+
+  function delCompany(id: number) {
+    data.ressource.standort = data.ressource.standort.filter((e) => e.id != id)
+  }
+
+  async function save() {
+    let res = await fetch(`/api/ressource/`, {
+      method: "POST",
+      body: JSON.stringify(data.ressource),
+    })
+    let userId = (await res.json()).id
+    goto(`/ressource/${userId}`)
   }
 </script>
 
@@ -72,18 +86,8 @@
   <title>{data.ressource.bezeichnung}</title>
 </svelte:head>
 
-{#if form?.error}
-  <div class="toast">
-    <ToastNotification title="Error" subtitle={form.error} timeout={5000} />
-  </div>
-{:else if form?.success}
-  <div class="toast">
-    <ToastNotification title="Success" kind="success" timeout={5000} />
-  </div>
-{/if}
-
 {#if popup}
-  <svelte:component this={popups[popup]} bind:popup bind:form />
+  <svelte:component this={popups[popup]} bind:popup bind:data />
 {/if}
 <div class="line">
   <svg xmlns="http://www.w3.org/2000/svg" width="36" viewBox="0 0 32 32"
@@ -96,19 +100,6 @@
 </div>
 <div class="grid">
   <Tile light>
-    {#if edit}
-      <form class="top-right-button" action="?/save" method="POST" use:enhance>
-        <Button
-          on:click={resetForm}
-          type="submit"
-          value={JSON.stringify(data.ressource)}
-          name="data"
-          icon={AcceptIcon}
-          size="small"
-          kind="ghost"
-          iconDescription="Änderungen speichern" />
-      </form>
-    {/if}
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
       <Combofield labelText="Name" bind:value={data.ressource.bezeichnung} />
@@ -127,13 +118,15 @@
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddNumber"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Nummer hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddNumber"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Nummer hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Telefon</h4>
@@ -142,16 +135,17 @@
         <p>{standort}:</p>
         <table>
           {#each telefonEintraege[standort] as number}
-            <NumberTable {number}>
+            <NumberRow {number}>
               {#if edit}
-                <form class="del" action="?/delNumber" method="POST" use:enhance>
-                  <label on:click={resetForm} on:keydown>
-                    <input type="submit" class="hidden" name="data" value={number.id} />
-                    <DeleteIcon size={14} />
-                  </label>
-                </form>
+                <button
+                  class="blank-btn"
+                  on:click={() => {
+                    delNumber(number.id)
+                  }}>
+                  <DeleteIcon size={14} />
+                </button>
               {/if}
-            </NumberTable>
+            </NumberRow>
           {/each}
         </table>
       </div>
@@ -159,13 +153,15 @@
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddDepartment"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddDepartment"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Abteilung hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Abteilung</h4>
@@ -173,25 +169,28 @@
       <div class="departments">
         <Tag>{abteilung.bezeichnung}</Tag>
         {#if edit}
-          <form action="?/delDepartment" method="POST" use:enhance>
-            <label on:click={resetForm} on:keydown>
-              <input type="submit" class="hidden" name="data" value={abteilung.id} />
-              <DeleteIcon size={14} />
-            </label>
-          </form>
+          <button
+            class="blank-btn"
+            on:click={() => {
+              delDepartment(abteilung.id)
+            }}>
+            <DeleteIcon size={14} />
+          </button>
         {/if}
       </div>
     {/each}
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddCompany"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddCompany"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Standort hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Standort</h4>
@@ -199,37 +198,36 @@
       <div class="departments">
         <Tag>{standort.bezeichnung}</Tag>
         {#if edit}
-          <form action="?/delCompany" method="POST" use:enhance>
-            <label on:click={resetForm} on:keydown>
-              <input type="submit" class="hidden" name="data" value={standort.id} />
-              <DeleteIcon size={14} />
-            </label>
-          </form>
+          <button
+            class="blank-btn"
+            on:click={() => {
+              delCompany(standort.id)
+            }}>
+            <DeleteIcon size={14} />
+          </button>
         {/if}
       </div>
     {/each}
   </Tile>
+  {#if edit}
+    <Button on:click={save}>Speichern</Button>
+  {/if}
 </div>
 
 <style>
+  .blank-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
   .departments {
     display: flex;
     align-items: center;
   }
-  .del {
-    margin-left: 1rem;
-  }
   .company {
     margin-bottom: 1rem;
-  }
-  .toast {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 100;
-  }
-  .hidden {
-    display: none;
   }
   .top-right-button {
     position: relative;
