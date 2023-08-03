@@ -20,6 +20,16 @@
   }
 
   function ok() {
+    let alreadyThere = data.person.abteilung.filter((obj: any) => {
+      if (obj.id === abteilungId) {
+        return true
+      }
+    })
+    if (alreadyThere.length > 0) {
+      popup = ""
+      return
+    }
+
     data.person.abteilung.push({
       bezeichnung: abteilungen.find((s: any) => s.id === abteilungId).bezeichnung,
       id: abteilungId,

@@ -9,7 +9,7 @@
   import AddDepartment from "./elements/AddDepartment.svelte"
   import AddCompany from "./elements/AddCompany.svelte"
   import type { person } from "$lib/shared/prismaTypes.ts"
-  import { goto } from "$app/navigation"
+  import { goto, invalidateAll } from "$app/navigation"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -84,12 +84,20 @@
   }
 
   async function save() {
-    let res = await fetch(`/api/person/`, {
-      method: "POST",
-      body: JSON.stringify(data.person),
-    })
-    let userId = (await res.json()).id
-    goto(`/person/${userId}`)
+    if (data.person.id) {
+      await fetch(`/api/person/`, {
+        method: "PATCH",
+        body: JSON.stringify(data.person),
+      })
+      invalidateAll()
+    } else {
+      let res = await fetch(`/api/person/`, {
+        method: "POST",
+        body: JSON.stringify(data.person),
+      })
+      let userId = (await res.json()).id
+      goto(`/person/${userId}`)
+    }
   }
 </script>
 
@@ -187,7 +195,9 @@
     <h4 class="category">Abteilung</h4>
     {#each departments as abteilung (abteilung.id)}
       <div class="departments">
-        <Tag>{abteilung.bezeichnung}</Tag>
+        <a href={`/abteilung/${abteilung.id}`}>
+          <Tag>{abteilung.bezeichnung}</Tag>
+        </a>
         {#if edit}
           <button
             class="blank-btn"

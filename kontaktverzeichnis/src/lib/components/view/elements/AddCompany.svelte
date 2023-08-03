@@ -20,6 +20,16 @@
   }
 
   function ok() {
+    let alreadyThere = data.person.standort.filter((obj: any) => {
+      if (obj.id === standortId) {
+        return true
+      }
+    })
+    if (alreadyThere.length > 0) {
+      popup = ""
+      return
+    }
+
     data.person.standort.push({
       bezeichnung: standorte.find((s: any) => s.id === standortId).bezeichnung,
       vorwahl: standorte.find((s: any) => s.id === standortId).vorwahl,
