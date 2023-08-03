@@ -23,6 +23,7 @@
     data.person.standort.push({
       bezeichnung: standorte.find((s: any) => s.id === standortId).bezeichnung,
       vorwahl: standorte.find((s: any) => s.id === standortId).vorwahl,
+      id: standortId,
     })
     data.person.standort = data.person.standort
     popup = ""

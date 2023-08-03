@@ -4,38 +4,12 @@
   import AcceptIcon from "$lib/icons/AcceptIcon.svelte"
   import DeleteIcon from "$lib/icons/DeleteIcon.svelte"
   import AddIcon from "$lib/icons/AddIcon.svelte"
-  import { enhance } from "$app/forms"
-  import NumberTable from "./elements/NumberTable.svelte"
+  import NumberRow from "./elements/NumberRow.svelte"
   import AddNumber from "./elements/AddNumber.svelte"
   import AddDepartment from "./elements/AddDepartment.svelte"
   import AddCompany from "./elements/AddCompany.svelte"
-
-  interface Person {
-    abteilungen: string[]
-    collectionId: string
-    collectionName: string
-    email: string
-    expand: {
-      abteilungen: any
-      standort: any
-      telefonEintraege: any
-      secureData: any
-    }
-    id: string
-    index: string
-    nachname: string
-    personalnummer: string
-    kostenstelle: string
-    standorte: string[]
-    telefonEintraege: {
-      id: string
-      number: string
-      standort: string
-      type: string
-    }[]
-    titel: string
-    vorname: string
-  }
+  import type { person } from "$lib/shared/prismaTypes.ts"
+  import { goto } from "$app/navigation"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -44,8 +18,8 @@
   }
   let popup: string = ""
 
-  export let data: { person: Person }
-  export let form: any
+  export let data: { person: person }
+
   export let edit: boolean
 
   let Combofield: any
@@ -57,44 +31,65 @@
 
   let name: string = ""
 
-  if (data.person.titel != undefined) {
-    name = data.person.titel + " "
+  $: if (data.person) {
+    name = ""
+    if (data.person.titel != undefined) {
+      name = data.person.titel + " "
+    }
+    name += data.person.vorname + " " + data.person.nachname
   }
-  name += data.person.vorname + " " + data.person.nachname
 
   let telefonEintraege: any = []
 
   function getTelefonEintraege() {
     let telefonEintraege: any = []
-    if (data.person.telefonEintraege) {
-      for (let eintrag of data?.person?.telefonEintraege) {
-        let standort = eintrag.standort
+    if (data.person.telefonEintrag) {
+      for (let eintrag of data.person.telefonEintrag) {
+        let standort = eintrag.standort.bezeichnung
+
         if (telefonEintraege[standort]) {
           telefonEintraege[standort].push(eintrag)
         } else {
           telefonEintraege[standort] = [eintrag]
         }
       }
-      return telefonEintraege
     }
+    return telefonEintraege
   }
 
-  $: if (data.person.telefonEintraege) {
+  $: if (data.person.telefonEintrag) {
     telefonEintraege = getTelefonEintraege()
   }
 
-  function resetForm() {
-    form = null
-  }
-
   let departments: any = []
-  $: if (data.person.abteilungen) {
-    departments = data.person.abteilungen
+  $: if (data.person.abteilung) {
+    departments = data.person.abteilung
   }
 
   let companies: any = []
-  $: if (data.person.standorte) {
-    companies = data.person.standorte
+  $: if (data.person.standort) {
+    companies = data.person.standort
+  }
+
+  function delNumber(id: number) {
+    data.person.telefonEintrag = data.person.telefonEintrag.filter((e) => e.id != id)
+  }
+
+  function delDepartment(id: number) {
+    data.person.abteilung = data.person.abteilung.filter((e) => e.id != id)
+  }
+
+  function delCompany(id: number) {
+    data.person.standort = data.person.standort.filter((e) => e.id != id)
+  }
+
+  async function save() {
+    let res = await fetch(`/api/person/`, {
+      method: "POST",
+      body: JSON.stringify(data.person),
+    })
+    let userId = (await res.json()).id
+    goto(`/person/${userId}`)
   }
 </script>
 
@@ -102,7 +97,7 @@
   <title>{name}</title>
 </svelte:head>
 
-{#if form?.error}
+<!-- {#if form?.error}
   <div class="toast">
     <ToastNotification title="Error" subtitle={form.error} timeout={5000} />
   </div>
@@ -110,10 +105,10 @@
   <div class="toast">
     <ToastNotification title="Success" kind="success" timeout={5000} />
   </div>
-{/if}
+{/if} -->
 
 {#if popup}
-  <svelte:component this={popups[popup]} bind:popup bind:form />
+  <svelte:component this={popups[popup]} bind:popup bind:data />
 {/if}
 <div class="line">
   <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
@@ -126,24 +121,10 @@
 </div>
 <div class="grid">
   <Tile light>
-    {#if edit}
-      <form class="top-right-button" action="?/save" method="POST" use:enhance>
-        <Button
-          on:click={resetForm}
-          type="submit"
-          value={JSON.stringify(data.person)}
-          name="data"
-          icon={AcceptIcon}
-          size="small"
-          kind="ghost"
-          iconDescription="Änderungen speichern" />
-      </form>
-    {/if}
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
-      {#if data.person.titel}
-        <Combofield labelText="Titel" bind:value={data.person.titel} />
-      {/if}
+      <Combofield labelText="Titel" bind:value={data.person.titel} />
+
       <Combofield labelText="Vorname" bind:value={data.person.vorname} />
       <Combofield labelText="Nachname" bind:value={data.person.nachname} />
     </div>
@@ -167,13 +148,15 @@
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddNumber"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Nummer hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddNumber"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Nummer hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Telefon</h4>
@@ -182,16 +165,17 @@
         <p>{standort}:</p>
         <table>
           {#each telefonEintraege[standort] as number}
-            <NumberTable {number}>
+            <NumberRow {number}>
               {#if edit}
-                <form class="del" action="?/delNumber" method="POST" use:enhance>
-                  <label on:click={resetForm} on:keydown>
-                    <input type="submit" class="hidden" name="data" value={number.id} />
-                    <DeleteIcon size={14} />
-                  </label>
-                </form>
+                <button
+                  class="blank-btn"
+                  on:click={() => {
+                    delNumber(number.id)
+                  }}>
+                  <DeleteIcon size={14} />
+                </button>
               {/if}
-            </NumberTable>
+            </NumberRow>
           {/each}
         </table>
       </div>
@@ -199,13 +183,15 @@
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddDepartment"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Abteilung hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddDepartment"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Abteilung hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Abteilung</h4>
@@ -213,25 +199,28 @@
       <div class="departments">
         <Tag>{abteilung.bezeichnung}</Tag>
         {#if edit}
-          <form action="?/delDepartment" method="POST" use:enhance>
-            <label on:click={resetForm} on:keydown>
-              <input type="submit" class="hidden" name="data" value={abteilung.id} />
-              <DeleteIcon size={14} />
-            </label>
-          </form>
+          <button
+            class="blank-btn"
+            on:click={() => {
+              delDepartment(abteilung.id)
+            }}>
+            <DeleteIcon size={14} />
+          </button>
         {/if}
       </div>
     {/each}
   </Tile>
   <Tile light>
     {#if edit}
-      <div
-        on:keydown
-        on:click={() => {
-          popup = "AddCompany"
-        }}
-        class="top-right-button">
-        <Button icon={AddIcon} size="small" kind="ghost" iconDescription="Standort hinzufügen" />
+      <div class="top-right-button">
+        <Button
+          on:click={() => {
+            popup = "AddCompany"
+          }}
+          icon={AddIcon}
+          size="small"
+          kind="ghost"
+          iconDescription="Standort hinzufügen" />
       </div>
     {/if}
     <h4 class="category">Standort</h4>
@@ -239,19 +228,30 @@
       <div class="departments">
         <Tag>{standort.bezeichnung}</Tag>
         {#if edit}
-          <form action="?/delCompany" method="POST" use:enhance>
-            <label on:click={resetForm} on:keydown>
-              <input type="submit" class="hidden" name="data" value={standort.id} />
-              <DeleteIcon size={14} />
-            </label>
-          </form>
+          <button
+            class="blank-btn"
+            on:click={() => {
+              delCompany(standort.id)
+            }}>
+            <DeleteIcon size={14} />
+          </button>
         {/if}
       </div>
     {/each}
   </Tile>
+  {#if edit}
+    <Button on:click={save}>Speichern</Button>
+  {/if}
 </div>
 
 <style>
+  .blank-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
   .departments {
     display: flex;
     align-items: center;

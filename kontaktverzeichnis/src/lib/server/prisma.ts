@@ -14,7 +14,7 @@ const prisma = new PrismaClient().$extends({
       async create({ operation, model, args, query }) {
         args.include = prismaInclude
         let res = await query(args)
-        let meilidoc: any = res
+        let meilidoc: any = structuredClone(res)
         meilidoc.id = `p_${res.id}`
         meiliIndex.addDocuments([meilidoc])
         return res
@@ -22,7 +22,7 @@ const prisma = new PrismaClient().$extends({
       async update({ operation, model, args, query }) {
         args.include = prismaInclude
         let res = await query(args)
-        let meilidoc: any = res
+        let meilidoc: any = structuredClone(res)
         meilidoc.id = `p_${res.id}`
         meiliIndex.addDocuments([meilidoc])
         return res
@@ -37,7 +37,7 @@ const prisma = new PrismaClient().$extends({
       async create({ operation, model, args, query }) {
         args.include = prismaInclude
         let res = await query(args)
-        let meilidoc: any = res
+        let meilidoc: any = structuredClone(res)
         meilidoc.id = `r_${res.id}`
         meiliIndex.addDocuments([meilidoc])
         return res
@@ -45,7 +45,7 @@ const prisma = new PrismaClient().$extends({
       async update({ operation, model, args, query }) {
         args.include = prismaInclude
         let res = await query(args)
-        let meilidoc: any = res
+        let meilidoc: any = structuredClone(res)
         meilidoc.id = `r_${res.id}`
         meiliIndex.addDocuments([meilidoc])
         return res

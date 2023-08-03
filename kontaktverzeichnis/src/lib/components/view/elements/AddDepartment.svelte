@@ -22,6 +22,7 @@
   function ok() {
     data.person.abteilung.push({
       bezeichnung: abteilungen.find((s: any) => s.id === abteilungId).bezeichnung,
+      id: abteilungId,
     })
     data.person.abteilung = data.person.abteilung
     popup = ""

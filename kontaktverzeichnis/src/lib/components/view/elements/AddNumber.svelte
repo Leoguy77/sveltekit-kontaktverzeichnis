@@ -35,8 +35,8 @@
   function ok() {
     data.person.telefonEintrag.push({
       nummer: number,
-      personId: data.person.id,
-      ressourceId: null,
+      // personId: data.person.id,
+      // ressourceId: null,
       eintragTyp: eintragTypen.find((el: any) => el.id === eintragTypId),
       standort: standorte.find((el: any) => el.id === standortId),
     })
