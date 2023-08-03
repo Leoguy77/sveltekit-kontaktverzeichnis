@@ -97,16 +97,6 @@
   <title>{name}</title>
 </svelte:head>
 
-<!-- {#if form?.error}
-  <div class="toast">
-    <ToastNotification title="Error" subtitle={form.error} timeout={5000} />
-  </div>
-{:else if form?.success}
-  <div class="toast">
-    <ToastNotification title="Success" kind="success" timeout={5000} />
-  </div>
-{/if} -->
-
 {#if popup}
   <svelte:component this={popups[popup]} bind:popup bind:data />
 {/if}
@@ -256,20 +246,8 @@
     display: flex;
     align-items: center;
   }
-  .del {
-    margin-left: 1rem;
-  }
   .company {
     margin-bottom: 1rem;
-  }
-  .toast {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 100;
-  }
-  .hidden {
-    display: none;
   }
   .top-right-button {
     position: relative;
