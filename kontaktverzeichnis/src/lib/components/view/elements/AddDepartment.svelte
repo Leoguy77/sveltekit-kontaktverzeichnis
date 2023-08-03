@@ -1,49 +1,44 @@
 <script lang="ts">
   import Popup from "$lib/components/Popup.svelte"
   import { ComboBox, Button } from "carbon-components-svelte"
-  import { enhance } from "$app/forms"
+  import tranformForCombobox from "./comboBoxTransform.ts"
+  import type { person } from "$lib/shared/prismaTypes.ts"
 
-  export let form: any
   export let popup: string
+  export let data: any
   let abteilungId: string
 
   let abteilungen: any = []
-  async function getEintragTyp() {
+  ;(async () => {
     const response = await fetch("/api/abteilung")
-    let res = await response.json()
-    for (let eintrag of res) {
-      abteilungen.push({ id: eintrag.id, text: eintrag.bezeichnung })
-    }
-  }
-  getEintragTyp()
+    abteilungen = await response.json()
+  })()
 
   function filterEintrag(item: any, value: any) {
     if (!value) return true
     return item.text.toLowerCase().includes(value.toLowerCase())
   }
 
-  function closePopup() {
-    form = null
-    setTimeout(() => {
-      popup = ""
-    }, 50)
+  function ok() {
+    data.person.abteilung.push({
+      bezeichnung: abteilungen.find((s: any) => s.id === abteilungId).bezeichnung,
+    })
+    data.person.abteilung = data.person.abteilung
+    popup = ""
   }
 </script>
 
-<Popup bind:popup bind:form>
-  <form action="?/addDepartment" method="POST" class="center" use:enhance>
-    <ComboBox
-      titleText="Abteilung"
-      placeholder="Abteilung auswählen"
-      items={abteilungen}
-      shouldFilterItem={filterEintrag}
-      bind:selectedId={abteilungId}
-      required />
-    <input type="hidden" name="abteilung" bind:value={abteilungId} />
-    <div class="Button">
-      <Button type="submit" on:click={closePopup}>Ok</Button>
-    </div>
-  </form>
+<Popup bind:popup>
+  <ComboBox
+    titleText="Abteilung"
+    placeholder="Abteilung auswählen"
+    items={tranformForCombobox(abteilungen)}
+    shouldFilterItem={filterEintrag}
+    bind:selectedId={abteilungId}
+    required />
+  <div class="Button">
+    <Button on:click={ok}>Ok</Button>
+  </div>
 </Popup>
 
 <style>

@@ -2,6 +2,7 @@
   import Popup from "$lib/components/Popup.svelte"
   import { TextInput, ComboBox, Button } from "carbon-components-svelte"
   import { enhance } from "$app/forms"
+  import tranformForCombobox from "./comboBoxTransform.ts"
 
   export let data: any
   export let popup: string
@@ -31,12 +32,6 @@
     return item.text.toLowerCase().includes(value.toLowerCase())
   }
 
-  function closePopup() {
-    setTimeout(() => {
-      popup = ""
-    }, 50)
-  }
-
   function ok() {
     data.person.telefonEintrag.push({
       nummer: number,
@@ -46,15 +41,7 @@
       standort: standorte.find((el: any) => el.id === standortId),
     })
     data.person.telefonEintrag = data.person.telefonEintrag
-    closePopup()
-  }
-
-  function tranformForCombobox(obj: any) {
-    obj = obj.map((el: any) => {
-      el.text = el.bezeichnung
-      return el
-    })
-    return obj
+    popup = ""
   }
 </script>
 
@@ -76,7 +63,7 @@
 
   <TextInput name="number" labelText="Nummer" placeholder="Nummer eintragen" bind:value={number} required />
   <div class="Button">
-    <Button type="submit" on:click={ok}>Ok</Button>
+    <Button on:click={ok}>Ok</Button>
   </div>
 </Popup>
 
