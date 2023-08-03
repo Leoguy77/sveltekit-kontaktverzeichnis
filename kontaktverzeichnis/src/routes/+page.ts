@@ -7,7 +7,7 @@ export async function load(event: any) {
       return {
         id: department.id,
         name: department.bezeichnung,
-        mitarbeiter: department._count.person,
+        mitarbeiter: department._count.person + department._count.ressource,
       }
     })
     console.log(departments)
