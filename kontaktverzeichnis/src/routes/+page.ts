@@ -35,7 +35,6 @@ export async function load(event: any) {
         let type = obj.id[0]
         obj.id = obj.id.slice(2)
         if (type === "p") {
-          console.log("aaaa")
           obj.type = "person"
           persons.push(obj)
         } else if (type === "r") {
@@ -43,7 +42,6 @@ export async function load(event: any) {
           ressources.push(obj)
         }
       })
-      console.log(persons)
 
       let searchResult = entityParser(persons, ressources)
 
