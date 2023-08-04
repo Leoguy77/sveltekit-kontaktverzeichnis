@@ -2,13 +2,16 @@ import type { RequestHandler } from "@sveltejs/kit"
 import prisma from "$lib/server/prisma.ts"
 import { meili, meiliIndex } from "$lib/server/prisma.ts"
 
-export const GET: RequestHandler = async (event) => {
+export const GET: RequestHandler = async ({ locals }) => {
+  if (!locals.user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   await meili.deleteIndex("entities")
   let JSONPerson: any = await prisma.$queryRaw`select (select person.id as id,
   vorname,
   nachname,
-  personalnummer,
-  kostenstelle,
   email,
   titel,
   
@@ -45,11 +48,13 @@ export const GET: RequestHandler = async (event) => {
 
   let parsedPerson = JSON.parse(JSONPerson[0].result).map((obj: any) => {
     obj.id = `p_${obj.id}`
-    obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
-      telEintrag.standort = JSON.parse(telEintrag.standort)
-      telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
-      return telEintrag
-    })
+    if (obj.telefonEintrag) {
+      obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
+        telEintrag.standort = JSON.parse(telEintrag.standort)
+        telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
+        return telEintrag
+      })
+    }
     return obj
   })
 
