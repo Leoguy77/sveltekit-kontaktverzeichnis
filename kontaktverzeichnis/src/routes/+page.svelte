@@ -8,7 +8,9 @@
   import { navigating, page } from "$app/stores"
   import { browser } from "$app/environment"
 
-  export let data
+  export let data: any
+
+  console.log(data)
 
   interface PageState {
     entitiySearchTxt: string
@@ -175,17 +177,11 @@
           <SearchTable
             bind:searchResult={pageData.searchResult}
             bind:page={pageData.entityTableState.page}
-            bind:sortDirection={pageData.entityTableState.sortDirection}
-            bind:sortKey={pageData.entityTableState.sortKey} />
+            bind:sortDirection={pageData.entityTableState.sortDirection} />
         {/if}
       {:else if pageData.selectedSearch == 1}
         {#if pageData.departments}
-          <DepartmentTable
-            bind:departments={pageData.departments}
-            bind:searchTxt={pageData.departmentSearchTxt}
-            bind:page={pageData.departmentTableState.page}
-            bind:sortDirection={pageData.departmentTableState.sortDirection}
-            bind:sortKey={pageData.departmentTableState.sortKey} />
+          <DepartmentTable bind:departments={pageData.departments} bind:searchTxt={pageData.departmentSearchTxt} />
         {/if}
       {/if}
     </section>

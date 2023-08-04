@@ -4,9 +4,6 @@
 
   // pages
   let pageSize = 10
-  export let page = 1
-  export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
-  export let sortKey: string | undefined
 
   export let departments: any
   export let searchTxt: string
@@ -25,16 +22,13 @@
   {#if searchResult?.length > 0}
     <div class="resultTable" id="resultTable">
       <DataTable
-        bind:sortDirection
-        bind:sortKey
         sortable
         headers={[
           { key: "name", value: "Name" },
           { key: "mitarbeiter", value: "Mitarbeiter" },
         ]}
         rows={searchResult}
-        {pageSize}
-        {page}>
+        {pageSize}>
         <svelte:fragment slot="cell" let:row let:cell>
           {#if cell.key === "name"}
             <div class="center-v">
@@ -53,7 +47,6 @@
     {#if searchResult?.length > pageSize}
       <Pagination
         bind:pageSize
-        bind:page
         totalItems={searchResult?.length}
         pageSizeInputDisabled
         forwardText="Nächste Seite"
