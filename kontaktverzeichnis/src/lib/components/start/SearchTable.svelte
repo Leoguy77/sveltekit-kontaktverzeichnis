@@ -31,7 +31,7 @@
         headers={[
           { key: "name", value: "Name", sort: (a, b) => sortName(a, b) },
           { key: "standort", value: "Standort", sort: false },
-          { key: "abteilungen", value: "Abteilung", sort: false },
+          { key: "abteilung", value: "Abteilung", sort: false },
           { key: "kontakt", value: "Kontakt", sort: false },
         ]}
         rows={searchResult}
@@ -55,13 +55,13 @@
                     fill="currentColor"
                     d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
               {/if}
-              <Link style="margin-left:1rem" href="/{cell.value.type}/id/{cell.value.id}">{cell.value.name}</Link>
+              <Link style="margin-left:1rem" href="/{cell.value.type}/{cell.value.id}">{cell.value.name}</Link>
             </div>
           {:else if cell.key === "standort"}
             {#each cell.value as standort (standort.id)}
               <p>{standort.bezeichnung}</p>
             {/each}
-          {:else if cell.key === "abteilungen"}
+          {:else if cell.key === "abteilung"}
             {#each cell.value as abteilung (abteilung.id)}
               <p><Link href="/abteilung/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
             {/each}

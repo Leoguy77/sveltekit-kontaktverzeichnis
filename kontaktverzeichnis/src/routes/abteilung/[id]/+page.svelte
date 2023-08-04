@@ -6,10 +6,11 @@
   import EditIcon from "$lib/icons/EditIcon.svelte"
   import { page } from "$app/stores"
   import { goto } from "$app/navigation"
+  import type { PageData } from "./$types.js"
 
   let id = $page.params.id
 
-  export let data: any
+  export let data: PageData
 
   let edit = false
 
@@ -23,12 +24,13 @@
   }
 
   async function renameDepartment() {
-    let response = await fetch(`/api/abteilung/${id}`, {
-      method: "POST",
+    let response = await fetch(`/api/abteilung`, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        id: data.department.id,
         bezeichnung: data.department.bezeichnung,
       }),
     })
@@ -72,7 +74,7 @@
     </div>
   </div>
   <div class="center-hd">
-    <SearchTable searchResult={data.entities} />
+    <SearchTable searchResult={data.entities} sortKey="name" />
   </div>
 </section>
 
