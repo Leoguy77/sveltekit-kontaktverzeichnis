@@ -14,7 +14,6 @@ export const GET: RequestHandler = async () => {
 }
 export const PATCH: RequestHandler = async ({ request }) => {
   const body = await request.json()
-  console.log(body)
   const abteilung = await prisma.abteilung.update({
     where: { id: body.id },
     data: {
