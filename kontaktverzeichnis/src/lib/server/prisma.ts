@@ -67,21 +67,22 @@ const prisma = new PrismaClient().$extends({
           },
         }
         let res = await query(args)
-
+        let meilidocs: any = []
         if (res.person) {
           for (let person of res.person) {
             let meilidoc = JSON.parse(JSON.stringify(person))
             meilidoc.id = `p_${person.id}`
-            meiliIndex.addDocuments([meilidoc])
+            meilidocs.push(meilidoc)
           }
         }
         if (res.ressource) {
           for (let ressource of res.ressource) {
             let meilidoc = JSON.parse(JSON.stringify(ressource))
             meilidoc.id = `p_${ressource.id}`
-            meiliIndex.addDocuments([meilidoc])
+            meilidocs.push(meilidoc)
           }
         }
+        meiliIndex.addDocuments(meilidocs)
         return res
       },
     },
