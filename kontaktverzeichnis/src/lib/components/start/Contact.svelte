@@ -1,7 +1,7 @@
 <script lang="ts">
   import Number from "./Number.svelte"
   import { Link } from "carbon-components-svelte"
-  export let contact: any
+  export let contact: { email: string; telefonEintraege: { nummer: string; standort: string; eintragTyp: string }[] }
   let standortLimit = 2
   let numberLimit = 2
 
