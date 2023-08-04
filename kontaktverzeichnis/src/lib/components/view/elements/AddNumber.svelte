@@ -12,6 +12,13 @@
   let standortId: number
   let eintragTypId: number
 
+  let state: any
+  if (data.person) {
+    state = data.person
+  } else if (data.ressource) {
+    state = data.ressource
+  }
+
   function setVorwahl(standortId: number) {
     number = standorte.find((el: any) => el.id === standortId).vorwahl
   }
@@ -33,14 +40,13 @@
   }
 
   function ok() {
-    data.person.telefonEintrag.push({
+    state.telefonEintrag.push({
       nummer: number,
-      // personId: data.person.id,
-      // ressourceId: null,
       eintragTyp: eintragTypen.find((el: any) => el.id === eintragTypId),
       standort: standorte.find((el: any) => el.id === standortId),
     })
-    data.person.telefonEintrag = data.person.telefonEintrag
+    state.telefonEintrag = state.telefonEintrag
+    data.ressource = state
     popup = ""
   }
 </script>

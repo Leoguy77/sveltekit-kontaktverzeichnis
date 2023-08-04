@@ -9,7 +9,7 @@
   import AddDepartment from "./elements/AddDepartment.svelte"
   import AddCompany from "./elements/AddCompany.svelte"
   import type { ressource } from "$lib/shared/prismaTypes.ts"
-  import { goto } from "$app/navigation"
+  import { goto, invalidateAll } from "$app/navigation"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -73,12 +73,20 @@
   }
 
   async function save() {
-    let res = await fetch(`/api/ressource/`, {
-      method: "POST",
-      body: JSON.stringify(data.ressource),
-    })
-    let userId = (await res.json()).id
-    goto(`/ressource/${userId}`)
+    if (data.ressource.id) {
+      await fetch(`/api/ressource/`, {
+        method: "PATCH",
+        body: JSON.stringify(data.ressource),
+      })
+      invalidateAll()
+    } else {
+      let res = await fetch(`/api/ressource/`, {
+        method: "POST",
+        body: JSON.stringify(data.ressource),
+      })
+      let userId = (await res.json()).id
+      goto(`/ressource/${userId}`)
+    }
   }
 </script>
 

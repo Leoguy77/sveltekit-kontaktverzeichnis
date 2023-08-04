@@ -8,6 +8,13 @@
   export let data: any
   let abteilungId: string
 
+  let state: any
+  if (data.person) {
+    state = data.person
+  } else if (data.ressource) {
+    state = data.ressource
+  }
+
   let abteilungen: any = []
   ;(async () => {
     const response = await fetch("/api/abteilung")
@@ -20,7 +27,7 @@
   }
 
   function ok() {
-    let alreadyThere = data.person.abteilung.filter((obj: any) => {
+    let alreadyThere = state.abteilung.filter((obj: any) => {
       if (obj.id === abteilungId) {
         return true
       }
@@ -30,11 +37,12 @@
       return
     }
 
-    data.person.abteilung.push({
+    state.abteilung.push({
       bezeichnung: abteilungen.find((s: any) => s.id === abteilungId).bezeichnung,
       id: abteilungId,
     })
-    data.person.abteilung = data.person.abteilung
+    state.abteilung = state.abteilung
+    data.ressource = state
     popup = ""
   }
 </script>

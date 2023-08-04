@@ -8,6 +8,13 @@
   export let data: any
   let standortId: string
 
+  let state: any
+  if (data.person) {
+    state = data.person
+  } else if (data.ressource) {
+    state = data.ressource
+  }
+
   let standorte: any = []
   ;(async () => {
     const response = await fetch("/api/standort")
@@ -20,7 +27,7 @@
   }
 
   function ok() {
-    let alreadyThere = data.person.standort.filter((obj: any) => {
+    let alreadyThere = state.standort.filter((obj: any) => {
       if (obj.id === standortId) {
         return true
       }
@@ -30,12 +37,13 @@
       return
     }
 
-    data.person.standort.push({
+    state.standort.push({
       bezeichnung: standorte.find((s: any) => s.id === standortId).bezeichnung,
       vorwahl: standorte.find((s: any) => s.id === standortId).vorwahl,
       id: standortId,
     })
-    data.person.standort = data.person.standort
+    state.standort = state.standort
+    data.ressource = state
     popup = ""
   }
 </script>
