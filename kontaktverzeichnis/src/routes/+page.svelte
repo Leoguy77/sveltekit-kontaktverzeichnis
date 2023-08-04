@@ -4,7 +4,6 @@
   import DepartmentTable from "$lib/components/start/DepartmentTable.svelte"
   import NewDepartment from "$lib/components/start/NewDepartment.svelte"
   import { ContentSwitcher, Switch, Search, Button, OverflowMenu, OverflowMenuItem, Loading } from "carbon-components-svelte"
-  import type { Snapshot } from "./$types.d.ts"
   import { goto } from "$app/navigation"
   import { navigating, page } from "$app/stores"
   import { browser } from "$app/environment"
@@ -96,11 +95,6 @@
     if (browser) {
       goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
     }
-  }
-
-  export const snapshot: Snapshot = {
-    capture: () => pageData,
-    restore: (value: any) => (pageData = value),
   }
 
   $: pageData.departments = data.departments
