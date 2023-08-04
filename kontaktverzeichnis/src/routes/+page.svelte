@@ -10,8 +10,6 @@
 
   export let data: any
 
-  console.log(data)
-
   interface PageState {
     entitiySearchTxt: string
     departmentSearchTxt: string
@@ -88,7 +86,7 @@
     }
 
     pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
-    if (pageData.entitiySearchTxt.trim().length > 2) {
+    if (pageData.entitiySearchTxt.trim().length > 0) {
       $page.url.searchParams.set("search", pageData.entitiySearchTxt)
     } else {
       $page.url.searchParams.delete("search")
