@@ -63,7 +63,7 @@
             {/each}
           {:else if cell.key === "abteilungen"}
             {#each cell.value as abteilung (abteilung.id)}
-              <p><Link href="/abteilung/id/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
+              <p><Link href="/abteilung/{abteilung.id}">{abteilung.bezeichnung}</Link></p>
             {/each}
           {:else if cell.key === "kontakt"}
             <Contact contact={cell.value} />
