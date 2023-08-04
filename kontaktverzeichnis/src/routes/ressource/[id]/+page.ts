@@ -7,6 +7,5 @@ export const load: PageLoad = async ({ params, fetch }) => {
   }
   let res = await fetch("/api/ressource/" + params.id)
   let ressource = await res.json()
-  console.log(ressource)
   return { ressource: ressource }
 }
