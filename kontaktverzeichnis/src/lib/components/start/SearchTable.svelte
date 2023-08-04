@@ -6,7 +6,7 @@
   let pageSize = 10
   export let page = 1
   export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
-  export let sortKey: string | undefined
+  let sortKey: "name"
 
   export let searchResult: any
 

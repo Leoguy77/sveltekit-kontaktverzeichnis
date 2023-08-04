@@ -74,7 +74,7 @@
     </div>
   </div>
   <div class="center-hd">
-    <SearchTable searchResult={data.entities} sortKey="name" />
+    <SearchTable searchResult={data.entities} />
   </div>
 </section>
 
