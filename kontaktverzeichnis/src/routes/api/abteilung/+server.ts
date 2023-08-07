@@ -12,7 +12,12 @@ export const GET: RequestHandler = async () => {
     headers: { "content-type": "application/json" },
   })
 }
-export const PATCH: RequestHandler = async ({ request }) => {
+export const PATCH: RequestHandler = async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
   const body = await request.json()
   const abteilung = await prisma.abteilung.update({
     where: { id: body.id },
