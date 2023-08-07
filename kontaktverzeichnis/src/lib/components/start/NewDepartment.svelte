@@ -23,7 +23,7 @@
       }),
     })
     const json = await result.json()
-    await goto("/abteilung/id/" + json.id)
+    await goto("/abteilung/" + json.id)
   }
 </script>
 
@@ -45,7 +45,6 @@
       <div class="Button">
         <Button type="submit">OK</Button>
       </div>
-      
     </form>
   </div>
 </Popup>
@@ -54,9 +53,9 @@
   .TextInput {
     margin-bottom: 1vh;
   }
-.Button{
-  text-align: right;
-}
+  .Button {
+    text-align: right;
+  }
   .Popup {
     width: 28vw;
   }
