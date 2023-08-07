@@ -29,3 +29,19 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
     headers: { "content-type": "application/json" },
   })
 }
+export const POST: RequestHandler = async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
+  const body = await request.json()
+  const abteilung = await prisma.abteilung.create({
+    data: {
+      bezeichnung: body.bezeichnung,
+    },
+  })
+  return new Response(JSON.stringify(abteilung), {
+    headers: { "content-type": "application/json" },
+  })
+}
