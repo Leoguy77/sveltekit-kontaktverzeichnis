@@ -15,8 +15,12 @@
   let edit = false
 
   async function deleteDepartment() {
-    let response = await fetch(`/api/abteilung/${id}`, {
+    let response = await fetch(`/api/abteilung/`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: data.department.id }),
     })
     if (response.ok) {
       goto("/")
