@@ -45,3 +45,17 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     headers: { "content-type": "application/json" },
   })
 }
+export const DELETE: RequestHandler = async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
+  const body = await request.json()
+  const abteilung = await prisma.abteilung.delete({
+    where: { id: body.id },
+  })
+  return new Response(JSON.stringify(abteilung), {
+    headers: { "content-type": "application/json" },
+  })
+}
