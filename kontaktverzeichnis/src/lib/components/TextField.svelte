@@ -3,12 +3,14 @@
   export let value: string
 </script>
 
-<div class="bx--form-item bx--text-input-wrapper ">
+<div class="bx--form-item bx--text-input-wrapper">
   <label for="ccs-0.tqtx1qil5aj" class="bx--label">{labelText}</label>
   <div class="bx--text-input__field-outer-wrapper">
     <div class="bx--text-input__field-wrapper">
       <div class="bx--text-input center">
-        <div>{value}</div>
+        {#if value}
+          <div>{value}</div>
+        {/if}
       </div>
     </div>
   </div>
