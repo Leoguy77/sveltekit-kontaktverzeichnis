@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client"
 //import { MEILI_MASTER_KEY } from "$env/static/private"
 import { MeiliSearch } from "meilisearch"
-import { prismaInclude } from "$lib/shared/prismaTypes.ts"
+import { prismaInclude } from "../shared/prismaTypes.ts"
 export const meili = new MeiliSearch({
   host: "http://localhost:7700",
   //apiKey: MEILI_MASTER_KEY,
