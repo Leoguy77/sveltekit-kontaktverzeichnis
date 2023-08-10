@@ -4,16 +4,16 @@
 
   // pages
   let pageSize = 10
+  let page: number
 
   export let departments: any
   export let searchTxt: string
 
   let searchResult: any
 
-  $: {
+  $: if (departments) {
     searchResult = departments.filter((el: any) => {
-      if (el.name.toLocaleLowerCase().includes(searchTxt.toLocaleLowerCase())) return true
-      else return false
+      if (el.name.toLowerCase().includes(searchTxt.toLowerCase())) return true
     })
   }
 </script>
@@ -28,7 +28,8 @@
           { key: "mitarbeiter", value: "Mitarbeiter" },
         ]}
         rows={searchResult}
-        {pageSize}>
+        {pageSize}
+        {page}>
         <svelte:fragment slot="cell" let:row let:cell>
           {#if cell.key === "name"}
             <div class="center-v">
@@ -47,6 +48,7 @@
     {#if searchResult?.length > pageSize}
       <Pagination
         bind:pageSize
+        bind:page
         totalItems={searchResult?.length}
         pageSizeInputDisabled
         forwardText="Nächste Seite"
@@ -75,14 +77,13 @@
     display: flex;
     justify-content: center;
     width: 100%;
-    margin-bottom: 5rem;
     flex-direction: column;
   }
   p {
     font-size: 14px;
   }
   .resultTable {
-    height: calc(100vh - 410px);
+    max-height: calc(100vh - 350px);
     overflow-y: auto;
   }
   :global(.bx--data-table > tbody > tr > td) {
