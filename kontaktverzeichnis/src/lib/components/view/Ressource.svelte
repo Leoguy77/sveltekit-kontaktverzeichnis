@@ -10,6 +10,8 @@
   import AddCompany from "./elements/AddCompany.svelte"
   import type { ressource } from "$lib/shared/prismaTypes.ts"
   import { goto, invalidateAll } from "$app/navigation"
+  import { writable } from "svelte/store"
+  import { addToast } from "$lib/client/store.ts"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -73,19 +75,40 @@
   }
 
   async function save() {
+    let res: Response
     if (data.ressource.id) {
-      await fetch(`/api/ressource/`, {
+      res = await fetch(`/api/ressource/`, {
         method: "PATCH",
         body: JSON.stringify(data.ressource),
       })
       invalidateAll()
     } else {
-      let res = await fetch(`/api/ressource/`, {
+      res = await fetch(`/api/ressource/`, {
         method: "POST",
         body: JSON.stringify(data.ressource),
       })
       let userId = (await res.json()).id
+      if (res.ok) {
+      }
       goto(`/ressource/${userId}`)
+    }
+    if (res.ok) {
+      addToast({ title: "Erfolgreich", subtitle: "Person gespeichert", kind: "success", timeout: 5000 })
+    } else {
+      addToast({ title: "Fehler", subtitle: "Person konnte nicht gespeichert werden", kind: "error", timeout: 5000 })
+    }
+  }
+
+  async function delRessource(id: number) {
+    let res = await fetch(`/api/ressource/`, {
+      method: "DELETE",
+      body: JSON.stringify({ id: data.ressource.id }),
+    })
+    if (res.ok) {
+      addToast({ title: "Erfolgreich", subtitle: "Person gelöscht", kind: "success", timeout: 5000 })
+      goto("/")
+    } else {
+      addToast({ title: "Fehler", subtitle: "Person konnte nicht gelöscht werden", kind: "error", timeout: 5000 })
     }
   }
 </script>
@@ -97,14 +120,25 @@
 {#if popup}
   <svelte:component this={popups[popup]} bind:popup bind:data />
 {/if}
-<div class="line">
-  <svg xmlns="http://www.w3.org/2000/svg" width="36" viewBox="0 0 32 32"
-    ><path
-      fill="currentColor"
-      d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
-      fill="currentColor"
-      d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
-  <h2>{data.ressource.bezeichnung}</h2>
+<div class="head">
+  <div class="line">
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" viewBox="0 0 32 32"
+      ><path
+        fill="currentColor"
+        d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
+        fill="currentColor"
+        d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
+    <h2>{data.ressource.bezeichnung}</h2>
+  </div>
+  {#if edit}
+    <button
+      class="blank-btn"
+      on:click={() => {
+        delRessource(data.ressource.id)
+      }}>
+      <DeleteIcon size={24} />
+    </button>
+  {/if}
 </div>
 <div class="grid">
   <Tile light>
@@ -223,6 +257,16 @@
 </div>
 
 <style>
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .line {
+    display: flex;
+    gap: 1rem;
+  }
   .blank-btn {
     background: none;
     border: none;
@@ -247,11 +291,6 @@
     position: relative;
     top: 2.2rem;
     color: var(--cds-text-01);
-  }
-  .line {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
   }
   .category {
     margin-bottom: 1rem;

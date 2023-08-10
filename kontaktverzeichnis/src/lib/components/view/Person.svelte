@@ -10,6 +10,7 @@
   import AddCompany from "./elements/AddCompany.svelte"
   import type { person } from "$lib/shared/prismaTypes.ts"
   import { goto, invalidateAll } from "$app/navigation"
+  import { addToast } from "$lib/client/store.ts"
 
   let popups: any = {
     AddNumber: AddNumber,
@@ -84,19 +85,38 @@
   }
 
   async function save() {
+    let res: Response
     if (data.person.id) {
-      await fetch(`/api/person/`, {
+      res = await fetch(`/api/person/`, {
         method: "PATCH",
         body: JSON.stringify(data.person),
       })
       invalidateAll()
     } else {
-      let res = await fetch(`/api/person/`, {
+      res = await fetch(`/api/person/`, {
         method: "POST",
         body: JSON.stringify(data.person),
       })
       let userId = (await res.json()).id
       goto(`/person/${userId}`)
+    }
+    if (res.ok) {
+      addToast({ title: "Erfolgreich", subtitle: "Person gespeichert", kind: "success", timeout: 5000 })
+    } else {
+      addToast({ title: "Fehler", subtitle: "Person konnte nicht gespeichert werden", kind: "error", timeout: 5000 })
+    }
+  }
+
+  async function delPerson(id: number) {
+    let res = await fetch(`/api/person/`, {
+      method: "DELETE",
+      body: JSON.stringify({ id: data.person.id }),
+    })
+    if (res.ok) {
+      addToast({ title: "Erfolgreich", subtitle: "Person gelöscht", kind: "success", timeout: 5000 })
+      goto("/")
+    } else {
+      addToast({ title: "Fehler", subtitle: "Person konnte nicht gelöscht werden", kind: "error", timeout: 5000 })
     }
   }
 </script>
@@ -108,21 +128,31 @@
 {#if popup}
   <svelte:component this={popups[popup]} bind:popup bind:data />
 {/if}
-<div class="line">
-  <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
-    <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
-    <path
-      fill-rule="evenodd"
-      d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
-  </svg>
-  <h2>{name}</h2>
+<div class="head">
+  <div class="line">
+    <svg xmlns="http://www.w3.org/2000/svg" width="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+      <path
+        fill-rule="evenodd"
+        d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
+    </svg>
+    <h2>{name}</h2>
+  </div>
+  {#if edit}
+    <button
+      class="blank-btn"
+      on:click={() => {
+        delPerson(data.person.id)
+      }}>
+      <DeleteIcon size={24} />
+    </button>
+  {/if}
 </div>
 <div class="grid">
   <Tile light>
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
       <Combofield labelText="Titel" bind:value={data.person.titel} />
-
       <Combofield labelText="Vorname" bind:value={data.person.vorname} />
       <Combofield labelText="Nachname" bind:value={data.person.nachname} />
     </div>
@@ -245,6 +275,16 @@
 </div>
 
 <style>
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .line {
+    display: flex;
+    gap: 1rem;
+  }
   .blank-btn {
     background: none;
     border: none;
@@ -269,11 +309,6 @@
     position: relative;
     top: 2.2rem;
     color: var(--cds-text-01);
-  }
-  .line {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
   }
   .category {
     margin-bottom: 1rem;
