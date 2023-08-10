@@ -8,7 +8,8 @@ interface ToastData {
   kind: "error" | "info" | "info-square" | "success" | "warning" | "warning-alt"
 }
 
-export const toasts = writable([] as ToastData[])
+// export const toasts = writable([] as ToastData[])
+export const toasts = writable<ToastData[]>([])
 
 export const addToast = (toast: {
   title: string
