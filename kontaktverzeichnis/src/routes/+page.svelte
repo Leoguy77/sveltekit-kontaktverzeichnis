@@ -10,24 +10,7 @@
 
   export let data: any
 
-  interface PageState {
-    entitiySearchTxt: string
-    departmentSearchTxt: string
-    entityTableState: {
-      page: number
-      sortDirection: "none" | "ascending" | "descending"
-      sortKey: string | undefined
-    }
-    departmentTableState: {
-      page: number
-      sortDirection: "none" | "ascending" | "descending"
-      sortKey: string | undefined
-    }
-    departments: any
-    searchResult: any
-    selectedSearch: number
-  }
-
+  // Helper Functions
   function paramToSortDirection(param: string | null): "none" | "ascending" | "descending" | undefined {
     if (!param) {
       return undefined
@@ -42,76 +25,83 @@
     }
   }
 
-  let pageData: PageState = {
-    entitiySearchTxt: "",
-    departmentSearchTxt: "",
-    entityTableState: {
-      page: parseInt($page.url.searchParams.get("page") || "1"),
-      sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none",
-      sortKey: $page.url.searchParams.get("sortKey") || undefined,
-    },
-    departmentTableState: {
-      page: parseInt($page.url.searchParams.get("page") || "1"),
-      sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none",
-      sortKey: $page.url.searchParams.get("sortKey") || undefined,
-    },
-    departments: undefined,
-    searchResult: undefined,
-    selectedSearch: parseInt($page.url.searchParams.get("selectedSearch") || "0"),
-  }
-
-  $: {
-    if (pageData.entityTableState.sortDirection !== "none") {
-      $page.url.searchParams.set("sortDirection", pageData.entityTableState.sortDirection)
+  function setUrlParams(urlParam: UrlParam) {
+    if (urlParam.searchStr) {
+      $page.url.searchParams.set("q", urlParam.searchStr)
+    } else {
+      $page.url.searchParams.delete("q")
+    }
+    if (urlParam.sortDirection !== "none") {
+      $page.url.searchParams.set("sortDirection", urlParam.sortDirection)
     } else {
       $page.url.searchParams.delete("sortDirection")
-      $page.url.searchParams.delete("sortKey")
     }
-    if (pageData.entityTableState.sortKey) {
-      $page.url.searchParams.set("sortKey", pageData.entityTableState.sortKey)
-    } else {
-      $page.url.searchParams.delete("sortKey")
-    }
-
-    if (pageData.entityTableState.page !== 1) {
-      $page.url.searchParams.set("page", pageData.entityTableState.page.toString())
+    if (urlParam.page !== 1) {
+      $page.url.searchParams.set("page", urlParam.page.toString())
     } else {
       $page.url.searchParams.delete("page")
     }
-
-    if (pageData.selectedSearch != 0) {
-      $page.url.searchParams.set("selectedSearch", pageData.selectedSearch.toString())
-    } else {
-      $page.url.searchParams.delete("selectedSearch")
-    }
-
-    pageData.entitiySearchTxt = pageData.entitiySearchTxt.replace(/[/?=]|\s\s/g, "")
-    if (pageData.entitiySearchTxt.trim().length > 0) {
-      $page.url.searchParams.set("search", pageData.entitiySearchTxt)
-    } else {
-      $page.url.searchParams.delete("search")
-    }
-
     if (browser) {
-      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true })
+      goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true, invalidateAll: true })
     }
   }
 
-  $: pageData.departments = data.departments
+  // URL Params
+  interface UrlParam {
+    searchStr: string
+    sortDirection: "none" | "ascending" | "descending"
+    page: number
+  }
+
+  let urlParam: UrlParam = {
+    searchStr: $page.url.searchParams.get("q") || "",
+    sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none", //TODO:
+    page: parseInt($page.url.searchParams.get("page") || "1"), //TODO:
+  }
+
+  $: if (urlParam) {
+    setUrlParams(urlParam)
+  }
+
+  // Departement Search
+  let selectedSearch: number
+  let departmentSearchTxt: string
+  let departments: any
+
+  async function loadDepartment() {
+    const response = await fetch("/api/abteilung")
+    departments = await response.json()
+    departments = departments.map((department: any) => {
+      return {
+        id: department.id,
+        name: department.bezeichnung,
+        mitarbeiter: department._count.person + department._count.ressource,
+      }
+    })
+  }
+
+  $: if (selectedSearch) {
+    if (!departments) {
+      loadDepartment()
+    }
+  }
+
+  // Normal Search
+
+  let searchResult: any
+  $: searchResult = data.searchResult
+  // $: if (urlParam.searchStr) {
+  //   // searchResult = data.searchResult
+  //   console.log(data.searchResult)
+  // } else {
+  //   searchResult = undefined
+  // }
+
+  // Popups
   let popups: any = {
     NewDepartment: NewDepartment,
   }
   let popup: string = ""
-
-  function removeEntityTable() {
-    pageData.searchResult = undefined
-    pageData.entitiySearchTxt = ""
-  }
-  $: pageData.searchResult = data.searchResult
-
-  function clearDepartmentSearch() {
-    pageData.departmentSearchTxt = ""
-  }
 </script>
 
 <svelte:head>
@@ -122,36 +112,40 @@
 {/if}
 <div class="center-hd">
   <div class="contentSwitcher">
-    <ContentSwitcher bind:selectedIndex={pageData.selectedSearch}>
+    <ContentSwitcher bind:selectedIndex={selectedSearch}>
       <Switch text="Allgemeine Suche" />
       <Switch text="Abteilungen" />
     </ContentSwitcher>
   </div>
   <div class="center-hd w100">
     <div class="search">
-      {#if pageData.selectedSearch == 0}
+      {#if selectedSearch == 0}
         <Search
           name="entitiySearchTxt"
           placeholder="Kontaktverzeichnis durchsuchen..."
-          bind:value={pageData.entitiySearchTxt}
-          on:clear={removeEntityTable} />
+          bind:value={urlParam.searchStr}
+          on:clear={() => {
+            searchResult = undefined
+          }} />
       {:else}
         <Search
           name="departmentSearchTxt"
           placeholder="Abteilungen durchsuchen..."
-          bind:value={pageData.departmentSearchTxt}
-          on:clear={clearDepartmentSearch} />
+          bind:value={departmentSearchTxt}
+          on:clear={() => {
+            departmentSearchTxt = ""
+          }} />
       {/if}
     </div>
     {#if data.user}
-      {#if pageData.selectedSearch === 0}
+      {#if selectedSearch === 0}
         <div class="add">
           <OverflowMenu icon={AddIcon}>
             <OverflowMenuItem href="/person/new" text="Person erstellen" />
             <OverflowMenuItem href="/ressource/new" text="Ressource erstellen" />
           </OverflowMenu>
         </div>
-      {:else if pageData.selectedSearch === 1}
+      {:else if selectedSearch === 1}
         <div class="add2">
           <Button
             icon={AddIcon}
@@ -170,16 +164,13 @@
       </div>
     {/if}
     <section class="rs-table">
-      {#if pageData.selectedSearch == 0}
-        {#if pageData.searchResult}
-          <SearchTable
-            bind:searchResult={pageData.searchResult}
-            bind:page={pageData.entityTableState.page}
-            bind:sortDirection={pageData.entityTableState.sortDirection} />
+      {#if selectedSearch == 0}
+        {#if searchResult}
+          <SearchTable bind:searchResult bind:page={urlParam.page} bind:sortDirection={urlParam.sortDirection} />
         {/if}
-      {:else if pageData.selectedSearch == 1}
-        {#if pageData.departments}
-          <DepartmentTable bind:departments={pageData.departments} bind:searchTxt={pageData.departmentSearchTxt} />
+      {:else if selectedSearch == 1}
+        {#if departments}
+          <DepartmentTable bind:departments bind:searchTxt={departmentSearchTxt} />
         {/if}
       {/if}
     </section>
