@@ -97,7 +97,27 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
     },
   })
 
-  return new Response(`{"id":${2}}`, {
+  return new Response(`{"id":${updatedPerson.id}}`, {
+    status: 200,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+export const DELETE: RequestHandler = async ({ request, locals }) => {
+  if (!locals.user) {
+    return new Response("Unauthorized", {
+      status: 401,
+    })
+  }
+
+  const body = await request.json()
+
+  let deletedPerson = await prisma.person.delete({
+    where: { id: body.id },
+  })
+
+  return new Response(`{"id":${deletedPerson.id}}`, {
     status: 200,
     headers: {
       "Content-Type": "application/json",
