@@ -1,6 +1,8 @@
 <script lang="ts">
   import ThemeSwitch from "$lib/components/layout/ThemeSwitch.svelte"
+  import { ToastNotification } from "carbon-components-svelte"
   import { page } from "$app/stores"
+  import { dismissToast, toasts } from "$lib/client/store.ts"
 
   let currentPage: any
   $: {
@@ -28,9 +30,31 @@
   </div>
 </header>
 
+<div class="toast">
+  {#if $toasts}
+    <section>
+      {#each $toasts as toast (toast.id)}
+        <ToastNotification
+          kind={toast.kind}
+          title={toast.title}
+          subtitle={toast.subtitle}
+          on:close={() => {
+            dismissToast(toast.id)
+          }} />
+      {/each}
+    </section>
+  {/if}
+</div>
+
 <slot />
 
 <style>
+  .toast {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+  }
   .hd-btn > a,
   header > a {
     color: #f4f4f4;
