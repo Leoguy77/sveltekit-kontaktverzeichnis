@@ -20,7 +20,7 @@
     </div>
   </a>
   <div class="hd-btn">
-    <ThemeSwitch dark="g100" light="white" />
+    <ThemeSwitch dark="g100" light="g10" />
     <a href="/login?lastPage={currentPage}">
       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="login-btn" viewBox="0 0 16 16">
         <path

@@ -141,7 +141,7 @@
   {/if}
 </div>
 <div class="grid">
-  <Tile light>
+  <Tile>
     <h4 class="category">Persönliche Daten</h4>
     <div class="line">
       <Combofield labelText="Name" bind:value={data.ressource.bezeichnung} />
@@ -158,7 +158,7 @@
       </a>
     </div>
   </Tile>
-  <Tile light>
+  <Tile>
     {#if edit}
       <div class="top-right-button">
         <Button
@@ -193,7 +193,7 @@
       </div>
     {/each}
   </Tile>
-  <Tile light>
+  <Tile>
     {#if edit}
       <div class="top-right-button">
         <Button
@@ -222,7 +222,7 @@
       </div>
     {/each}
   </Tile>
-  <Tile light>
+  <Tile>
     {#if edit}
       <div class="top-right-button">
         <Button
