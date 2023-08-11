@@ -162,18 +162,19 @@
       <div class="loading">
         <Loading withOverlay={false} />
       </div>
+    {:else}
+      <section class="rs-table">
+        {#if selectedSearch == 0}
+          {#if searchResult}
+            <SearchTable bind:searchResult bind:page={urlParam.page} bind:sortDirection={urlParam.sortDirection} />
+          {/if}
+        {:else if selectedSearch == 1}
+          {#if departments}
+            <DepartmentTable bind:departments bind:searchTxt={departmentSearchTxt} />
+          {/if}
+        {/if}
+      </section>
     {/if}
-    <section class="rs-table">
-      {#if selectedSearch == 0}
-        {#if searchResult}
-          <SearchTable bind:searchResult bind:page={urlParam.page} bind:sortDirection={urlParam.sortDirection} />
-        {/if}
-      {:else if selectedSearch == 1}
-        {#if departments}
-          <DepartmentTable bind:departments bind:searchTxt={departmentSearchTxt} />
-        {/if}
-      {/if}
-    </section>
   </div>
 </div>
 
