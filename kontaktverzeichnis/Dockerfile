@@ -8,6 +8,7 @@ ARG AD_Controller=$AD_Controller
 ARG AD_Searchbase=$AD_Searchbase
 ARG AD_AccessGroupDN=$AD_AccessGroupDN
 ARG PUBLIC_MEILI_SEARCH_KEY=$PUBLIC_MEILI_SEARCH_KEY
+ARG PUBLIC_NODE_ENV=$PUBLIC_NODE_ENV
 
 WORKDIR /app
 

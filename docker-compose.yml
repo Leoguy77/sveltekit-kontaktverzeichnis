@@ -16,9 +16,12 @@ services:
         AD_Searchbase: ${AD_Searchbase}
         AD_AccessGroupDN: ${AD_AccessGroupDN}
         PUBLIC_MEILI_SEARCH_KEY: ${PUBLIC_MEILI_SEARCH_KEY}
+        PUBLIC_NODE_ENV: production
     depends_on:
       - meilisearch
     restart: unless-stopped
+    environment:
+      - PUBLIC_NODE_ENV=production
 
   meilisearch:
     image: getmeili/meilisearch
@@ -31,6 +34,7 @@ services:
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
       - MEILI_ENV=${MEILI_ENV}
       - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
+
   ngnix:
     build: nginx/
     restart: unless-stopped
