@@ -15,8 +15,7 @@ services:
         AD_Controller: ${AD_Controller}
         AD_Searchbase: ${AD_Searchbase}
         AD_AccessGroupDN: ${AD_AccessGroupDN}
-        MEILI_ENV: ${MEILI_ENV}
-        MEILI_NO_ANALYTICS: ${MEILI_NO_ANALYTICS}
+        PUBLIC_MEILI_SEARCH_KEY: ${PUBLIC_MEILI_SEARCH_KEY}
 
     restart: unless-stopped
 
@@ -27,6 +26,10 @@ services:
       - ./meilisearch/data:/meili_data
     env_file:
       - ./kontaktverzeichnis/.env
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_ENV=${MEILI_ENV}
+      - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
   ngnix:
     build: nginx/
     restart: unless-stopped

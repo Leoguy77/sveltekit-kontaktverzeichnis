@@ -1,16 +1,22 @@
 import entityParser from "$lib/shared/entityParser.ts"
 import type { PageLoad } from "./$types.ts"
+import { PUBLIC_MEILI_SEARCH_KEY } from "$env/static/public"
+import { browser } from "$app/environment"
 
 export const load: PageLoad = async (event) => {
   console.log("search load function triggered")
   let searchText = event.url.searchParams.get("q")
   if (searchText) {
     searchText = searchText.replace(/[/?=]|\s\s/g, "")
-    const response = await event.fetch(`http://localhost:7700/indexes/entities/search/`, {
+    let searchUrl = browser
+      ? "https://kontaktverzeichnis.gnh.net/indexes/entities/search/"
+      : "http://meilisearch:7700/indexes/entities/search/"
+    const response = await event.fetch(searchUrl, {
       method: "POST",
       body: JSON.stringify({ q: searchText, limit: 50 }),
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${PUBLIC_MEILI_SEARCH_KEY}`,
       },
     })
 
