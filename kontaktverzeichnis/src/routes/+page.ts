@@ -12,7 +12,6 @@ let publicUrl =
 let searchUrl = browser ? publicUrl : "http://meilisearch:7700/indexes/entities/search/"
 
 export const load: PageLoad = async (event) => {
-  console.log(searchUrl)
   let searchText = event.url.searchParams.get("q")
   if (searchText) {
     searchText = searchText.replace(/[/?=]|\s\s/g, "")
