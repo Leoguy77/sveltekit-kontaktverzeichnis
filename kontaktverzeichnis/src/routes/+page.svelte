@@ -90,12 +90,6 @@
 
   let searchResult: any
   $: searchResult = data.searchResult
-  // $: if (urlParam.searchStr) {
-  //   // searchResult = data.searchResult
-  //   console.log(data.searchResult)
-  // } else {
-  //   searchResult = undefined
-  // }
 
   // Popups
   let popups: any = {

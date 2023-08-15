@@ -4,7 +4,6 @@ import { PUBLIC_MEILI_SEARCH_KEY } from "$env/static/public"
 import { browser } from "$app/environment"
 
 export const load: PageLoad = async (event) => {
-  console.log("search load function triggered")
   let searchText = event.url.searchParams.get("q")
   if (searchText) {
     searchText = searchText.replace(/[/?=]|\s\s/g, "")
