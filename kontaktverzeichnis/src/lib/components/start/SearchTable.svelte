@@ -4,8 +4,8 @@
 
   // pages
   let pageSize = 10
-  export let page = 1
-  export let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
+  let page = 1
+  let sortDirection: "none" | "ascending" | "descending" | undefined = "none"
   let sortKey: "name"
 
   export let searchResult: any

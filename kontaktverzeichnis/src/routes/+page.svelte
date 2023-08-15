@@ -25,42 +25,21 @@
     }
   }
 
-  function setUrlParams(urlParam: UrlParam) {
-    if (urlParam.searchStr) {
-      $page.url.searchParams.set("q", urlParam.searchStr)
-    } else {
-      $page.url.searchParams.delete("q")
-    }
-    if (urlParam.sortDirection !== "none") {
-      $page.url.searchParams.set("sortDirection", urlParam.sortDirection)
-    } else {
-      $page.url.searchParams.delete("sortDirection")
-    }
-    if (urlParam.page !== 1) {
-      $page.url.searchParams.set("page", urlParam.page.toString())
-    } else {
-      $page.url.searchParams.delete("page")
+  function setUrlParams() {
+    if (searchStr) {
+      $page.url.searchParams.set("q", searchStr)
     }
     if (browser) {
       goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true, invalidateAll: true })
     }
   }
 
-  // URL Params
-  interface UrlParam {
-    searchStr: string
-    sortDirection: "none" | "ascending" | "descending"
-    page: number
-  }
+  // searchStr
+  let searchStr: string
 
-  let urlParam: UrlParam = {
-    searchStr: $page.url.searchParams.get("q") || "",
-    sortDirection: paramToSortDirection($page.url.searchParams.get("sortDirection")) || "none", //TODO:
-    page: parseInt($page.url.searchParams.get("page") || "1"), //TODO:
-  }
-
-  $: if (urlParam) {
-    setUrlParams(urlParam)
+  searchStr = $page.url.searchParams.get("q") || ""
+  $: if (searchStr) {
+    setUrlParams()
   }
 
   // Departement Search
@@ -118,7 +97,7 @@
         <Search
           name="entitiySearchTxt"
           placeholder="Kontaktverzeichnis durchsuchen..."
-          bind:value={urlParam.searchStr}
+          bind:value={searchStr}
           on:clear={() => {
             searchResult = undefined
           }} />
@@ -161,7 +140,7 @@
       <section class="rs-table">
         {#if selectedSearch == 0}
           {#if searchResult}
-            <SearchTable bind:searchResult bind:page={urlParam.page} bind:sortDirection={urlParam.sortDirection} />
+            <SearchTable bind:searchResult />
           {/if}
         {:else if selectedSearch == 1}
           {#if departments}
