@@ -8,6 +8,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./kontaktverzeichnis:/app
+      - /app/node_modules/
     ports:
       - "5173:5173"
     env_file:
