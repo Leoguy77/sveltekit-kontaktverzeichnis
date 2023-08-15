@@ -1,15 +1,18 @@
 version: "3.5"
 
 services:
-  # svelte-kit:
-  #   build:
-  #     context: kontaktverzeichnis/
-  #     dockerfile: Dockerfile_dev
-  #   restart: unless-stopped
-  #   ports:
-  #     - "5173:5173"
-  #   env_file:
-  #     - ./kontaktverzeichnis/.env
+  svelte-kit:
+    build:
+      context: kontaktverzeichnis/
+      dockerfile: Dockerfile_dev
+    restart: unless-stopped
+    volumes:
+      - ./kontaktverzeichnis:/app
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./kontaktverzeichnis/.env
+
   meilisearch:
     image: getmeili/meilisearch
     restart: unless-stopped
