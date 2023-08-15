@@ -29,7 +29,7 @@ services:
       - ./kontaktverzeichnis/.env
     environment:
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
-      - MEILI_ENV=${MEILI_ENV}ss
+      - MEILI_ENV=${MEILI_ENV}
       - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
   ngnix:
     build: nginx/
