@@ -16,7 +16,8 @@ services:
         AD_Searchbase: ${AD_Searchbase}
         AD_AccessGroupDN: ${AD_AccessGroupDN}
         PUBLIC_MEILI_SEARCH_KEY: ${PUBLIC_MEILI_SEARCH_KEY}
-
+    depends_on:
+      - meilisearch
     restart: unless-stopped
 
   meilisearch:
@@ -28,7 +29,7 @@ services:
       - ./kontaktverzeichnis/.env
     environment:
       - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
-      - MEILI_ENV=${MEILI_ENV}
+      - MEILI_ENV=${MEILI_ENV}ss
       - MEILI_NO_ANALYTICS=${MEILI_NO_ANALYTICS}
   ngnix:
     build: nginx/
@@ -36,3 +37,6 @@ services:
     ports:
       - 80:80
       - 443:443
+    depends_on:
+      - svelte-kit
+      - meilisearch
