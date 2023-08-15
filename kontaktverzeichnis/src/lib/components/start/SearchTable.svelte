@@ -99,18 +99,17 @@
     align-items: center;
   }
   .dataTable {
-    margin-top: 2rem;
+    margin-top: 1rem;
     display: flex;
     justify-content: center;
     width: 100%;
-    margin-bottom: 5rem;
     flex-direction: column;
   }
   p {
     font-size: 14px;
   }
   .resultTable {
-    height: calc(100vh - 415px);
+    max-height: calc(100vh - 290px);
     overflow-y: auto;
   }
   :global(.bx--data-table > tbody > tr > td) {

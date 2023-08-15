@@ -73,7 +73,7 @@
     align-items: center;
   }
   .dataTable {
-    margin-top: 2rem;
+    margin-top: 1rem;
     display: flex;
     justify-content: center;
     width: 100%;
@@ -83,7 +83,7 @@
     font-size: 14px;
   }
   .resultTable {
-    max-height: calc(100vh - 350px);
+    max-height: calc(100vh - 290px);
     overflow-y: auto;
   }
   :global(.bx--data-table > tbody > tr > td) {

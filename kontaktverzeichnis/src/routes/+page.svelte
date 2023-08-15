@@ -101,6 +101,7 @@
 <svelte:head>
   <title>Kontaktverzeichnis</title>
 </svelte:head>
+
 {#if popup}
   <svelte:component this={popups[popup]} bind:popup />
 {/if}
@@ -174,7 +175,7 @@
 
 <style>
   section.rs-table {
-    width: calc(100% - 6rem);
+    width: calc(100% - 4rem);
   }
   @media all and (min-width: 955px) {
     .add {
@@ -201,6 +202,7 @@
       display: none;
     }
   }
+
   .w100 {
     width: 100%;
   }
@@ -215,7 +217,7 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
-    margin-top: 3rem;
+    margin-top: 1.5rem;
     align-items: center;
   }
   :global(.bx--content-switcher-btn) {
