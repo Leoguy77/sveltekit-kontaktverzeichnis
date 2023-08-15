@@ -4,7 +4,7 @@
   "description": "Ein Kontaktverzeichnis entwickelt mit SvelteKit und PocketBase",
   "main": "install.js",
   "scripts": {
-    "install": "node install.js"
+    "docker": "cp ./kontaktverzeichnis/.env .env && docker compose up --build -d"
   },
   "author": "marvint24",
   "license": "MIT",

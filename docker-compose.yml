@@ -2,18 +2,31 @@ version: "3.5"
 
 services:
   svelte-kit:
+    env_file:
+      - ./kontaktverzeichnis/.env
     build:
       context: kontaktverzeichnis/
+      dockerfile: Dockerfile
       args:
-        APIUser: api
-        APIPW: yourPassword
-        SERVER: pocketbase:8090
-    restart: unless-stopped
-    #ports:
-    #  - "3000:3000"
-    #ports:
-    #  - "3000:3000"
+        MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+        Prisma_URL: ${Prisma_URL}
+        QUERY_BATCH_SIZE: ${QUERY_BATCH_SIZE}
+        JWT_Secret: ${JWT_Secret}
+        AD_Controller: ${AD_Controller}
+        AD_Searchbase: ${AD_Searchbase}
+        AD_AccessGroupDN: ${AD_AccessGroupDN}
+        MEILI_ENV: ${MEILI_ENV}
+        MEILI_NO_ANALYTICS: ${MEILI_NO_ANALYTICS}
 
+    restart: unless-stopped
+
+  meilisearch:
+    image: getmeili/meilisearch
+    restart: unless-stopped
+    volumes:
+      - ./meilisearch/data:/meili_data
+    env_file:
+      - ./kontaktverzeichnis/.env
   ngnix:
     build: nginx/
     restart: unless-stopped
