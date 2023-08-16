@@ -100,11 +100,13 @@ select ressource.id as id,
 
   let parsedRessource = JSON.parse(JSONRessource[0].result).map((obj: any) => {
     obj.id = `r_${obj.id}`
-    obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
-      telEintrag.standort = JSON.parse(telEintrag.standort)
-      telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
-      return telEintrag
-    })
+    if (obj.telefonEintrag) {
+      obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
+        telEintrag.standort = JSON.parse(telEintrag.standort)
+        telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
+        return telEintrag
+      })
+    }
     return obj
   })
 
