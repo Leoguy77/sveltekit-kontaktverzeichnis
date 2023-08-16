@@ -21,6 +21,8 @@ services:
   meilisearch:
     image: getmeili/meilisearch
     restart: unless-stopped
+    environment:
+      - MEILI_ENV=development
     ports:
       - "7700:7700"
     volumes:
