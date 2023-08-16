@@ -226,7 +226,7 @@
     {#each departments as abteilung (abteilung.id)}
       <div class="departments">
         <a href={`/abteilung/${abteilung.id}`}>
-          <Tag>{abteilung.bezeichnung}</Tag>
+          <Tag interactive>{abteilung.bezeichnung}</Tag>
         </a>
         {#if edit}
           <button

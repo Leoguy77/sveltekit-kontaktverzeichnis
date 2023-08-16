@@ -209,7 +209,9 @@
     <h4 class="category">Abteilung</h4>
     {#each departments as abteilung (abteilung.id)}
       <div class="departments">
-        <Tag>{abteilung.bezeichnung}</Tag>
+        <a href={`/abteilung/${abteilung.id}`}>
+          <Tag interactive>{abteilung.bezeichnung}</Tag>
+        </a>
         {#if edit}
           <button
             class="blank-btn"
