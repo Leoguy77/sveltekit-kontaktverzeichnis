@@ -93,9 +93,9 @@
       goto(`/ressource/${userId}`)
     }
     if (res.ok) {
-      addToast({ title: "Erfolgreich", subtitle: "Person gespeichert", kind: "success", timeout: 5000 })
+      addToast({ title: "Erfolgreich", subtitle: "Ressource gespeichert", kind: "success", timeout: 5000 })
     } else {
-      addToast({ title: "Fehler", subtitle: "Person konnte nicht gespeichert werden", kind: "error", timeout: 5000 })
+      addToast({ title: "Fehler", subtitle: "Ressource konnte nicht gespeichert werden", kind: "error", timeout: 5000 })
     }
   }
 
