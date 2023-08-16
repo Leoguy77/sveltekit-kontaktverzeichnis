@@ -46,17 +46,20 @@ export const GET: RequestHandler = async ({ locals }) => {
   from person 
   for json path) as result `
 
-  let parsedPerson = JSON.parse(JSONPerson[0].result).map((obj: any) => {
-    obj.id = `p_${obj.id}`
-    if (obj.telefonEintrag) {
-      obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
-        telEintrag.standort = JSON.parse(telEintrag.standort)
-        telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
-        return telEintrag
-      })
-    }
-    return obj
-  })
+  let parsedPerson = []
+  if (JSONPerson[0].result) {
+    parsedPerson = JSON.parse(JSONPerson[0].result).map((obj: any) => {
+      obj.id = `p_${obj.id}`
+      if (obj.telefonEintrag) {
+        obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
+          telEintrag.standort = JSON.parse(telEintrag.standort)
+          telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
+          return telEintrag
+        })
+      }
+      return obj
+    })
+  }
 
   let JSONRessource: any = await prisma.$queryRaw`
     select (
@@ -98,17 +101,20 @@ select ressource.id as id,
   for json path
   ) as result`
 
-  let parsedRessource = JSON.parse(JSONRessource[0].result).map((obj: any) => {
-    obj.id = `r_${obj.id}`
-    if (obj.telefonEintrag) {
-      obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
-        telEintrag.standort = JSON.parse(telEintrag.standort)
-        telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
-        return telEintrag
-      })
-    }
-    return obj
-  })
+  let parsedRessource = []
+  if (JSONRessource[0].result) {
+    parsedRessource = JSON.parse(JSONRessource[0].result).map((obj: any) => {
+      obj.id = `r_${obj.id}`
+      if (obj.telefonEintrag) {
+        obj.telefonEintrag = obj.telefonEintrag.map((telEintrag: any) => {
+          telEintrag.standort = JSON.parse(telEintrag.standort)
+          telEintrag.eintragTyp = JSON.parse(telEintrag.eintragTyp)
+          return telEintrag
+        })
+      }
+      return obj
+    })
+  }
 
   await meili.index("entities").addDocuments([...parsedPerson, ...parsedRessource])
 
