@@ -2,9 +2,9 @@ import prisma from "./prisma.ts"
 
 class Collection {
   cache: { [name: string]: { id: number } } = {}
-  searchCollection: "standort" | "abteilung"
+  searchCollection: "standort" | "abteilung" | "eintragTyp"
 
-  constructor(type: "standort" | "abteilung") {
+  constructor(type: "standort" | "abteilung" | "eintragTyp") {
     this.searchCollection = type
   }
 
@@ -18,6 +18,13 @@ class Collection {
         this.cache[searchName] = { id: res.id }
         return res.id
       } else {
+        if (this.searchCollection === "abteilung") {
+          let abteilung = await prisma.abteilung.create({ data: { bezeichnung: searchName } })
+          if (abteilung) {
+            this.cache[searchName] = { id: abteilung.id }
+            return abteilung.id
+          }
+        }
         throw new Error(`${this.searchCollection} ${searchName} nicht gefunden`)
       }
     }
@@ -26,3 +33,4 @@ class Collection {
 
 export const standort = new Collection("standort")
 export const abteilung = new Collection("abteilung")
+export const eintragTyp = new Collection("eintragTyp")

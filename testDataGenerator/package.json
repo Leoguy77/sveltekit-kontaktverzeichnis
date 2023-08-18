@@ -2,6 +2,7 @@
   "dependencies": {
     "@types/node": "^18.14.0",
     "command-line-args": "^5.2.1",
+    "csv": "^6.3.1",
     "dotenv": "^16.0.3",
     "meilisearch": "^0.34.1",
     "mssql": "^9.1.1",

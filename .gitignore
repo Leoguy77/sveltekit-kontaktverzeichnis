@@ -16,4 +16,5 @@ nginx/kontaktverzeichnis.gnh.net.pfx
 **.key
 **.crt
 meilisearch/data/*
+**.csv
 

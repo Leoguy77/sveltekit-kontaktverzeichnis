@@ -4,7 +4,7 @@ import { MeiliSearch } from "meilisearch"
 const MEILI_MASTER_KEY = process.env.MEILI_MASTER_KEY
 const prismaInclude = { standort: true, telefonEintrag: { include: { eintragTyp: true, standort: true } }, abteilung: true }
 export const meili = new MeiliSearch({
-  host: "http://meilisearch:7700",
+  host: "http://localhost:7700",
   apiKey: MEILI_MASTER_KEY,
 })
 export const meiliIndex = meili.index("entities")
