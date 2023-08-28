@@ -8,7 +8,5 @@ RUN npm install
 
 RUN npx prisma generate
 
-VOLUME [ "/app" ]
-
 CMD ["npm","run","dev"]
 

@@ -7,8 +7,7 @@ services:
       dockerfile: Dockerfile_dev
     restart: unless-stopped
     volumes:
-      - ./kontaktverzeichnis:/app
-      - /app/node_modules/
+      - ./kontaktverzeichnis/src:/app/src
     ports:
       - "5173:5173"
     env_file:

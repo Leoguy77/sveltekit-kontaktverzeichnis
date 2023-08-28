@@ -6,7 +6,7 @@
   "scripts": {
     "cp-env": "cp ./kontaktverzeichnis/.env .env",
     "docker": "npm run cp-env && docker compose -p production up --build -d",
-    "docker-dev": "npm run cp-env && docker compose -p dev -f docker-compose_dev.yml --project-name dev up --build"
+    "docker-dev": "npm run cp-env && docker compose -p dev -f docker-compose_dev.yml --project-name dev up --renew-anon-volumes --build"
   },
   "author": "marvint24",
   "license": "MIT",
