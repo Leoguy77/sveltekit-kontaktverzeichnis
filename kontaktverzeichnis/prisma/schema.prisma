@@ -15,6 +15,7 @@ model person {
   kostenstelle   String?          @db.VarChar(255)
   email          String?          @db.VarChar(255)
   titel          String?          @db.VarChar(255)
+  showOnHome     Boolean?         @default(false)
   abteilung      abteilung[]
   standort       standort[]
   telefonEintrag telefonEintrag[]
@@ -24,6 +25,7 @@ model ressource {
   id             Int              @id @unique @default(autoincrement())
   bezeichnung    String           @db.VarChar(255)
   email          String?          @db.VarChar(255)
+  showOnHome     Boolean?         @default(false)
   abteilung      abteilung[]
   standort       standort[]
   telefonEintrag telefonEintrag[]
@@ -52,17 +54,17 @@ model standort {
 }
 
 model telefonEintrag {
-  id        Int       @id @unique @default(autoincrement())
-  nummer    String    @db.VarChar(255)
-  
-  person    person?    @relation(fields: [personId], references: [id])
+  id     Int    @id @unique @default(autoincrement())
+  nummer String @db.VarChar(255)
+
+  person      person?    @relation(fields: [personId], references: [id])
   personId    Int?
-  ressource ressource? @relation(fields: [ressourceId], references: [id])
+  ressource   ressource? @relation(fields: [ressourceId], references: [id])
   ressourceId Int?
 
   eintragTyp   eintragTyp @relation(fields: [eintragTypId], references: [id])
   eintragTypId Int
 
-  standort    standort @relation(fields: [standortId], references: [id])
-  standortId  Int
+  standort   standort @relation(fields: [standortId], references: [id])
+  standortId Int
 }

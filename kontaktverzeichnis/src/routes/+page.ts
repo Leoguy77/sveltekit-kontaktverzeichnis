@@ -45,6 +45,12 @@ export const load: PageLoad = async (event) => {
       searchResult: searchResult,
     }
   } else {
-    return {}
+    const res = await event.fetch("api/homePageEntrys")
+    const entrys = await res.json()
+    let searchResult = entityParser(entrys[0], entrys[1])
+    console.log(searchResult[0])
+    return {
+      searchResult: searchResult,
+    }
   }
 }
