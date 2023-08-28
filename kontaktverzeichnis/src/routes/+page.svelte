@@ -25,9 +25,11 @@
     }
   }
 
-  function setUrlParams() {
+  function setUrlParams(searchStr: string) {
     if (searchStr) {
       $page.url.searchParams.set("q", searchStr)
+    } else {
+      $page.url.searchParams.delete("q")
     }
     if (browser) {
       goto(`?${$page.url.searchParams.toString()}`, { keepFocus: true, invalidateAll: true })
@@ -38,9 +40,7 @@
   let searchStr: string
 
   searchStr = $page.url.searchParams.get("q") || ""
-  $: if (searchStr) {
-    setUrlParams()
-  }
+  $: setUrlParams(searchStr)
 
   // Departement Search
   let selectedSearch: number
@@ -101,6 +101,14 @@
           on:clear={() => {
             searchResult = undefined
           }} />
+        {#if data.user}
+          <div class="add">
+            <OverflowMenu icon={AddIcon}>
+              <OverflowMenuItem href="/person/new" text="Person erstellen" />
+              <OverflowMenuItem href="/ressource/new" text="Ressource erstellen" />
+            </OverflowMenu>
+          </div>
+        {/if}
       {:else}
         <Search
           name="departmentSearchTxt"
@@ -109,29 +117,19 @@
           on:clear={() => {
             departmentSearchTxt = ""
           }} />
+        {#if data.user}
+          <div class="add">
+            <OverflowMenu icon={AddIcon}>
+              <OverflowMenuItem
+                on:click={() => {
+                  popup = "NewDepartment"
+                }}
+                text="Abteilung erstellen" />
+            </OverflowMenu>
+          </div>
+        {/if}
       {/if}
     </div>
-    {#if data.user}
-      {#if selectedSearch === 0}
-        <div class="add">
-          <OverflowMenu icon={AddIcon}>
-            <OverflowMenuItem href="/person/new" text="Person erstellen" />
-            <OverflowMenuItem href="/ressource/new" text="Ressource erstellen" />
-          </OverflowMenu>
-        </div>
-      {:else if selectedSearch === 1}
-        <div class="add2">
-          <Button
-            icon={AddIcon}
-            on:click={() => {
-              popup = "NewDepartment"
-            }}
-            size="small"
-            kind="ghost"
-            iconDescription="Abteilung erstellen" />
-        </div>
-      {/if}
-    {/if}
     {#if $navigating}
       <div class="loading">
         <Loading withOverlay={false} />
@@ -156,30 +154,14 @@
   section.rs-table {
     width: calc(100% - 4rem);
   }
-  @media all and (min-width: 955px) {
-    .add {
-      position: absolute;
-      top: 213px;
-      left: calc(100% - 12rem);
-      margin-right: 3rem;
-      z-index: 10;
-    }
-    .add2 {
-      position: absolute;
-      top: 217px;
-      left: calc(100% - 12rem + 2px);
-      margin-right: 3rem;
-      z-index: 10;
-    }
-  }
 
-  @media all and (max-width: 955px) {
-    .add {
-      display: none;
-    }
-    .add2 {
-      display: none;
-    }
+  .add {
+    position: relative;
+    height: 0;
+    width: 0;
+    top: 6px;
+    left: 10px;
+    z-index: 10;
   }
 
   .w100 {
