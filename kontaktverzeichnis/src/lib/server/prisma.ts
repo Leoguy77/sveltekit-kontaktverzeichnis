@@ -16,8 +16,8 @@ const prisma = new PrismaClient().$extends({
         let res = await query(args)
         let meilidoc: any = structuredClone(res)
         meilidoc.id = `p_${res.id}`
-        meilidoc.kostenstelle = null
-        meilidoc.personalnummer = null
+        delete meilidoc.kostenstelle
+        delete meilidoc.personalnummer
         meiliIndex.addDocuments([meilidoc])
         return res
       },
@@ -26,8 +26,8 @@ const prisma = new PrismaClient().$extends({
         let res = await query(args)
         let meilidoc: any = structuredClone(res)
         meilidoc.id = `p_${res.id}`
-        meilidoc.kostenstelle = null
-        meilidoc.personalnummer = null
+        delete meilidoc.kostenstelle
+        delete meilidoc.personalnummer
         meiliIndex.addDocuments([meilidoc])
         return res
       },
