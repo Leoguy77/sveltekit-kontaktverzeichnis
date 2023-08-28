@@ -116,6 +116,19 @@ select ressource.id as id,
     })
   }
 
+  await meili.createIndex("entities")
+  let task = await meili.index("entities").updateSettings({
+    searchableAttributes: ["nachname", "telefonEintrag", "abteilung", "vorname", "email", "titel", "standort"],
+    typoTolerance: {
+      enabled: true,
+      minWordSizeForTypos: { oneTypo: 4, twoTypos: 6 },
+      disableOnAttributes: ["id", "telefonEintrag"],
+    },
+    rankingRules: ["words", "typo", "attribute", "exactness"],
+  })
+
+  await meili.waitForTasks([task.taskUid])
+  console.log(await meili.index("entities").getSettings())
   await meili.index("entities").addDocuments([...parsedPerson, ...parsedRessource])
 
   return new Response("done")
