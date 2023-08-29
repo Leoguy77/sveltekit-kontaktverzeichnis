@@ -10,41 +10,47 @@ export const GET: RequestHandler = async ({ locals }) => {
   }
   await meili.deleteIndex("entities")
   let JSONPerson: any = await prisma.$queryRaw`select (select person.id as id,
-  vorname,
-  nachname,
-  email,
-  titel,
-  
-  (
-  select telefonEintrag.id,nummer,standortId,eintragTypId,
-  (select standort.id, standort.bezeichnung from standort
-   where standort.id=telefonEintrag.standortId
-  for json path, WITHOUT_ARRAY_WRAPPER) as  standort,
-  (select eintragTyp.id, eintragTyp.bezeichnung from eintragTyp where eintragTyp.id=eintragTypId for json path, WITHOUT_ARRAY_WRAPPER) as eintragTyp
-  from telefonEintrag 
-  
-  where telefonEintrag.personId=person.id for json path
-  
-  ) as telefonEintrag,
-  
-  (select 
-  id,
-  bezeichnung
-  from _abteilungToperson
-  join abteilung on abteilung.id=_abteilungToperson.A
-  where _abteilungToperson.B=person.id for json path
-  ) as abteilung,
-  
-  (select 
-  id,
-  bezeichnung
-  from _personTostandort
-  join standort on standort.id=_personTostandort.B
-  where _personTostandort.A=person.id for json path
-  ) as standort
-  
-  from person 
-  for json path) as result `
+    vorname,
+    nachname,
+    email,
+    titel,
+    
+    (
+    select telefonEintrag.id,nummer,standortId,eintragTypId,
+    (select standort.id, standort.bezeichnung from standort
+     where standort.id=telefonEintrag.standortId
+    for json path, WITHOUT_ARRAY_WRAPPER) as  standort,
+    (select eintragTyp.id, eintragTyp.bezeichnung from eintragTyp where eintragTyp.id=eintragTypId for json path, WITHOUT_ARRAY_WRAPPER) as eintragTyp
+    from telefonEintrag 
+    
+    where telefonEintrag.personId=person.id for json path
+    
+    ) as telefonEintrag,
+    
+    (select 
+    id,
+    bezeichnung
+    from _abteilungToperson
+    join abteilung on abteilung.id=_abteilungToperson.A
+    where _abteilungToperson.B=person.id for json path
+    ) as abteilung,
+    
+    (select 
+    id,
+    bezeichnung
+    from _personTostandort
+    join standort on standort.id=_personTostandort.B
+    where _personTostandort.A=person.id for json path
+    ) as standort,
+    (select
+    bezeichnung
+    from _funktionsBezeichnungToperson
+    join funktionsBezeichnung ON funktionsBezeichnung.id = _funktionsBezeichnungToperson.A
+    where _funktionsBezeichnungToperson.B=person.id for json path
+    ) as funktionsBezeichnung
+    
+    from person 
+    for json path) as result `
 
   let parsedPerson = []
   if (JSONPerson[0].result) {
@@ -62,6 +68,7 @@ export const GET: RequestHandler = async ({ locals }) => {
   }
 
   let JSONRessource: any = await prisma.$queryRaw`
+    
     select (
 select ressource.id as id,
 
@@ -95,7 +102,13 @@ select ressource.id as id,
   from _ressourceTostandort
   join standort on standort.id=_ressourceTostandort.B
   where _ressourceTostandort.A=ressource.id for json path
-  ) as standort
+  ) as standort,
+    (select
+    bezeichnung
+    from _funktionsBezeichnungToressource
+    join funktionsBezeichnung ON funktionsBezeichnung.id = _funktionsBezeichnungToressource.A
+    where _funktionsBezeichnungToressource.B=ressource.id for json path
+    ) as funktionsBezeichnung
   
   from ressource 
   for json path
@@ -118,7 +131,16 @@ select ressource.id as id,
 
   await meili.createIndex("entities")
   let task = await meili.index("entities").updateSettings({
-    searchableAttributes: ["nachname", "telefonEintrag", "abteilung", "vorname", "email", "titel", "standort"],
+    searchableAttributes: [
+      "nachname",
+      "telefonEintrag",
+      "abteilung",
+      "vorname",
+      "email",
+      "titel",
+      "standort",
+      "funktionsBezeichnung.bezeichnung",
+    ],
     typoTolerance: {
       enabled: true,
       minWordSizeForTypos: { oneTypo: 4, twoTypos: 6 },
