@@ -27,7 +27,10 @@ export const load: PageLoad = async (event) => {
     let res = await response.json()
     let persons: any = []
     let ressources: any = []
+    let order = 0
     res.hits.forEach((obj: any) => {
+      order++
+      obj.order = order
       let type = obj.id[0]
       obj.id = obj.id.slice(2)
       if (type === "p") {
@@ -40,6 +43,12 @@ export const load: PageLoad = async (event) => {
     })
 
     let searchResult = entityParser(persons, ressources)
+
+    searchResult.sort((a, b) => {
+      if (a.order < b.order) return -1
+      if (a.order > b.order) return 1
+      return 0
+    })
 
     return {
       searchResult: searchResult,
