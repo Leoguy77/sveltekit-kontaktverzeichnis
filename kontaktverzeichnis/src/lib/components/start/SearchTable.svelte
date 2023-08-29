@@ -41,14 +41,26 @@
           {#if cell.key === "name"}
             <div class="center-v">
               {#if cell.value.type === "person"}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  class="bi bi-person-circle"
+                  style="width: 24px; height: 24px; min-width: 24px; min-height: 24px;"
+                  viewBox="0 0 16 16">
                   <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
                   <path
                     fill-rule="evenodd"
                     d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z" />
                 </svg>
               {:else}
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 32 32"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 32 32"
+                  style="width: 24px; height: 24px; min-width: 24px; min-height: 24px;"
                   ><path
                     fill="currentColor"
                     d="M16 14h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-8-12h10v2H16z" /><path
