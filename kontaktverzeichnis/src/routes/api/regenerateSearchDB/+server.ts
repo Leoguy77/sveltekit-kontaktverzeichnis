@@ -43,7 +43,8 @@ export const GET: RequestHandler = async ({ locals }) => {
     where _personTostandort.A=person.id for json path
     ) as standort,
     (select
-    bezeichnung
+    bezeichnung,
+    Tag
     from _funktionsBezeichnungToperson
     join funktionsBezeichnung ON funktionsBezeichnung.id = _funktionsBezeichnungToperson.A
     where _funktionsBezeichnungToperson.B=person.id for json path
@@ -104,7 +105,8 @@ select ressource.id as id,
   where _ressourceTostandort.A=ressource.id for json path
   ) as standort,
     (select
-    bezeichnung
+    bezeichnung,
+    Tag
     from _funktionsBezeichnungToressource
     join funktionsBezeichnung ON funktionsBezeichnung.id = _funktionsBezeichnungToressource.A
     where _funktionsBezeichnungToressource.B=ressource.id for json path
@@ -132,6 +134,7 @@ select ressource.id as id,
   await meili.createIndex("entities")
   let task = await meili.index("entities").updateSettings({
     searchableAttributes: [
+      "bezeichnung",
       "nachname",
       "telefonEintrag",
       "abteilung",
@@ -140,6 +143,7 @@ select ressource.id as id,
       "titel",
       "standort",
       "funktionsBezeichnung.bezeichnung",
+      "funktionsBezeichnung.Tag",
     ],
     typoTolerance: {
       enabled: true,
@@ -150,7 +154,7 @@ select ressource.id as id,
   })
 
   await meili.waitForTasks([task.taskUid])
-  console.log(await meili.index("entities").getSettings())
+  console.log(parsedRessource)
   await meili.index("entities").addDocuments([...parsedPerson, ...parsedRessource])
 
   return new Response("done")

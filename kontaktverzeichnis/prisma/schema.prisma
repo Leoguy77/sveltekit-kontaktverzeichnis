@@ -77,4 +77,5 @@ model funktionsBezeichnung {
   person      person[]
   ressource   ressource[]
   order       Int?        @unique
+  Tag         String      @default("Leitung") @db.VarChar(255)
 }
