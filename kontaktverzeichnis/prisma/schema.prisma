@@ -8,27 +8,29 @@ datasource db {
 }
 
 model person {
-  id             Int              @id @unique @default(autoincrement())
-  vorname        String           @db.VarChar(255)
-  nachname       String           @db.VarChar(255)
-  personalnummer String?          @db.VarChar(255)
-  kostenstelle   String?          @db.VarChar(255)
-  email          String?          @db.VarChar(255)
-  titel          String?          @db.VarChar(255)
-  showOnHome     Boolean?         @default(false)
-  abteilung      abteilung[]
-  standort       standort[]
-  telefonEintrag telefonEintrag[]
+  id                   Int                    @id @unique @default(autoincrement())
+  vorname              String                 @db.VarChar(255)
+  nachname             String                 @db.VarChar(255)
+  personalnummer       String?                @db.VarChar(255)
+  kostenstelle         String?                @db.VarChar(255)
+  email                String?                @db.VarChar(255)
+  titel                String?                @db.VarChar(255)
+  showOnHome           Boolean?               @default(false)
+  abteilung            abteilung[]
+  standort             standort[]
+  telefonEintrag       telefonEintrag[]
+  funktionsBezeichnung funktionsBezeichnung[]
 }
 
 model ressource {
-  id             Int              @id @unique @default(autoincrement())
-  bezeichnung    String           @db.VarChar(255)
-  email          String?          @db.VarChar(255)
-  showOnHome     Boolean?         @default(false)
-  abteilung      abteilung[]
-  standort       standort[]
-  telefonEintrag telefonEintrag[]
+  id                   Int                    @id @unique @default(autoincrement())
+  bezeichnung          String                 @db.VarChar(255)
+  email                String?                @db.VarChar(255)
+  showOnHome           Boolean?               @default(false)
+  abteilung            abteilung[]
+  standort             standort[]
+  telefonEintrag       telefonEintrag[]
+  funktionsBezeichnung funktionsBezeichnung[]
 }
 
 model abteilung {
@@ -67,4 +69,12 @@ model telefonEintrag {
 
   standort   standort @relation(fields: [standortId], references: [id])
   standortId Int
+}
+
+model funktionsBezeichnung {
+  id          Int         @id @unique @default(autoincrement())
+  bezeichnung String      @db.VarChar(255)
+  person      person[]
+  ressource   ressource[]
+  order       Int?        @unique
 }

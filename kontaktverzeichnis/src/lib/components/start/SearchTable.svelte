@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { DataTable, Link, Pagination } from "carbon-components-svelte"
+  import { DataTable, Link, Pagination, Tag } from "carbon-components-svelte"
   import Contact from "$lib/components/start/Contact.svelte"
 
   // pages
@@ -55,7 +55,12 @@
                     fill="currentColor"
                     d="M28 6H14V5a2.002 2.002 0 0 0-2-2H8a2.002 2.002 0 0 0-2 2v1H4a2.002 2.002 0 0 0-2 2v18a2.002 2.002 0 0 0 2 2h24a2.002 2.002 0 0 0 2-2V8a2.002 2.002 0 0 0-2-2ZM8 5h4v17H8Zm20 21H4V8h2v14a2.002 2.002 0 0 0 2 2h4a2.002 2.002 0 0 0 2-2V8h14Z" /></svg>
               {/if}
-              <Link style="margin-left:1rem" href="/{cell.value.type}/{cell.value.id}">{cell.value.name}</Link>
+              <Link style="margin-left:1rem;margin-right:2rem" href="/{cell.value.type}/{cell.value.id}">{cell.value.name}</Link>
+              {#if cell.value.funktionsBezeichnung}
+                {#each cell.value.funktionsBezeichnung as funktion}
+                  <Tag>{funktion.bezeichnung}</Tag>
+                {/each}
+              {/if}
             </div>
           {:else if cell.key === "standort"}
             {#each cell.value as standort (standort.id)}

@@ -3,7 +3,12 @@ export default function parseEntities(persons: any[], ressources: any[]) {
     persons = persons.map((v: any) => ({
       ...v,
       id: `p_${v.id}`,
-      name: { name: v.titel ? `${v?.titel + " "}${v.vorname} ${v.nachname}` : `${v.vorname} ${v.nachname}`, type: "person", id: v.id },
+      name: {
+        name: v.titel ? `${v?.titel + " "}${v.vorname} ${v.nachname}` : `${v.vorname} ${v.nachname}`,
+        type: "person",
+        id: v.id,
+        funktionsBezeichnung: v.funktionsBezeichnung,
+      },
       kontakt: { telefonEintraege: v.telefonEintrag, email: v.email },
     }))
   }
@@ -11,7 +16,7 @@ export default function parseEntities(persons: any[], ressources: any[]) {
     ressources = ressources.map((v: any) => ({
       ...v,
       id: `r_${v.id}`,
-      name: { name: v.bezeichnung, type: "ressource", id: v.id },
+      name: { name: v.bezeichnung, type: "ressource", id: v.id, funktionsBezeichnung: v.funktionsBezeichnung },
       kontakt: { telefonEintraege: v.telefonEintrag, email: v.email, id: v.id },
     }))
   }
