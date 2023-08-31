@@ -37,6 +37,7 @@ let personsToCreate: {
 
 for (let person of persons) {
   let pkey = `${person.Nachname},${person.Vorname},${person.Personalnummer}`
+
   if (personsToCreate[pkey]) {
     //TODO:standort + abteilung fehlen noch
     personsToCreate[pkey].telefonEintrag.push({
@@ -95,5 +96,5 @@ for (let person of Object.values(personsToCreate)) {
       },
     },
   })
-  console.log(person.vorname, person.nachname)
+  // console.log(person.vorname, person.nachname)
 }

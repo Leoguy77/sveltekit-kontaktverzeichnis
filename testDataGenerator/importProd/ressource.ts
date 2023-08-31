@@ -8,21 +8,12 @@ let ressources = parse(fs.readFileSync("./Ressourcen.csv", "utf-8"), {
   columns: true,
   skip_empty_lines: true,
 })
-console.log(ressources)
 
-// create abteilungen
-for (let ressource of ressources) {
-  if (ressource.Bezeichnung) {
-    await abteilung.get(ressource.Bezeichnung)
-  }
-}
-
-// create persons
+// create ressource
 let ressourcesToCreate: {
   [key: string]: {
     bezeichnung: string
-    email: string
-    abteilung: number
+    abteilung: number[]
     standort: number
     telefonEintrag: {
       nummer: string
@@ -33,22 +24,23 @@ let ressourcesToCreate: {
 } = {}
 
 for (let ressource of ressources) {
-  let pkey = `${ressource.bezeichnung}`
+  let pkey = `${ressource.Bezeichnung}`
+  // console.log(ressource)
   if (ressourcesToCreate[pkey]) {
     ressourcesToCreate[pkey].telefonEintrag.push({
       nummer: ressource.Telefonnummer,
       standortId: await standort.get(ressource.Standort),
       eintragTypId: await eintragTyp.get(ressource.Typ),
     })
+    ressourcesToCreate[pkey].abteilung.push(await abteilung.get(ressource.Abteilung))
     continue
   } else {
     if (ressource.standort === "ka") {
       ressource.abteilung = ""
     }
-    let personToCreate = {
+    let ressourceToCreate = {
       bezeichnung: ressource.Bezeichnung,
-      email: ressource.EmailAddress,
-      abteilung: await abteilung.get(ressource.Bezeichnung),
+      abteilung: [await abteilung.get(ressource.Abteilung)],
       standort: await standort.get(ressource.Standort),
       telefonEintrag: [
         {
@@ -59,29 +51,28 @@ for (let ressource of ressources) {
       ],
     }
 
-    ressourcesToCreate[pkey] = personToCreate
+    ressourcesToCreate[pkey] = ressourceToCreate
   }
 }
 
 for (let ressource of Object.values(ressourcesToCreate)) {
-  //   await prisma.ressource.create({
-  //     data: {
-  //       bezeichnung: ressource.bezeichnung,
-  //       email: ressource.email,
-  //       abteilung: {
-  //         connect: {
-  //           id: ressource.abteilung,
-  //         },
-  //       },
-  //       standort: {
-  //         connect: {
-  //           id: ressource.standort,
-  //         },
-  //       },
-  //       telefonEintrag: {
-  //         create: ressource.telefonEintrag,
-  //       },
-  //     },
-  //   })
-  console.log(ressource)
+  const abteilungIds = ressource.abteilung.map((abteilung) => {
+    return { id: abteilung }
+  })
+  await prisma.ressource.create({
+    data: {
+      bezeichnung: ressource.bezeichnung,
+      abteilung: {
+        connect: abteilungIds,
+      },
+      standort: {
+        connect: {
+          id: ressource.standort,
+        },
+      },
+      telefonEintrag: {
+        create: ressource.telefonEintrag,
+      },
+    },
+  })
 }

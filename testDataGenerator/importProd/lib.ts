@@ -18,14 +18,12 @@ class Collection {
         this.cache[searchName] = { id: res.id }
         return res.id
       } else {
-        if (this.searchCollection === "abteilung") {
-          let abteilung = await prisma.abteilung.create({ data: { bezeichnung: searchName } })
-          if (abteilung) {
-            this.cache[searchName] = { id: abteilung.id }
-            return abteilung.id
-          }
+        let dataSet = await prisma[this.searchCollection].create({ data: { bezeichnung: searchName } })
+        if (dataSet) {
+          this.cache[searchName] = { id: dataSet.id }
+          return dataSet.id
         }
-        throw new Error(`${this.searchCollection} ${searchName} nicht gefunden`)
+        throw new Error(`Could not create ${searchName} in ${this.searchCollection}`)
       }
     }
   }
