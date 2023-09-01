@@ -18,8 +18,8 @@ let personsToCreate: {
     kostenstelle?: string
     email: string
     titel?: string
-    abteilung: number
-    standort: number
+    abteilung: number[]
+    standort: number[]
     telefonEintrag: {
       nummer: string
       standortId: number
@@ -38,6 +38,8 @@ for (let person of persons) {
       standortId: await standort.get(person.Standort),
       eintragTypId: await eintragTyp.get(person.Typ),
     })
+    personsToCreate[pkey].abteilung.push(await abteilung.get(person.Abteilung))
+    personsToCreate[pkey].standort.push(await standort.get(person.standort))
     continue
   } else {
     if (person.standort === "ka") {
@@ -50,8 +52,8 @@ for (let person of persons) {
       kostenstelle: person?.Kostenstelle,
       email: person.EmailAddress,
       titel: person?.Titel,
-      abteilung: await abteilung.get(person.Abteilung),
-      standort: await standort.get(person.Standort),
+      abteilung: [await abteilung.get(person.Abteilung)],
+      standort: [await standort.get(person.Standort)],
       telefonEintrag: [
         {
           nummer: person.Telefonnummer,
@@ -66,6 +68,12 @@ for (let person of persons) {
 }
 
 for (let person of Object.values(personsToCreate)) {
+  const abteilungIds = person.abteilung.map((abteilung) => {
+    return { id: abteilung }
+  })
+  const standortIds = person.standort.map((standort) => {
+    return { id: standort }
+  })
   await prisma.person.create({
     data: {
       vorname: person.vorname,
@@ -75,14 +83,10 @@ for (let person of Object.values(personsToCreate)) {
       email: person.email,
       titel: person.titel,
       abteilung: {
-        connect: {
-          id: person.abteilung,
-        },
+        connect: abteilungIds,
       },
       standort: {
-        connect: {
-          id: person.standort,
-        },
+        connect: standortIds,
       },
       telefonEintrag: {
         create: person.telefonEintrag,
