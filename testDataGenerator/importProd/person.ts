@@ -9,13 +9,6 @@ let persons = parse(fs.readFileSync("./Personen.csv", "utf-8"), {
   skip_empty_lines: true,
 })
 
-// create abteilungen
-for (let person of persons) {
-  if (person.Abteilung) {
-    await abteilung.get(person.Abteilung)
-  }
-}
-
 // create persons
 let personsToCreate: {
   [key: string]: {
